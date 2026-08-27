@@ -59,6 +59,17 @@ class ProfileActionRequest(BaseModel):
     profile_name: str
 
 
+class CustomJobRequest(BaseModel):
+    title: str
+    company: str
+    location: str = "Remote"
+    url: str = ""
+    description: str = ""
+    salary_min: Optional[float] = None
+    salary_max: Optional[float] = None
+
+
+
 @app.get("/api/health")
 async def health_check():
     return {
@@ -164,6 +175,58 @@ async def get_latest_jobs(min_score: float = 0.0, limit: int = 50):
     # Sort descending by score
     filtered.sort(key=lambda x: x["score"], reverse=True)
     return {"total": len(filtered), "jobs": filtered[:limit]}
+
+
+from src.collectors.custom import add_custom_job, CUSTOM_JOBS_FILE
+import json
+
+
+@app.post("/api/jobs/custom")
+async def create_custom_job(req: CustomJobRequest):
+    """Allows candidates to manually input an ad hoc job for scoring and alert inclusion."""
+    job_entry = add_custom_job(
+        title=req.title,
+        company=req.company,
+        location=req.location,
+        url=req.url,
+        description=req.description,
+        salary_min=req.salary_min,
+        salary_max=req.salary_max,
+    )
+    return {"status": "success", "message": "Custom job added successfully", "job": job_entry}
+
+
+@app.get("/api/jobs/custom")
+async def list_custom_jobs():
+    """Lists all manually entered custom jobs."""
+    if not CUSTOM_JOBS_FILE.exists():
+        return {"custom_jobs": []}
+    try:
+        with open(CUSTOM_JOBS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return {"custom_jobs": data}
+    except Exception:
+        return {"custom_jobs": []}
+
+
+@app.delete("/api/jobs/custom/{index}")
+async def delete_custom_job(index: int):
+    """Removes a custom job by index."""
+    if not CUSTOM_JOBS_FILE.exists():
+        raise HTTPException(status_code=404, detail="No custom jobs found")
+    try:
+        with open(CUSTOM_JOBS_FILE, "r", encoding="utf-8") as f:
+            jobs = json.load(f)
+        if 0 <= index < len(jobs):
+            deleted = jobs.pop(index)
+            with open(CUSTOM_JOBS_FILE, "w", encoding="utf-8") as f:
+                json.dump(jobs, f, indent=2)
+            return {"status": "success", "deleted": deleted}
+        raise HTTPException(status_code=404, detail="Index out of range")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 
 
 @app.get("/api/preview-email", response_class=HTMLResponse)

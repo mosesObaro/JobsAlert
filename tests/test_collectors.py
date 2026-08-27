@@ -45,3 +45,33 @@ def test_lever_collector_disabled():
     collector = LeverCollector()
     jobs = asyncio.run(collector.collect(config))
     assert jobs == []
+
+
+def test_custom_job_collector(tmp_path, monkeypatch):
+    import asyncio
+    from src.collectors.custom import CustomJobCollector, add_custom_job
+    import src.collectors.custom as c_mod
+
+    test_file = tmp_path / "custom_jobs.json"
+    monkeypatch.setattr(c_mod, "CUSTOM_JOBS_FILE", test_file)
+
+    add_custom_job(
+        title="Staff Engineer",
+        company="Anthropic",
+        location="Remote",
+        url="https://example.com/anthropic",
+        description="Go and Kubernetes",
+        salary_min=190000,
+        salary_max=250000,
+    )
+
+    config = AppConfig()
+    collector = CustomJobCollector()
+    jobs = asyncio.run(collector.collect(config))
+
+    assert len(jobs) == 1
+    assert jobs[0].title == "Staff Engineer"
+    assert jobs[0].company == "Anthropic"
+    assert jobs[0].salary_min == 190000.0
+    assert jobs[0].source == "custom"
+

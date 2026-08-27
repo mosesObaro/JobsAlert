@@ -24,10 +24,45 @@ def parse_args():
     parser.add_argument("--force-all", action="store_true", default=False, help="Ignore seen_jobs cache and evaluate all collected postings")
     parser.add_argument("--immediate-only", action="store_true", default=False, help="Only dispatch alerts for 9.0+ immediate target matches")
     parser.add_argument("--profile", type=str, default=None, help="Preset profile name to execute (e.g. remote_high_comp)")
+    parser.add_argument("--add-job", action="store_true", default=False, help="Interactively add a custom job posting")
     parser.add_argument("--server", action="store_true", default=False, help="Launch the FastAPI Web Control Panel server")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Web server host")
     parser.add_argument("--port", type=int, default=8000, help="Web server port")
     return parser.parse_args()
+
+
+def interactive_add_job():
+    from src.collectors.custom import add_custom_job
+    print("\n📝 Add a Custom Job Posting")
+    print("---------------------------------------------")
+    title = input("Job Title: ").strip()
+    if not title:
+        print("Error: Job title is required.")
+        return
+    company = input("Company Name: ").strip()
+    if not company:
+        print("Error: Company name is required.")
+        return
+    location = input("Location (default: Worldwide Remote): ").strip() or "Worldwide Remote"
+    url = input("Application URL: ").strip()
+    salary_str = input("Salary Min (e.g. 180000) [optional]: ").strip()
+    salary_min = float(salary_str) if salary_str else None
+    salary_max_str = input("Salary Max (e.g. 240000) [optional]: ").strip()
+    salary_max = float(salary_max_str) if salary_max_str else None
+    description = input("Job Description / Key Requirements: ").strip()
+
+    entry = add_custom_job(
+        title=title,
+        company=company,
+        location=location,
+        url=url,
+        description=description,
+        salary_min=salary_min,
+        salary_max=salary_max,
+    )
+    print(f"\n✓ Custom job '{title}' at '{company}' saved to data/custom_jobs.json!")
+    print("Run 'python run.py --dry-run' to score and preview it.\n")
+
 
 
 async def run_cli(args):
@@ -65,12 +100,16 @@ async def run_cli(args):
 
 def main():
     args = parse_args()
+    if args.add_job:
+        interactive_add_job()
+        return
     if args.server:
         import uvicorn
         print(f"🌐 Launching JobsAlert Web Control Panel on http://{args.host}:{args.port}")
         uvicorn.run("src.api.server:app", host=args.host, port=args.port, reload=False)
     else:
         asyncio.run(run_cli(args))
+
 
 
 if __name__ == "__main__":

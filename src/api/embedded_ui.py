@@ -85,7 +85,11 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       <button onclick="switchTab('schedule')" id="tabBtn-schedule" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
         <i data-lucide="clock" class="w-4 h-4"></i> Schedule & Delivery
       </button>
+      <button onclick="switchTab('custom')" id="tabBtn-custom" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
+        <i data-lucide="plus-circle" class="w-4 h-4 text-purple-400"></i> Custom Jobs
+      </button>
       <button onclick="switchTab('dryrun')" id="tabBtn-dryrun" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
+
         <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Dry-Run & Email Preview
       </button>
       <button onclick="switchTab('health')" id="tabBtn-health" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
@@ -342,7 +346,68 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- 6. DRY-RUN TAB -->
+    <!-- 6. CUSTOM JOBS TAB -->
+    <div id="tab-custom" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+        <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-purple-400"></i> Manually Enter a Custom Job Posting
+        </h2>
+        <p class="text-xs text-slate-400 mb-6">
+          Paste an opportunity found on LinkedIn, X/Twitter, a personal referral, or direct email. The engine will parse, score, and rank it alongside automated sources and include it in your email alerts.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Job Title *</label>
+            <input id="cjTitle" type="text" placeholder="e.g. Staff Distributed Systems Engineer" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Company Name *</label>
+            <input id="cjCompany" type="text" placeholder="e.g. Anthropic, OpenAI, Stripe" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Location & Remote Policy</label>
+            <input id="cjLocation" type="text" placeholder="e.g. Worldwide Remote or San Francisco (Hybrid)" value="Worldwide Remote" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Application URL</label>
+            <input id="cjUrl" type="url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Salary Min ($ / yr)</label>
+            <input id="cjSalaryMin" type="number" step="5000" placeholder="e.g. 180000" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Salary Max ($ / yr)</label>
+            <input id="cjSalaryMax" type="number" step="5000" placeholder="e.g. 240000" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-purple-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-xs text-slate-400 block mb-1">Description / Key Technical Requirements</label>
+            <textarea id="cjDesc" rows="3" placeholder="Paste the job description, required tech stack (Go, Kubernetes, etc.) or notes..." class="w-full bg-slate-950 border border-slate-700 rounded p-2.5 text-xs text-white focus:outline-none focus:border-purple-500"></textarea>
+          </div>
+        </div>
+
+        <button onclick="submitCustomJob()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Save & Queue Custom Job
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="list" class="w-4 h-4 text-purple-400"></i> Your Manually Entered Jobs
+          </h2>
+          <button onclick="loadCustomJobs()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
+          </button>
+        </div>
+        <div id="customJobsList" class="space-y-3">
+          <div class="text-xs text-slate-500">Loading custom jobs...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. DRY-RUN TAB -->
     <div id="tab-dryrun" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between items-center">
         <div>
@@ -350,6 +415,7 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
             <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Scored Job Opportunities & Email Preview
           </h2>
         </div>
+
         <div class="flex gap-2">
           <button onclick="setDryRunSubTab('cards')" id="btnSubCards" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
             Job Cards
@@ -415,15 +481,83 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
     }
 
     function switchTab(tabId) {
-      ['roles', 'filters', 'watchlist', 'sources', 'schedule', 'dryrun', 'health'].forEach(t => {
+      ['roles', 'filters', 'watchlist', 'sources', 'schedule', 'custom', 'dryrun', 'health'].forEach(t => {
         document.getElementById('tab-' + t).classList.add('hidden');
         document.getElementById('tabBtn-' + t).className = 'flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition';
       });
       document.getElementById('tab-' + tabId).classList.remove('hidden');
       document.getElementById('tabBtn-' + tabId).className = 'flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-600 text-white transition';
       if (tabId === 'health') loadTelemetry();
+      if (tabId === 'custom') loadCustomJobs();
       lucide.createIcons();
     }
+
+    async function submitCustomJob() {
+      const title = document.getElementById('cjTitle').value.trim();
+      const company = document.getElementById('cjCompany').value.trim();
+      const location = document.getElementById('cjLocation').value.trim() || 'Worldwide Remote';
+      const url = document.getElementById('cjUrl').value.trim();
+      const salary_min = parseFloat(document.getElementById('cjSalaryMin').value) || null;
+      const salary_max = parseFloat(document.getElementById('cjSalaryMax').value) || null;
+      const description = document.getElementById('cjDesc').value.trim();
+
+      if (!title || !company) {
+        alert('Please provide at least a Job Title and Company Name.');
+        return;
+      }
+
+      const res = await fetch('/api/jobs/custom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, company, location, url, salary_min, salary_max, description })
+      });
+      if (res.ok) {
+        showToast('Custom job added successfully!');
+        document.getElementById('cjTitle').value = '';
+        document.getElementById('cjCompany').value = '';
+        document.getElementById('cjUrl').value = '';
+        document.getElementById('cjSalaryMin').value = '';
+        document.getElementById('cjSalaryMax').value = '';
+        document.getElementById('cjDesc').value = '';
+        loadCustomJobs();
+      }
+    }
+
+    async function loadCustomJobs() {
+      const res = await fetch('/api/jobs/custom');
+      const data = await res.json();
+      const list = data.custom_jobs || [];
+      const cont = document.getElementById('customJobsList');
+      if (!list || list.length === 0) {
+        cont.innerHTML = '<div class="text-xs text-slate-500">No custom jobs entered yet. Enter one above to score and track it!</div>';
+        return;
+      }
+      cont.innerHTML = list.map((job, idx) => `
+        <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-lg flex justify-between items-start text-xs">
+          <div>
+            <div class="font-bold text-white text-sm">${job.title}</div>
+            <div class="text-purple-400 font-semibold mt-0.5">${job.company} • <span class="text-slate-400">${job.location}</span></div>
+            ${job.description ? `<p class="text-slate-400 mt-1.5 line-clamp-2">${job.description}</p>` : ''}
+            ${job.salary_min || job.salary_max ? `<div class="text-amber-400 font-mono font-semibold mt-1.5">💰 $${(job.salary_min || 0).toLocaleString()} - $${(job.salary_max || 0).toLocaleString()}</div>` : ''}
+          </div>
+          <div class="flex items-center gap-3 shrink-0 ml-4">
+            ${job.url ? `<a href="${job.url}" target="_blank" class="text-blue-400 hover:underline font-semibold">Apply / View →</a>` : ''}
+            <button onclick="deleteCustomJob(${idx})" class="text-slate-500 hover:text-red-400 p-1" title="Delete custom job">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function deleteCustomJob(idx) {
+      if (!confirm('Remove this custom job?')) return;
+      await fetch('/api/jobs/custom/' + idx, { method: 'DELETE' });
+      showToast('Custom job removed');
+      loadCustomJobs();
+    }
+
 
     function setDryRunSubTab(sub) {
       if (sub === 'cards') {

@@ -15,6 +15,7 @@ from src.collectors.arbeitnow import ArbeitnowCollector
 from src.collectors.jobicy import JobicyCollector
 from src.collectors.hackernews import HackerNewsCollector
 from src.collectors.rss import RSSCollector
+from src.collectors.custom import CustomJobCollector
 from src.config import AppConfig
 from src.models import CrawlerHealth, JobPosting
 
@@ -31,7 +32,9 @@ def get_all_collectors() -> List[BaseCollector]:
         JobicyCollector(),
         HackerNewsCollector(),
         RSSCollector(),
+        CustomJobCollector(),
     ]
+
 
 
 async def run_all_collectors(config: AppConfig) -> Tuple[List[JobPosting], List[CrawlerHealth]]:
