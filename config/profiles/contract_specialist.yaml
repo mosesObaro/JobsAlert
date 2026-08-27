@@ -1,0 +1,80 @@
+profile:
+  candidate_name: "Candidate"
+  target_roles:
+    - "Contract Systems Engineer"
+    - "Distributed Systems Consultant"
+    - "Cloud Architect (Contract)"
+    - "Backend Engineer (Freelance / C2C)"
+  experience_years: 7
+  preferred_locations:
+    - "Remote"
+    - "Worldwide"
+  salary_floor_usd: 120000
+
+filters:
+  must_have_skills:
+    - "Go"
+    - "Distributed Systems"
+    - "Kubernetes"
+    - "AWS"
+  nice_to_have_skills:
+    - "Terraform"
+    - "Rust"
+    - "Kafka"
+    - "PostgreSQL"
+  excluded_terms:
+    - "No C2C"
+    - "W2 Only"
+    - "On-Site Only"
+    - "Junior"
+  excluded_companies: []
+
+scoring_weights:
+  title_and_stack: 40
+  location_remote: 25
+  compensation: 15
+  company_priority: 10
+  recency_urgency: 10
+
+company_watchlist:
+  - name: "Automattic"
+    priority_multiplier: 1.2
+
+sources:
+  greenhouse:
+    enabled: true
+    companies: ["cloudflare"]
+  lever:
+    enabled: false
+    companies: []
+  ashby:
+    enabled: false
+    companies: []
+  remotive:
+    enabled: true
+    categories: ["software-dev"]
+  remoteok:
+    enabled: true
+    tags: ["contract", "dev", "golang"]
+  arbeitnow:
+    enabled: true
+  jobicy:
+    enabled: true
+    category: "dev"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+  rss_feeds: []
+
+schedule:
+  timezone: "UTC"
+  daily_digest_time: "12:00"
+  weekly_digest_day: "Friday"
+  instant_alert_threshold: 9.0
+
+delivery:
+  email_provider: "resend"
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true

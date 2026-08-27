@@ -1,0 +1,34 @@
+================================================================================
+JOBSALERT AUTONOMOUS CAREER SCOUT
+{{ date_str }} | {{ header_title }}
+Scored against candidate profile for {{ candidate_name }}
+================================================================================
+
+Total Matches: {{ jobs|length }} Verified Opportunities
+
+{% for scored in jobs %}
+--------------------------------------------------------------------------------
+[{{ scored.score }}/10 MATCH] {{ scored.job.title }}
+Company:     {{ scored.job.company }}
+Location:    {{ scored.job.location }} ({{ scored.job.remote_scope }})
+{% if scored.job.salary_min or scored.job.salary_max %}
+Salary:      ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+{% else %}
+Salary:      Unlisted / Competitive
+{% endif %}
+Seniority:   {{ scored.job.seniority or 'Unspecified' }}
+Source:      {{ scored.job.source.capitalize() }}
+
+Why You Match:
+{% for highlight in scored.breakdown.highlights %}
+  * {{ highlight }}
+{% endfor %}
+
+Apply Directly:
+{{ scored.job.url }}
+
+{% endfor %}
+================================================================================
+Delivered by JobsAlert Autonomous Scout to {{ recipient_email }}
+Adjust filters and target companies in your Web Control Panel.
+================================================================================

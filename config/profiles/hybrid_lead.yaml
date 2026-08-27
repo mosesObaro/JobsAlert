@@ -1,0 +1,85 @@
+profile:
+  candidate_name: "Candidate"
+  target_roles:
+    - "Engineering Manager"
+    - "Director of Engineering"
+    - "Staff Software Engineer"
+    - "Tech Lead"
+  experience_years: 10
+  preferred_locations:
+    - "London, United Kingdom"
+    - "United Kingdom"
+    - "Hybrid"
+    - "Remote"
+  salary_floor_usd: 140000
+
+filters:
+  must_have_skills:
+    - "Leadership"
+    - "System Architecture"
+    - "Distributed Systems"
+    - "Mentorship"
+  nice_to_have_skills:
+    - "Go"
+    - "Python"
+    - "Kubernetes"
+    - "Hiring"
+  excluded_terms:
+    - "Junior"
+    - "Entry Level"
+    - "Graduate"
+  excluded_companies:
+    - "Generic Staffing Corp"
+
+scoring_weights:
+  title_and_stack: 45
+  location_remote: 20
+  compensation: 15
+  company_priority: 10
+  recency_urgency: 10
+
+company_watchlist:
+  - name: "Cloudflare"
+    priority_multiplier: 1.25
+  - name: "Datadog"
+    priority_multiplier: 1.2
+  - name: "Atlassian"
+    priority_multiplier: 1.2
+
+sources:
+  greenhouse:
+    enabled: true
+    companies: ["cloudflare", "datadog"]
+  lever:
+    enabled: true
+    companies: ["atlassian"]
+  ashby:
+    enabled: true
+    companies: ["linear"]
+  remotive:
+    enabled: true
+    categories: ["software-dev"]
+  remoteok:
+    enabled: false
+  arbeitnow:
+    enabled: true
+  jobicy:
+    enabled: true
+    category: "dev"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+  rss_feeds: []
+
+schedule:
+  timezone: "Europe/London"
+  daily_digest_time: "08:00"
+  weekly_digest_day: "Monday"
+  instant_alert_threshold: 9.3
+
+delivery:
+  email_provider: "resend"
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true

@@ -1,0 +1,97 @@
+name: Automated Job Intelligence Scout & Alert
+
+on:
+  schedule:
+    # Runs daily at 07:30 UTC (configurable in config/jobs.yaml)
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run only (do not send real emails or commit state)'
+        required: false
+        type: boolean
+        default: false
+      profile:
+        description: 'Profile preset to execute (leave blank for active config)'
+        required: false
+        type: string
+        default: ''
+      force_all:
+        description: 'Force evaluate all jobs ignoring seen cache'
+        required: false
+        type: boolean
+        default: false
+      immediate_only:
+        description: 'Only send immediate alerts for 9.0+ score matches'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: job-alert-run
+  cancel-in-progress: false
+
+jobs:
+  scout_and_alert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to commit updated seen_jobs.json and run_logs.json
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Autonomous Career Scout
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          CANDIDATE_EMAIL: ${{ secrets.CANDIDATE_EMAIL }}
+          ALERTS_FROM_EMAIL: ${{ secrets.ALERTS_FROM_EMAIL }}
+        run: |
+          FLAGS="--send-email"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="--dry-run"
+          fi
+          if [ -n "${{ inputs.profile }}" ]; then
+            FLAGS="$FLAGS --profile ${{ inputs.profile }}"
+          fi
+          if [ "${{ inputs.force_all }}" = "true" ]; then
+            FLAGS="$FLAGS --force-all"
+          fi
+          if [ "${{ inputs.immediate_only }}" = "true" ]; then
+            FLAGS="$FLAGS --immediate-only"
+          fi
+
+          echo "Running: python run.py $FLAGS"
+          python run.py $FLAGS
+
+      - name: Persist State & Logs
+        if: inputs.dry_run != true
+        run: |
+          git config user.name "JobsAlert Automation Bot"
+          git config user.email "bot@jobsalert.internal"
+          git add data/seen_jobs.json data/run_logs.json config/jobs.yaml || true
+          if git diff --staged --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "chore(state): update seen jobs and crawler telemetry [skip ci]"
+            git push origin HEAD
+          fi

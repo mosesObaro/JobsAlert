@@ -1,0 +1,21 @@
+# Environments & Virtualenvs
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node & Frontend
+web/node_modules/
+web/dist/
+.npm/
+
+# Environment Secrets
+.env
+.env.local
+
+# Operating System
+.DS_Store
+Thumbs.db

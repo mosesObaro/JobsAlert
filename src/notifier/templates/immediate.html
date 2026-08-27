@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔥 High Match Priority Alert</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0f172a; margin: 0; padding: 24px 12px; }
+    .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .header { background: #dc2626; color: #ffffff; padding: 24px; }
+    .body { padding: 28px; }
+    .score-badge { display: inline-block; background: #fee2e2; color: #991b1b; font-weight: 800; padding: 6px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 12px; }
+    .title { font-size: 22px; font-weight: 800; color: #111827; margin: 0 0 6px 0; }
+    .company { font-size: 17px; font-weight: 600; color: #dc2626; margin-bottom: 16px; }
+    .highlight-box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px; margin: 20px 0; border-radius: 4px; }
+    .highlight-box ul { margin: 0; padding-left: 20px; color: #374151; font-size: 14px; }
+    .btn { display: inline-block; background: #dc2626; color: #ffffff !important; padding: 12px 24px; font-weight: 700; border-radius: 6px; text-decoration: none; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Instant Opportunity Alert</div>
+      <h1 style="font-size: 20px; margin: 4px 0 0 0;">🔥 High-Priority Match Found</h1>
+    </div>
+    <div class="body">
+      <div class="score-badge">★ Score: {{ scored.score }}/10 Direct Match</div>
+      <h2 class="title">{{ scored.job.title }}</h2>
+      <div class="company">{{ scored.job.company }} • {{ scored.job.location }}</div>
+
+      <div class="highlight-box">
+        <strong style="color: #991b1b; font-size: 13px; text-transform: uppercase;">Why This Triggered An Immediate Alert:</strong>
+        <ul style="margin-top: 8px;">
+          {% for h in scored.breakdown.highlights %}
+          <li>{{ h }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <a href="{{ scored.job.url }}" class="btn" target="_blank" rel="noopener noreferrer">
+        Inspect & Apply Now →
+      </a>
+    </div>
+  </div>
+</body>
+</html>

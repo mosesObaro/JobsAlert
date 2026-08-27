@@ -1,0 +1,117 @@
+profile:
+  candidate_name: "Candidate"
+  target_roles:
+    - "Senior Software Engineer"
+    - "Distributed Systems Engineer"
+    - "Edge Computing Specialist"
+    - "Staff Backend Engineer"
+  experience_years: 6
+  preferred_locations:
+    - "Remote"
+    - "Worldwide"
+    - "Lagos, Nigeria"
+    - "United Kingdom"
+    - "United States"
+  salary_floor_usd: 110000
+
+filters:
+  must_have_skills:
+    - "Python"
+    - "Go"
+    - "Kubernetes"
+    - "Distributed Systems"
+  nice_to_have_skills:
+    - "Rust"
+    - "gRPC"
+    - "Edge AI"
+    - "WebAssembly"
+    - "Kafka"
+    - "AWS"
+  excluded_terms:
+    - "PHP"
+    - "WordPress"
+    - "No C2C"
+    - "Security Clearance Required"
+    - "Intern"
+    - "Internship"
+    - "Junior"
+  excluded_companies:
+    - "Spam Agency A"
+    - "Generic Staffing Corp"
+    - "CyberCoders"
+    - "Revature"
+
+scoring_weights:
+  title_and_stack: 40
+  location_remote: 20
+  compensation: 15
+  company_priority: 15
+  recency_urgency: 10
+
+company_watchlist:
+  - name: "Cloudflare"
+    priority_multiplier: 1.25
+  - name: "Stripe"
+    priority_multiplier: 1.25
+  - name: "Vercel"
+    priority_multiplier: 1.20
+  - name: "Datadog"
+    priority_multiplier: 1.20
+  - name: "GitHub"
+    priority_multiplier: 1.20
+  - name: "Automattic"
+    priority_multiplier: 1.15
+  - name: "Linear"
+    priority_multiplier: 1.20
+
+sources:
+  greenhouse:
+    enabled: true
+    companies:
+      - "cloudflare"
+      - "datadog"
+      - "elastic"
+      - "figma"
+  lever:
+    enabled: true
+    companies:
+      - "netflix"
+      - "palantir"
+  ashby:
+    enabled: true
+    companies:
+      - "linear"
+      - "ramp"
+      - "retool"
+  remotive:
+    enabled: true
+    categories:
+      - "software-dev"
+  remoteok:
+    enabled: true
+    tags:
+      - "dev"
+      - "golang"
+      - "python"
+  arbeitnow:
+    enabled: true
+  jobicy:
+    enabled: true
+    category: "dev"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+  rss_feeds: []
+
+schedule:
+  timezone: "Africa/Lagos"
+  daily_digest_time: "08:30"
+  weekly_digest_day: "Monday"
+  instant_alert_threshold: 9.2
+
+delivery:
+  email_provider: "resend" # options: resend, brevo, sendgrid, smtp, console
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true

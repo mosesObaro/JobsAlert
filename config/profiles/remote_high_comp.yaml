@@ -1,0 +1,88 @@
+profile:
+  candidate_name: "Candidate"
+  target_roles:
+    - "Staff Software Engineer"
+    - "Principal Systems Architect"
+    - "Lead Infrastructure Engineer"
+  experience_years: 8
+  preferred_locations:
+    - "Remote"
+    - "United States"
+    - "Worldwide"
+  salary_floor_usd: 160000
+
+filters:
+  must_have_skills:
+    - "Distributed Systems"
+    - "Go"
+    - "Kubernetes"
+    - "Cloud Architecture"
+  nice_to_have_skills:
+    - "Rust"
+    - "Terraform"
+    - "High Scale"
+    - "Kafka"
+  excluded_terms:
+    - "Junior"
+    - "Intern"
+    - "PHP"
+    - "Mid Level"
+  excluded_companies:
+    - "Generic Staffing Corp"
+    - "CyberCoders"
+
+scoring_weights:
+  title_and_stack: 40
+  location_remote: 20
+  compensation: 20
+  company_priority: 10
+  recency_urgency: 10
+
+company_watchlist:
+  - name: "Cloudflare"
+    priority_multiplier: 1.3
+  - name: "Stripe"
+    priority_multiplier: 1.3
+  - name: "OpenAI"
+    priority_multiplier: 1.3
+  - name: "Datadog"
+    priority_multiplier: 1.2
+
+sources:
+  greenhouse:
+    enabled: true
+    companies: ["cloudflare", "datadog", "elastic"]
+  lever:
+    enabled: true
+    companies: ["netflix"]
+  ashby:
+    enabled: true
+    companies: ["linear", "openai", "ramp"]
+  remotive:
+    enabled: true
+    categories: ["software-dev"]
+  remoteok:
+    enabled: true
+    tags: ["dev", "golang"]
+  arbeitnow:
+    enabled: false
+  jobicy:
+    enabled: true
+    category: "dev"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+  rss_feeds: []
+
+schedule:
+  timezone: "America/New_York"
+  daily_digest_time: "09:00"
+  weekly_digest_day: "Monday"
+  instant_alert_threshold: 9.0
+
+delivery:
+  email_provider: "resend"
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true
