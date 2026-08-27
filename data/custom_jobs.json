@@ -1,0 +1,68 @@
+[
+  {
+    "title": "Financial Planning Analyst (FP&A)",
+    "company": "Moniepoint",
+    "location": "Remote (Nigeria)",
+    "is_remote": true,
+    "url": "https://boards.greenhouse.io/moniepoint",
+    "description": "Financial modeling, variance analysis, financial reporting, and budget forecasting for high-growth African fintech. Experience with Excel, financial statement analysis, and IFRS.",
+    "salary_min": 18000,
+    "salary_max": 30000,
+    "created_at": "2026-08-27T15:00:00Z"
+  },
+  {
+    "title": "Finance & Accounting Intern (Paid)",
+    "company": "Scale Army",
+    "location": "Remote (Nigeria / Africa)",
+    "is_remote": true,
+    "url": "https://jobs.ashbyhq.com/scalearmy",
+    "description": "Paid remote accounting internship. Perform bank reconciliations, process accounts payable, audit digital invoices, and assist with QuickBooks bookkeeping. Strong Excel required. Ideal for graduates or ICAN/ACCA student members.",
+    "salary_min": 7200,
+    "salary_max": 12000,
+    "created_at": "2026-08-27T15:10:00Z"
+  },
+  {
+    "title": "Financial Reporting Accountant",
+    "company": "HR On Wheels",
+    "location": "Remote / Lagos, Nigeria",
+    "is_remote": true,
+    "url": "https://www.jobberman.com",
+    "description": "Preparation of monthly financial statements in compliance with IFRS, ledger reconciliation, audit prep, and tax compliance (VAT, WHT, CIT). Requires Excel and QuickBooks/Xero proficiency.",
+    "salary_min": 10000,
+    "salary_max": 16000,
+    "created_at": "2026-08-27T15:15:00Z"
+  },
+  {
+    "title": "Finance Accountant",
+    "company": "Gap Financial Technologies Ltd",
+    "location": "Lagos, Nigeria (Hybrid / Remote)",
+    "is_remote": true,
+    "url": "https://www.jobberman.com",
+    "description": "Daily reconciliation, liquidity monitoring, and treasury operations in a fintech institution. Responsible for ledger integrity, regulatory returns, and financial reporting.",
+    "salary_min": 12000,
+    "salary_max": 20000,
+    "created_at": "2026-08-27T15:20:00Z"
+  },
+  {
+    "title": "Junior Accountant / Virtual Bookkeeper",
+    "company": "Pixelpulse International",
+    "location": "Remote (Nigeria / Africa)",
+    "is_remote": true,
+    "url": "https://www.jobberman.com",
+    "description": "Entry-level junior accountant. Maintain accounts receivables/payables, daily bookkeeping using Xero/QuickBooks, and assist senior accountants with quarterly audits.",
+    "salary_min": 8000,
+    "salary_max": 14000,
+    "created_at": "2026-08-27T15:25:00Z"
+  },
+  {
+    "title": "Accounting Intern (Paid Graduate Trainee)",
+    "company": "R & R Group",
+    "location": "Lagos, Nigeria",
+    "is_remote": false,
+    "url": "https://www.jobberman.com",
+    "description": "Hands-on paid internship for recent accounting/finance graduates or NYSC corpers. Learn corporate tax filing, ledger posting, payroll administration, and invoice matching.",
+    "salary_min": 6000,
+    "salary_max": 9000,
+    "created_at": "2026-08-27T15:30:00Z"
+  }
+]

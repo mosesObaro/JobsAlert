@@ -1,0 +1,111 @@
+profile:
+  candidate_name: "Finance Candidate"
+  target_roles:
+    - "Accountant"
+    - "Finance Intern"
+    - "Accounting Intern"
+    - "Financial Analyst"
+    - "Junior Accountant"
+    - "Bookkeeper"
+    - "FP&A Analyst"
+    - "Finance Specialist"
+  experience_years: 1
+  preferred_locations:
+    - "Remote"
+    - "Worldwide"
+    - "Nigeria"
+    - "Lagos, Nigeria"
+    - "Africa"
+  salary_floor_usd: 12000
+
+filters:
+  must_have_skills:
+    - "Accounting"
+    - "Excel"
+    - "Reconciliation"
+    - "Financial Reporting"
+  nice_to_have_skills:
+    - "QuickBooks"
+    - "Xero"
+    - "IFRS"
+    - "Tax"
+    - "Financial Modeling"
+    - "ICAN"
+    - "ACCA"
+    - "Auditing"
+  excluded_terms:
+    - "US Citizen Only"
+    - "Security Clearance Required"
+    - "W2 Only"
+    - "10+ years required"
+  excluded_companies:
+    - "Generic Staffing Corp"
+
+scoring_weights:
+  title_and_stack: 40
+  location_remote: 25
+  compensation: 10
+  company_priority: 15
+  recency_urgency: 10
+
+company_watchlist:
+  - name: "Moniepoint"
+    priority_multiplier: 1.30
+  - name: "Flutterwave"
+    priority_multiplier: 1.30
+  - name: "Paystack"
+    priority_multiplier: 1.30
+  - name: "Kuda"
+    priority_multiplier: 1.25
+  - name: "LemFi"
+    priority_multiplier: 1.25
+  - name: "Scale Army"
+    priority_multiplier: 1.25
+
+sources:
+  greenhouse:
+    enabled: true
+    companies:
+      - "moniepoint"
+      - "flutterwave"
+      - "paystack"
+      - "kuda"
+  lever:
+    enabled: true
+    companies: []
+  ashby:
+    enabled: true
+    companies:
+      - "lemfi"
+      - "scalearmy"
+  remotive:
+    enabled: true
+    categories:
+      - "finance-legal"
+  remoteok:
+    enabled: true
+    tags:
+      - "finance"
+      - "accounting"
+  arbeitnow:
+    enabled: true
+  jobicy:
+    enabled: true
+    category: "finance"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+  rss_feeds: []
+
+schedule:
+  timezone: "Africa/Lagos"
+  daily_digest_time: "08:30"
+  weekly_digest_day: "Monday"
+  instant_alert_threshold: 8.8
+
+delivery:
+  email_provider: "resend"
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true
