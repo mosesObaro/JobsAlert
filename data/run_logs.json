@@ -1,5 +1,100 @@
 [
   {
+    "run_id": "run_20260829_131653_f654ae",
+    "timestamp": "2026-08-29T13:16:54.458883Z",
+    "total_fetched": 1931,
+    "unique_candidates": 66,
+    "discarded": 61,
+    "low_matches": 5,
+    "digest_matches": 0,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "execution_time_seconds": 1.16,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1262,
+        "latency_ms": 923.54,
+        "last_crawled": "2026-08-29T13:16:53.303587Z",
+        "error_message": null
+      },
+      {
+        "source_name": "lever",
+        "status": "healthy",
+        "jobs_found": 307,
+        "latency_ms": 501.35,
+        "last_crawled": "2026-08-29T13:16:53.343463Z",
+        "error_message": null
+      },
+      {
+        "source_name": "ashby",
+        "status": "healthy",
+        "jobs_found": 167,
+        "latency_ms": 370.47,
+        "last_crawled": "2026-08-29T13:16:53.355014Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remotive",
+        "status": "healthy",
+        "jobs_found": 19,
+        "latency_ms": 194.39,
+        "last_crawled": "2026-08-29T13:16:53.366457Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remoteok",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 1036.86,
+        "last_crawled": "2026-08-29T13:16:53.377882Z",
+        "error_message": null
+      },
+      {
+        "source_name": "arbeitnow",
+        "status": "healthy",
+        "jobs_found": 50,
+        "latency_ms": 192.16,
+        "last_crawled": "2026-08-29T13:16:53.389335Z",
+        "error_message": null
+      },
+      {
+        "source_name": "jobicy",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 768.82,
+        "last_crawled": "2026-08-29T13:16:53.400806Z",
+        "error_message": null
+      },
+      {
+        "source_name": "hackernews",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 741.0,
+        "last_crawled": "2026-08-29T13:16:53.412520Z",
+        "error_message": null
+      },
+      {
+        "source_name": "rss",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 0.01,
+        "last_crawled": "2026-08-29T13:16:53.424209Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "jobs_found": 6,
+        "latency_ms": 0.53,
+        "last_crawled": "2026-08-29T13:16:53.424267Z",
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
     "run_id": "run_20260828_230351_4d5a5b",
     "timestamp": "2026-08-28T23:03:53.155490Z",
     "total_fetched": 1931,
