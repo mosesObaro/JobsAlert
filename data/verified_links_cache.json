@@ -1,0 +1,16 @@
+{
+  "https://example.com/active": {
+    "url": "https://example.com/active",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "mock_valid",
+    "verified_at": "2026-09-05T11:47:57.448539+00:00"
+  },
+  "https://real-site.com/closed-job": {
+    "url": "https://real-site.com/closed-job",
+    "is_valid": false,
+    "status_code": 200,
+    "reason": "Position closed ('this job is no longer available')",
+    "verified_at": "2026-09-05T11:47:57.448663+00:00"
+  }
+}

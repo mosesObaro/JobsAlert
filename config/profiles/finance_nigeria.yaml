@@ -95,9 +95,27 @@ sources:
   hackernews:
     enabled: true
     limit_stories: 1
+  twitter:
+    enabled: true
+    search_queries:
+      - "remote (accountant OR finance OR intern) hiring"
+      - "#hiring #accountingjobs"
+      - "Nigeria finance hiring"
+    monitored_accounts:
+      - "TechJobsAfrica"
+      - "JobbermanOnline"
+    max_tweets: 25
   rss_feeds: []
 
+link_verification:
+  enabled: true
+  timeout_seconds: 6.0
+  max_concurrency: 20
+  check_content_keywords: true
+  cache_ttl_hours: 24
+
 schedule:
+
   timezone: "Africa/Lagos"
   daily_digest_time: "08:30"
   weekly_digest_day: "Monday"

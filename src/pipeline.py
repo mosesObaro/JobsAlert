@@ -14,9 +14,10 @@ from typing import Dict, List, Optional, Tuple
 from src.collectors import run_all_collectors
 from src.config import AppConfig
 from src.deduplication import StateManager
-from src.models import CrawlerHealth, JobPosting, RunSummary, ScoredJob
+from src.models import CrawlerHealth, JobPosting, MatchBreakdown, RunSummary, ScoredJob
 from src.notifier.email_service import EmailNotifier
 from src.scoring import ScoringEngine
+from src.verifier import LinkVerifier
 
 RUN_LOGS_FILE = Path(__file__).resolve().parent.parent / "data" / "run_logs.json"
 
@@ -27,6 +28,7 @@ class JobPipeline:
         self.state_manager = state_manager or StateManager()
         self.scoring_engine = ScoringEngine(config)
         self.notifier = EmailNotifier()
+        self.link_verifier = LinkVerifier()
 
     async def execute(
         self,
@@ -57,17 +59,47 @@ class JobPipeline:
                 continue
             new_jobs.append(job)
 
-        print(f"🔍 [DEDUPLICATION] {seen_count} previously processed jobs filtered out. {len(new_jobs)} unique candidates to score.")
+        print(f"🔍 [DEDUPLICATION] {seen_count} previously processed jobs filtered out. {len(new_jobs)} unique candidates to verify & score.")
 
-        # 3. Score each job posting
+        # 3. Always Verify Job Links (Active, 404, 410, Soft-404 Closed Page Detection)
+        valid_jobs: List[JobPosting] = []
+        invalid_jobs: List[Tuple[JobPosting, str]] = []
+        if self.config.link_verification.enabled and new_jobs:
+            print(f"🔗 [LINK VERIFICATION] Verifying {len(new_jobs)} candidate URLs for active status...")
+            valid_jobs, invalid_jobs = await self.link_verifier.verify_jobs_batch(new_jobs, self.config.link_verification)
+            if invalid_jobs:
+                print(f"⚠️ [LINK VERIFICATION] Excluded {len(invalid_jobs)} expired or closed job posting(s).")
+        else:
+            valid_jobs = new_jobs
+
+        # 4. Score each job posting
         scored_jobs: List[ScoredJob] = []
         discarded: List[ScoredJob] = []
         low_matches: List[ScoredJob] = []
         digest_matches: List[ScoredJob] = []
         instant_matches: List[ScoredJob] = []
 
-        for job in new_jobs:
+        # Record invalid / expired jobs as discarded
+        for inv_job, reason in invalid_jobs:
+            inv_job.is_verified = False
+            inv_job.verification_status = reason
+            breakdown = MatchBreakdown(
+                penalties_applied=[f"Link Inactive/Expired ({reason})"],
+                highlights=[f"Discarded: Link is dead or position is closed ({reason})"],
+                is_verified=False
+            )
+            s_job = ScoredJob(
+                job=inv_job,
+                score=0.0,
+                action="discard",
+                breakdown=breakdown,
+            )
+            scored_jobs.append(s_job)
+            discarded.append(s_job)
+
+        for job in valid_jobs:
             scored = self.scoring_engine.score_job(job)
+            scored.breakdown.is_verified = True
             scored_jobs.append(scored)
 
             if scored.action == "discard":
@@ -88,9 +120,9 @@ class JobPipeline:
         print(f"   ★ Instant Matches (9.0+):  {len(instant_matches)}")
         print(f"   ✦ Strong Matches (7.0-8.9): {len(digest_matches)}")
         print(f"   · Low Matches (5.0-6.9):    {len(low_matches)} (archived for UI)")
-        print(f"   ✕ Discarded (0.0-4.9):      {len(discarded)}")
+        print(f"   ✕ Discarded (0.0-4.9):      {len(discarded)} (including {len(invalid_jobs)} dead links)")
 
-        # 4. Notifications
+        # 5. Notifications
         emails_dispatched = 0
         if not dry_run and send_email:
             # Immediate Alerts
@@ -115,7 +147,7 @@ class JobPipeline:
                 self.notifier.render_digest(preview_jobs, self.config)
                 self.notifier.save_preview(self.notifier.render_digest(preview_jobs, self.config)[1])
 
-        # 5. Persist State (in live runs or if requested)
+        # 6. Persist State (in live runs or if requested)
         if not dry_run:
             for s in scored_jobs:
                 alerted = s.action in ["instant", "digest"] and send_email
@@ -124,22 +156,23 @@ class JobPipeline:
 
         elapsed_sec = round(time.perf_counter() - start_time, 2)
 
-        # 6. Build and record summary
+        # 7. Build and record summary
         summary = RunSummary(
             run_id=run_id,
             timestamp=datetime.now(timezone.utc),
             total_fetched=len(raw_jobs),
-
             unique_candidates=len(new_jobs),
             discarded=len(discarded),
             low_matches=len(low_matches),
             digest_matches=len(digest_matches),
             instant_matches=len(instant_matches),
             emails_dispatched=emails_dispatched,
+            expired_links_removed=len(invalid_jobs),
             execution_time_seconds=elapsed_sec,
             source_health=health_reports,
             error_count=sum(1 for h in health_reports if h.status == "error")
         )
+
 
         self._record_run_summary(summary)
         print(f"🏁 [PIPELINE FINISHED] Completed in {elapsed_sec}s | Emails Dispatched: {emails_dispatched}\n")

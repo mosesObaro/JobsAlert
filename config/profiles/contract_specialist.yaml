@@ -64,9 +64,25 @@ sources:
   hackernews:
     enabled: true
     limit_stories: 1
+  twitter:
+    enabled: true
+    search_queries:
+      - "contract C2C freelance developer hiring"
+      - "#hiring #contractjobs"
+    monitored_accounts:
+      - "RemoteJobs"
+    max_tweets: 20
   rss_feeds: []
 
+link_verification:
+  enabled: true
+  timeout_seconds: 6.0
+  max_concurrency: 20
+  check_content_keywords: true
+  cache_ttl_hours: 24
+
 schedule:
+
   timezone: "UTC"
   daily_digest_time: "12:00"
   weekly_digest_day: "Friday"

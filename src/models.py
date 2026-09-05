@@ -29,8 +29,10 @@ class JobPosting(BaseModel):
     employment_type: str = "full_time"  # "full_time", "contract", "internship", "part_time"
     seniority: Optional[str] = None  # "junior", "mid", "senior", "staff", "principal", "lead", "executive"
     posted_at: Optional[datetime] = None
-    source: str  # "greenhouse", "lever", "ashby", "remotive", "remoteok", "arbeitnow", "jobicy", "hackernews", "rss"
+    source: str  # "greenhouse", "lever", "ashby", "remotive", "remoteok", "arbeitnow", "jobicy", "hackernews", "rss", "twitter", "custom"
     tags: List[str] = Field(default_factory=list)
+    is_verified: bool = True
+    verification_status: Optional[str] = None  # "active", "expired", "404", "closed", "timeout", "unverified"
 
 
 class MatchBreakdown(BaseModel):
@@ -46,6 +48,7 @@ class MatchBreakdown(BaseModel):
     missing_must_have: List[str] = Field(default_factory=list)
     penalties_applied: List[str] = Field(default_factory=list)
     highlights: List[str] = Field(default_factory=list)
+    is_verified: bool = True
 
 
 class ScoredJob(BaseModel):
@@ -79,6 +82,8 @@ class RunSummary(BaseModel):
     digest_matches: int = 0
     instant_matches: int = 0
     emails_dispatched: int = 0
+    expired_links_removed: int = 0
     execution_time_seconds: float = 0.0
     source_health: List[CrawlerHealth] = Field(default_factory=list)
     error_count: int = 0
+

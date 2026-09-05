@@ -72,9 +72,26 @@ sources:
   hackernews:
     enabled: true
     limit_stories: 1
+  twitter:
+    enabled: true
+    search_queries:
+      - "remote staff engineer hiring"
+      - "#hiring #remotejobs golang"
+    monitored_accounts:
+      - "RemoteJobs"
+      - "DailyRemote"
+    max_tweets: 30
   rss_feeds: []
 
+link_verification:
+  enabled: true
+  timeout_seconds: 6.0
+  max_concurrency: 20
+  check_content_keywords: true
+  cache_ttl_hours: 24
+
 schedule:
+
   timezone: "America/New_York"
   daily_digest_time: "09:00"
   weekly_digest_day: "Monday"

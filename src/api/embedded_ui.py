@@ -196,9 +196,39 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
         </div>
         <div id="locationsList" class="flex flex-wrap gap-2"></div>
       </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+        <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> Automated Job Link Verification
+        </h2>
+        <p class="text-xs text-slate-400 mb-4">
+          Automatically checks all job URLs to ensure postings are active and have not expired or closed.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex items-center justify-between cursor-pointer">
+            <div>
+              <span class="text-xs font-bold text-white">Enable Link Verification</span>
+              <div class="text-[11px] text-slate-400">Drop dead links (404/410/closed)</div>
+            </div>
+            <input id="chkLinkVerify" type="checkbox" class="w-4 h-4 accent-emerald-500">
+          </label>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Timeout (Seconds)</label>
+            <input id="verifyTimeout" type="number" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
+          </div>
+          <label class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex items-center justify-between cursor-pointer">
+            <div>
+              <span class="text-xs font-bold text-white">Detect Soft-404 Pages</span>
+              <div class="text-[11px] text-slate-400">Inspect for 'position closed' text</div>
+            </div>
+            <input id="chkSoft404" type="checkbox" class="w-4 h-4 accent-emerald-500">
+          </label>
+        </div>
+      </div>
     </div>
 
     <!-- 3. WATCHLIST TAB -->
+
     <div id="tab-watchlist" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
         <h2 class="text-base font-bold text-white mb-1 flex items-center gap-2">
@@ -293,9 +323,31 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
             </div>
             <input id="chkHN" type="checkbox" class="w-4 h-4 accent-orange-500">
           </label>
+          <div class="bg-slate-950 border border-slate-800 p-4 rounded-lg md:col-span-2 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                  <i data-lucide="twitter" class="w-4 h-4"></i> Twitter / X Job Scout
+                </span>
+                <div class="text-[11px] text-slate-400">Scout hiring tweets, hashtags, and recruitment handles</div>
+              </div>
+              <input id="chkTwitter" type="checkbox" class="w-4 h-4 accent-sky-500">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Search Queries / Hashtags (comma-separated)</label>
+                <input id="twitterQueries" type="text" placeholder="e.g. #hiring #remotejobs, remote hiring" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white">
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Monitored Twitter Handles (comma-separated)</label>
+                <input id="twitterAccounts" type="text" placeholder="e.g. TechJobsAfrica, RemoteJobs, JobbermanOnline" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
 
     <!-- 5. SCHEDULE TAB -->
     <div id="tab-schedule" class="hidden space-y-6">
@@ -648,6 +700,19 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       document.getElementById('chkJobicy').checked = appConfig.sources.jobicy.enabled;
       document.getElementById('chkHN').checked = appConfig.sources.hackernews.enabled;
 
+      if (appConfig.sources.twitter) {
+        document.getElementById('chkTwitter').checked = appConfig.sources.twitter.enabled;
+        document.getElementById('twitterQueries').value = (appConfig.sources.twitter.search_queries || []).join(', ');
+        document.getElementById('twitterAccounts').value = (appConfig.sources.twitter.monitored_accounts || []).join(', ');
+      }
+
+      // Link Verification
+      if (appConfig.link_verification) {
+        document.getElementById('chkLinkVerify').checked = appConfig.link_verification.enabled;
+        document.getElementById('verifyTimeout').value = appConfig.link_verification.timeout_seconds;
+        document.getElementById('chkSoft404').checked = appConfig.link_verification.check_content_keywords;
+      }
+
       // Schedule & Delivery
       document.getElementById('schedTz').value = appConfig.schedule.timezone;
       document.getElementById('schedTime').value = appConfig.schedule.daily_digest_time;
@@ -732,6 +797,20 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       appConfig.sources.jobicy.enabled = document.getElementById('chkJobicy').checked;
       appConfig.sources.hackernews.enabled = document.getElementById('chkHN').checked;
 
+      if (!appConfig.sources.twitter) {
+        appConfig.sources.twitter = { enabled: true, search_queries: [], monitored_accounts: [], max_tweets: 30 };
+      }
+      appConfig.sources.twitter.enabled = document.getElementById('chkTwitter').checked;
+      appConfig.sources.twitter.search_queries = document.getElementById('twitterQueries').value.split(',').map(s => s.trim()).filter(Boolean);
+      appConfig.sources.twitter.monitored_accounts = document.getElementById('twitterAccounts').value.split(',').map(s => s.trim()).filter(Boolean);
+
+      if (!appConfig.link_verification) {
+        appConfig.link_verification = { enabled: true, timeout_seconds: 6.0, max_concurrency: 20, check_content_keywords: true, cache_ttl_hours: 24 };
+      }
+      appConfig.link_verification.enabled = document.getElementById('chkLinkVerify').checked;
+      appConfig.link_verification.timeout_seconds = parseFloat(document.getElementById('verifyTimeout').value) || 6.0;
+      appConfig.link_verification.check_content_keywords = document.getElementById('chkSoft404').checked;
+
       appConfig.schedule.timezone = document.getElementById('schedTz').value;
       appConfig.schedule.daily_digest_time = document.getElementById('schedTime').value;
       appConfig.schedule.weekly_digest_day = document.getElementById('schedDay').value;
@@ -797,7 +876,18 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
         <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
           <div class="flex justify-between items-start mb-2">
             <div>
-              <h3 class="text-sm font-bold text-white">${item.job.title}</h3>
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-bold text-white">${item.job.title}</h3>
+                ${item.job.is_verified ? `
+                  <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <i data-lucide="shield-check" class="w-3 h-3"></i> Verified Link
+                  </span>
+                ` : `
+                  <span class="bg-red-950 text-red-400 border border-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <i data-lucide="alert-triangle" class="w-3 h-3"></i> ${item.job.verification_status || 'Unverified'}
+                  </span>
+                `}
+              </div>
               <div class="text-xs text-blue-400 font-semibold">${item.job.company} • <span class="text-slate-400">${item.job.location}</span></div>
             </div>
             <span class="text-xs font-black px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
@@ -815,7 +905,9 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
           </div>
         </div>
       `).join('');
+      lucide.createIcons();
     }
+
 
     async function loadTelemetry() {
       const res = await fetch('/api/logs');

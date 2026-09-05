@@ -61,6 +61,32 @@ class RSSFeedConfig(BaseModel):
     enabled: bool = True
 
 
+class TwitterConfig(BaseModel):
+    enabled: bool = True
+    search_queries: List[str] = Field(
+        default_factory=lambda: [
+            "remote hiring (engineer OR developer OR python OR golang)",
+            "#hiring #remotejobs",
+        ]
+    )
+    monitored_accounts: List[str] = Field(
+        default_factory=lambda: [
+            "TechJobsAfrica",
+            "RemoteJobs",
+            "JobbermanOnline",
+        ]
+    )
+    max_tweets: int = 30
+
+
+class LinkVerificationConfig(BaseModel):
+    enabled: bool = True
+    timeout_seconds: float = 6.0
+    max_concurrency: int = 20
+    check_content_keywords: bool = True
+    cache_ttl_hours: int = 24
+
+
 class SourcesConfig(BaseModel):
     greenhouse: SourceSubConfig = Field(
         default_factory=lambda: SourceSubConfig(enabled=True, companies=["cloudflare", "datadog", "figma"])
@@ -80,6 +106,7 @@ class SourcesConfig(BaseModel):
     arbeitnow: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True))
     jobicy: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True, category="dev"))
     hackernews: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True, limit_stories=1))
+    twitter: TwitterConfig = Field(default_factory=TwitterConfig)
     rss_feeds: List[RSSFeedConfig] = Field(default_factory=list)
 
 
@@ -104,8 +131,10 @@ class AppConfig(BaseModel):
     scoring_weights: ScoringWeightsConfig = Field(default_factory=ScoringWeightsConfig)
     company_watchlist: List[WatchlistCompany] = Field(default_factory=list)
     sources: SourcesConfig = Field(default_factory=SourcesConfig)
+    link_verification: LinkVerificationConfig = Field(default_factory=LinkVerificationConfig)
     schedule: ScheduleConfig = Field(default_factory=ScheduleConfig)
     delivery: DeliveryConfig = Field(default_factory=DeliveryConfig)
+
 
 
 def load_config(config_path: Optional[str | Path] = None) -> AppConfig:

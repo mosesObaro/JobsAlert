@@ -18,6 +18,21 @@ export interface RSSFeedConfig {
   enabled: boolean;
 }
 
+export interface TwitterConfig {
+  enabled: boolean;
+  search_queries: string[];
+  monitored_accounts: string[];
+  max_tweets: number;
+}
+
+export interface LinkVerificationConfig {
+  enabled: boolean;
+  timeout_seconds: number;
+  max_concurrency: number;
+  check_content_keywords: boolean;
+  cache_ttl_hours: number;
+}
+
 export interface AppConfig {
   profile: {
     candidate_name: string;
@@ -49,8 +64,10 @@ export interface AppConfig {
     arbeitnow: SourceSubConfig;
     jobicy: SourceSubConfig;
     hackernews: SourceSubConfig;
+    twitter: TwitterConfig;
     rss_feeds: RSSFeedConfig[];
   };
+  link_verification: LinkVerificationConfig;
   schedule: {
     timezone: string;
     daily_digest_time: string;
@@ -86,6 +103,8 @@ export interface JobPosting {
   posted_at?: string;
   source: string;
   tags: string[];
+  is_verified?: boolean;
+  verification_status?: string;
 }
 
 export interface MatchBreakdown {
@@ -100,6 +119,7 @@ export interface MatchBreakdown {
   missing_must_have: string[];
   penalties_applied: string[];
   highlights: string[];
+  is_verified?: boolean;
 }
 
 export interface ScoredJob {
@@ -129,7 +149,9 @@ export interface RunSummary {
   digest_matches: number;
   instant_matches: number;
   emails_dispatched: number;
+  expired_links_removed: number;
   execution_time_seconds: number;
   source_health: CrawlerHealth[];
   error_count: number;
 }
+

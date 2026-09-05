@@ -291,8 +291,90 @@ export const SourcesTab: React.FC<Props> = ({ config, onChange }) => {
               className="w-5 h-5 accent-orange-500 rounded cursor-pointer"
             />
           </div>
+
+          {/* Twitter / X */}
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 md:col-span-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-bold text-sky-400 flex items-center gap-1.5">
+                  <Globe className="w-4 h-4" /> Twitter / X Job Scout
+                </div>
+                <div className="text-xs text-slate-400">
+                  Scouts hiring tweets, recruitment hashtags, and target company accounts with automated link resolution.
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.sources.twitter?.enabled ?? true}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    sources: {
+                      ...config.sources,
+                      twitter: {
+                        ...(config.sources.twitter || { search_queries: [], monitored_accounts: [], max_tweets: 30 }),
+                        enabled: e.target.checked,
+                      },
+                    },
+                  })
+                }
+                className="w-5 h-5 accent-sky-500 rounded cursor-pointer"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Search Queries / Hashtags (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={(config.sources.twitter?.search_queries || []).join(', ')}
+                  onChange={(e) => {
+                    const queries = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
+                    onChange({
+                      ...config,
+                      sources: {
+                        ...config.sources,
+                        twitter: {
+                          ...(config.sources.twitter || { enabled: true, monitored_accounts: [], max_tweets: 30 }),
+                          search_queries: queries,
+                        },
+                      },
+                    });
+                  }}
+                  placeholder="#hiring #remotejobs, remote hiring"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Monitored Handles (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={(config.sources.twitter?.monitored_accounts || []).join(', ')}
+                  onChange={(e) => {
+                    const accounts = e.target.value.split(',').map((s) => s.trim().replace('@', '')).filter(Boolean);
+                    onChange({
+                      ...config,
+                      sources: {
+                        ...config.sources,
+                        twitter: {
+                          ...(config.sources.twitter || { enabled: true, search_queries: [], max_tweets: 30 }),
+                          monitored_accounts: accounts,
+                        },
+                      },
+                    });
+                  }}
+                  placeholder="TechJobsAfrica, RemoteJobs, JobbermanOnline"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+

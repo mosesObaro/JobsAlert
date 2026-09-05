@@ -75,3 +75,40 @@ def test_custom_job_collector(tmp_path, monkeypatch):
     assert jobs[0].salary_min == 190000.0
     assert jobs[0].source == "custom"
 
+
+def test_twitter_collector_disabled():
+    import asyncio
+    from src.collectors.twitter import TwitterCollector
+    config = AppConfig()
+    config.sources.twitter.enabled = False
+    collector = TwitterCollector()
+    jobs = asyncio.run(collector.collect(config))
+    assert jobs == []
+
+
+def test_twitter_collector_rss_parsing():
+    from src.collectors.twitter import TwitterCollector
+    collector = TwitterCollector()
+
+    sample_rss = """<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0">
+      <channel>
+        <title>Twitter / Search</title>
+        <item>
+          <title>We are hiring a Senior Python Engineer at Moniepoint! Apply: https://t.co/xyz123 #remote #hiring</title>
+          <description>We are hiring a Senior Python Engineer at Moniepoint! Apply: https://t.co/xyz123 #remote #hiring</description>
+          <link>https://nitter.poast.org/TechJobsAfrica/status/1234567890</link>
+          <pubDate>Fri, 05 Sep 2026 10:00:00 GMT</pubDate>
+        </item>
+      </channel>
+    </rss>
+    """
+
+    jobs = collector._parse_nitter_rss(sample_rss, default_company="Moniepoint")
+    assert len(jobs) == 1
+    assert "Python Engineer" in jobs[0].title or "Senior Python" in jobs[0].title
+    assert jobs[0].source == "twitter"
+    assert jobs[0].is_remote is True
+    assert jobs[0].url == "https://t.co/xyz123"
+
+
