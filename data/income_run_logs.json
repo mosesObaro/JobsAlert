@@ -1,5 +1,70 @@
 [
   {
+    "run_id": "income_run_20260911_032523_692e2b",
+    "timestamp": "2026-09-11T03:25:28.172567Z",
+    "total_fetched": 18,
+    "unique_candidates": 18,
+    "discarded": 6,
+    "low_matches": 0,
+    "digest_matches": 0,
+    "instant_matches": 12,
+    "emails_dispatched": 13,
+    "expired_links_removed": 6,
+    "risk_rejected": 0,
+    "execution_time_seconds": 5.03,
+    "source_health": [
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.38,
+        "last_crawled": "2026-09-11T03:25:23.140121Z",
+        "error_message": null
+      },
+      {
+        "source_name": "user_testing",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.1,
+        "last_crawled": "2026-09-11T03:25:23.140538Z",
+        "error_message": null
+      },
+      {
+        "source_name": "academic_tutoring",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.1,
+        "last_crawled": "2026-09-11T03:25:23.140638Z",
+        "error_message": null
+      },
+      {
+        "source_name": "transcription_support",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.07,
+        "last_crawled": "2026-09-11T03:25:23.140744Z",
+        "error_message": null
+      },
+      {
+        "source_name": "income_rss",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": "2026-09-11T03:25:23.140820Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.08,
+        "last_crawled": "2026-09-11T03:25:23.140825Z",
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
     "run_id": "income_run_20260911_032149_97d1e8",
     "timestamp": "2026-09-11T03:21:49.953161Z",
     "total_fetched": 18,
