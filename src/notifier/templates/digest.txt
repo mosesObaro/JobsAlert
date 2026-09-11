@@ -1,13 +1,13 @@
 ================================================================================
-JOBSALERT AUTONOMOUS CAREER SCOUT
+JOBSALERT AUTONOMOUS CAREER & INCOME INTELLIGENCE
 {{ date_str }} | {{ header_title }}
 Scored against candidate profile for {{ candidate_name }}
 ================================================================================
 
-Total Matches: {{ jobs|length }} Verified Opportunities
-
-{% for scored in jobs %}
+{% if jobs %}
+TARGET CAREER & EMPLOYMENT OPPORTUNITIES ({{ jobs|length }} Found)
 --------------------------------------------------------------------------------
+{% for scored in jobs %}
 [{{ scored.score }}/10 MATCH] {{ scored.job.title }}
 Company:     {{ scored.job.company }}
 Location:    {{ scored.job.location }} ({{ scored.job.remote_scope }})
@@ -27,8 +27,34 @@ Why You Match:
 Apply Directly:
 {{ scored.job.url }}
 
+--------------------------------------------------------------------------------
 {% endfor %}
+{% endif %}
+
+{% if income_opportunities %}
+VERIFIED ONLINE INCOME & FLEXIBLE REMOTE TRACKS ({{ income_opportunities|length }} Found)
+--------------------------------------------------------------------------------
+{% for scored in income_opportunities %}
+[{{ scored.score }}/10 MATCH] {{ scored.opportunity.title }}
+Platform:    {{ scored.opportunity.organization }}
+Category:    {{ (scored.opportunity.category or 'flexible').replace('_', ' ').title() }}
+Eligibility: {{ scored.opportunity.location_eligibility }}
+Pay Rate:    {{ scored.opportunity.pay_rate_display or 'Flexible / Per Task' }}
+Verified:    Yes (Scam & Risk Screened)
+
+Why Worth Considering:
+{% for highlight in scored.breakdown.highlights %}
+  * {{ highlight }}
+{% endfor %}
+
+Apply / Get Started:
+{{ scored.opportunity.application_url or scored.opportunity.url }}
+
+--------------------------------------------------------------------------------
+{% endfor %}
+{% endif %}
+
 ================================================================================
-Delivered by JobsAlert Autonomous Scout to {{ recipient_email }}
-Adjust filters and target companies in your Web Control Panel.
+Delivered by JobsAlert Autonomous Intelligence System to {{ recipient_email }}
+Adjust preferences anytime via your Web Control Panel.
 ================================================================================

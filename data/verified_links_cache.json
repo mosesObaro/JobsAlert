@@ -417,7 +417,7 @@
     "is_valid": true,
     "status_code": 200,
     "reason": "active",
-    "verified_at": "2026-09-05T11:57:10.612735+00:00"
+    "verified_at": "2026-09-11T06:39:09.647823+00:00"
   },
   "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925530101": {
     "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925530101",
@@ -2335,7 +2335,7 @@
     "is_valid": true,
     "status_code": 200,
     "reason": "active",
-    "verified_at": "2026-09-05T11:57:19.432478+00:00"
+    "verified_at": "2026-09-11T06:39:11.643295+00:00"
   },
   "https://www.arbeitnow.com/jobs/companies/liqid-lig/senior-data-engineer-berlin-462279": {
     "url": "https://www.arbeitnow.com/jobs/companies/liqid-lig/senior-data-engineer-berlin-462279",
@@ -2356,13 +2356,706 @@
     "is_valid": true,
     "status_code": 200,
     "reason": "active",
-    "verified_at": "2026-09-05T11:57:19.918650+00:00"
+    "verified_at": "2026-09-11T06:39:11.820599+00:00"
   },
   "https://boards.greenhouse.io/moniepoint": {
     "url": "https://boards.greenhouse.io/moniepoint",
     "is_valid": true,
     "status_code": 200,
     "reason": "active",
-    "verified_at": "2026-09-05T11:57:22.490762+00:00"
+    "verified_at": "2026-09-11T06:39:12.175923+00:00"
+  },
+  "https://boards.greenhouse.io/moniepoint/jobs/101": {
+    "url": "https://boards.greenhouse.io/moniepoint/jobs/101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T03:38:21.251199+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4166965101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4166965101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.257661+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4169251101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4169251101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.259937+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119433101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119433101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.345188+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-architectural-designer-sophies-flats-inc-1136192": {
+    "url": "https://remoteOK.com/remote-jobs/remote-architectural-designer-sophies-flats-inc-1136192",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.422217+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-operations-engineer-ii-aweber-1136778": {
+    "url": "https://remoteOK.com/remote-jobs/remote-operations-engineer-ii-aweber-1136778",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.424622+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4973542101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4973542101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.461330+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-freelance-designer-control-shift-video-1136213": {
+    "url": "https://remoteOK.com/remote-jobs/remote-freelance-designer-control-shift-video-1136213",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.494340+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4166957101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4166957101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.541262+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4035002101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4035002101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.567641+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119424101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119424101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.629573+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-marketing-specialist-innergy-1136094": {
+    "url": "https://remoteOK.com/remote-jobs/remote-marketing-specialist-innergy-1136094",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.685246+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-business-development-manager-libertex-group-1137373": {
+    "url": "https://remoteOK.com/remote-jobs/remote-business-development-manager-libertex-group-1137373",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.922913+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-data-analyst-seahub-asia-1136222": {
+    "url": "https://remoteOK.com/remote-jobs/remote-data-analyst-seahub-asia-1136222",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.939423+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-quality-dispense-technician-north-thatchers-cider-1137374": {
+    "url": "https://remoteOK.com/remote-jobs/remote-quality-dispense-technician-north-thatchers-cider-1137374",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.975383+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-java-developer-clera-1136188": {
+    "url": "https://remoteOK.com/remote-jobs/remote-java-developer-clera-1136188",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.989174+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-future-shaprs-shapr3d-1136770": {
+    "url": "https://remoteOK.com/remote-jobs/remote-future-shaprs-shapr3d-1136770",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:09.991351+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-why-do-you-want-this-new-job-testacy-1136168": {
+    "url": "https://remoteOK.com/remote-jobs/remote-why-do-you-want-this-new-job-testacy-1136168",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.000165+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-head-of-security-tremendous-1136210": {
+    "url": "https://remoteOK.com/remote-jobs/remote-head-of-security-tremendous-1136210",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.000862+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/holidaycheck-group-ag/senior-crm-automation-lifecycle-manager-all-genders-munchen-384544": {
+    "url": "https://www.arbeitnow.com/jobs/companies/holidaycheck-group-ag/senior-crm-automation-lifecycle-manager-all-genders-munchen-384544",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.095407+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/sungrow-europe-welcome-traveler/project-operations-rework-support-working-student-germany-germany-oberschleissheim-118574": {
+    "url": "https://www.arbeitnow.com/jobs/companies/sungrow-europe-welcome-traveler/project-operations-rework-support-working-student-germany-germany-oberschleissheim-118574",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.129622+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/solvares/ausbildung-fachinformatiker-fur-systemintegration-hamburg-438823": {
+    "url": "https://www.arbeitnow.com/jobs/companies/solvares/ausbildung-fachinformatiker-fur-systemintegration-hamburg-438823",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.338004+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/specific-group-germany-gmbh/werkstudent-marketing-sales-landshut-21474": {
+    "url": "https://www.arbeitnow.com/jobs/companies/specific-group-germany-gmbh/werkstudent-marketing-sales-landshut-21474",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.397697+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/emidat-gmbh/growth-engineer-intern-munich-478115": {
+    "url": "https://www.arbeitnow.com/jobs/companies/emidat-gmbh/growth-engineer-intern-munich-478115",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.430769+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/technica-engineering-gmbh/produktionsmitarbeiter-elektrotechnik-qualitatssicherung-garching-46642": {
+    "url": "https://www.arbeitnow.com/jobs/companies/technica-engineering-gmbh/produktionsmitarbeiter-elektrotechnik-qualitatssicherung-garching-46642",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.473436+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-community-management-hamburg-492514": {
+    "url": "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-community-management-hamburg-492514",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.515782+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/solvares/werkstudent-im-bereich-marketing-operations-munchen-442666": {
+    "url": "https://www.arbeitnow.com/jobs/companies/solvares/werkstudent-im-bereich-marketing-operations-munchen-442666",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.575757+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/june-gmbh/remote-account-executive-317424": {
+    "url": "https://www.arbeitnow.com/jobs/companies/june-gmbh/remote-account-executive-317424",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.593720+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/stiftung-munchner-sicherheitskonferenz-gemeinnutzige/werkstudent-im-bereich-it-munchen-169695": {
+    "url": "https://www.arbeitnow.com/jobs/companies/stiftung-munchner-sicherheitskonferenz-gemeinnutzige/werkstudent-im-bereich-it-munchen-169695",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.600907+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/wimex-gruppe/mitarbeiter-vertrieb-landwirtschaftliche-software-fur-mehrere-regionen-in-deutschland-munchen-58048": {
+    "url": "https://www.arbeitnow.com/jobs/companies/wimex-gruppe/mitarbeiter-vertrieb-landwirtschaftliche-software-fur-mehrere-regionen-in-deutschland-munchen-58048",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.661382+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/stiftung-munchner-sicherheitskonferenz-gemeinnutzige/it-systemadministrator-in-vollzeit-munchen-250312": {
+    "url": "https://www.arbeitnow.com/jobs/companies/stiftung-munchner-sicherheitskonferenz-gemeinnutzige/it-systemadministrator-in-vollzeit-munchen-250312",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.668862+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/steadforce/senior-software-engineer-teilprojektleitung-munchen-255444": {
+    "url": "https://www.arbeitnow.com/jobs/companies/steadforce/senior-software-engineer-teilprojektleitung-munchen-255444",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.700508+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/sungrow-europe-welcome-traveler/talent-acquisition-team-leader-europe-germany-munich-58581": {
+    "url": "https://www.arbeitnow.com/jobs/companies/sungrow-europe-welcome-traveler/talent-acquisition-team-leader-europe-germany-munich-58581",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.715156+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-office-feelgood-management-1komma5-nurnberg-71535": {
+    "url": "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-office-feelgood-management-1komma5-nurnberg-71535",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.750984+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-projektleiter-hochbau-dusseldorf-361277": {
+    "url": "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-projektleiter-hochbau-dusseldorf-361277",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.785588+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-sales-operations-koln-481032": {
+    "url": "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-sales-operations-koln-481032",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.795483+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/": {
+    "url": "https://remoteOK.com/remote-jobs/",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.806671+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/tink-gmbh/e-commerce-product-ownerin-all-genders-berlin-242618": {
+    "url": "https://www.arbeitnow.com/jobs/companies/tink-gmbh/e-commerce-product-ownerin-all-genders-berlin-242618",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.825140+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-projektkoordination-warmepumpe-berlin-remote-322078": {
+    "url": "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-projektkoordination-warmepumpe-berlin-remote-322078",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.829409+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-rohbau-stuttgart-152498": {
+    "url": "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-rohbau-stuttgart-152498",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.848925+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/zdf-digital-medienproduktion-gmbh/werkstudentin-community-management-mainz-oder-berlin-410573": {
+    "url": "https://www.arbeitnow.com/jobs/companies/zdf-digital-medienproduktion-gmbh/werkstudentin-community-management-mainz-oder-berlin-410573",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.890714+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-stuttgart-munchen-karlsruhe-297402": {
+    "url": "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-stuttgart-munchen-karlsruhe-297402",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.970306+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/42watt/automation-engineer-gn-40-std-hybrid-munchen-444678": {
+    "url": "https://www.arbeitnow.com/jobs/companies/42watt/automation-engineer-gn-40-std-hybrid-munchen-444678",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.987427+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-tiefbau-munchen-147899": {
+    "url": "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-tiefbau-munchen-147899",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:10.994079+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hypersonica/senior-programme-associate-munich-or-berlin-19208": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hypersonica/senior-programme-associate-munich-or-berlin-19208",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.014790+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/42watt/automation-engineer-gn-40-std-hybrid-munchen-46187": {
+    "url": "https://www.arbeitnow.com/jobs/companies/42watt/automation-engineer-gn-40-std-hybrid-munchen-46187",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.017056+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-hochbau-munchen-161173": {
+    "url": "https://www.arbeitnow.com/jobs/companies/skalbach-gmbh/senior-bauleiter-hochbau-munchen-161173",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.052420+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hypersonica/ground-software-engineer-munich-144963": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hypersonica/ground-software-engineer-munich-144963",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.054388+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/rhein-nadel-automation-gmbh/fullstack-software-engineer-munchen-87768": {
+    "url": "https://www.arbeitnow.com/jobs/companies/rhein-nadel-automation-gmbh/fullstack-software-engineer-munchen-87768",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.074013+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hypersonica/senior-manager-accounting-and-finance-operations-munich-18459": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hypersonica/senior-manager-accounting-and-finance-operations-munich-18459",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.093763+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/jedox-gmbh/head-of-product-marketing-germany-464520": {
+    "url": "https://www.arbeitnow.com/jobs/companies/jedox-gmbh/head-of-product-marketing-germany-464520",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.117446+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-sales-strategy-operations-hamburg-387422": {
+    "url": "https://www.arbeitnow.com/jobs/companies/1komma5grad/werkstudentin-sales-strategy-operations-hamburg-387422",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.121376+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/mobileye/senior-engineering-project-manager-adas-homologation-munich-germany-102305": {
+    "url": "https://www.arbeitnow.com/jobs/companies/mobileye/senior-engineering-project-manager-adas-homologation-munich-germany-102305",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.132847+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/ommax/senior-consultant-digital-ai-strategy-pharma-healthcare-munchen-151265": {
+    "url": "https://www.arbeitnow.com/jobs/companies/ommax/senior-consultant-digital-ai-strategy-pharma-healthcare-munchen-151265",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.154548+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/capmo/senior-security-engineer-all-genders-munich-495865": {
+    "url": "https://www.arbeitnow.com/jobs/companies/capmo/senior-security-engineer-all-genders-munich-495865",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.156959+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/kiwigrid/product-manager-platform-dresden-210533": {
+    "url": "https://www.arbeitnow.com/jobs/companies/kiwigrid/product-manager-platform-dresden-210533",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.157835+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/fulfin/senior-engineer-on-site-vollzeit-munchen-493533": {
+    "url": "https://www.arbeitnow.com/jobs/companies/fulfin/senior-engineer-on-site-vollzeit-munchen-493533",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.182159+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/jedox-gmbh/product-manager-platform-experience-cloud-administration-freiburg-im-breisgau-287874": {
+    "url": "https://www.arbeitnow.com/jobs/companies/jedox-gmbh/product-manager-platform-experience-cloud-administration-freiburg-im-breisgau-287874",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.184177+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/ommax/senior-backend-engineer-agentic-systems-munchen-193358": {
+    "url": "https://www.arbeitnow.com/jobs/companies/ommax/senior-backend-engineer-agentic-systems-munchen-193358",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.198833+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/allbranded/senior-seo-onsite-manager-befristet-elternzeitvertretung-all-genders-hamburg-491843": {
+    "url": "https://www.arbeitnow.com/jobs/companies/allbranded/senior-seo-onsite-manager-befristet-elternzeitvertretung-all-genders-hamburg-491843",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.252434+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/abrio-gmbh/senior-developer-frankfurt-454928": {
+    "url": "https://www.arbeitnow.com/jobs/companies/abrio-gmbh/senior-developer-frankfurt-454928",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.305668+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/trusted-shops-se-de/remote-director-sales-dach-cologne-113057": {
+    "url": "https://www.arbeitnow.com/jobs/companies/trusted-shops-se-de/remote-director-sales-dach-cologne-113057",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.314872+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/flix/senior-data-analyst-crm-munich-465773": {
+    "url": "https://www.arbeitnow.com/jobs/companies/flix/senior-data-analyst-crm-munich-465773",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.361462+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/aer-group/senior-devops-engineer-berlin-boppstr-488397": {
+    "url": "https://www.arbeitnow.com/jobs/companies/aer-group/senior-devops-engineer-berlin-boppstr-488397",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.376921+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/aer-group/business-data-analyst-finance-requirements-management-berlin-boppstr-291555": {
+    "url": "https://www.arbeitnow.com/jobs/companies/aer-group/business-data-analyst-finance-requirements-management-berlin-boppstr-291555",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.380659+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/flix/senior-data-analyst-crm-berlin-489999": {
+    "url": "https://www.arbeitnow.com/jobs/companies/flix/senior-data-analyst-crm-berlin-489999",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.399327+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/mayflower/senior-ai-architect-consultant-munchen-12747": {
+    "url": "https://www.arbeitnow.com/jobs/companies/mayflower/senior-ai-architect-consultant-munchen-12747",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.423140+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/working-student-production-automation-gilching-220497": {
+    "url": "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/working-student-production-automation-gilching-220497",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.429603+00:00"
+  },
+  "https://t.co/b3KSfh7b7I": {
+    "url": "https://t.co/b3KSfh7b7I",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.440127+00:00"
+  },
+  "https://t.co/edZPK0kwIj": {
+    "url": "https://t.co/edZPK0kwIj",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.442176+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/cbs-corporate-business-solutions-gmbh/senior-communications-manager-heidelberg-376058": {
+    "url": "https://www.arbeitnow.com/jobs/companies/cbs-corporate-business-solutions-gmbh/senior-communications-manager-heidelberg-376058",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.453367+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/abrio-gmbh/junior-fullstack-developer-frankfurt-483282": {
+    "url": "https://www.arbeitnow.com/jobs/companies/abrio-gmbh/junior-fullstack-developer-frankfurt-483282",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.487718+00:00"
+  },
+  "https://t.co/iPaKSTPJhC": {
+    "url": "https://t.co/iPaKSTPJhC",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.627004+00:00"
+  },
+  "https://t.co/f9MnMCEMg8": {
+    "url": "https://t.co/f9MnMCEMg8",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.657033+00:00"
+  },
+  "https://t.co/FDz0qvLXUY": {
+    "url": "https://t.co/FDz0qvLXUY",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.682689+00:00"
+  },
+  "https://t.co/6e1OoPRKF3": {
+    "url": "https://t.co/6e1OoPRKF3",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.692369+00:00"
+  },
+  "https://t.co/sGoycX0YQr": {
+    "url": "https://t.co/sGoycX0YQr",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:11.796707+00:00"
+  },
+  "https://t.co/WWscj5M200": {
+    "url": "https://t.co/WWscj5M200",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.012466+00:00"
+  },
+  "https://t.co/gQ1e7NTJvb": {
+    "url": "https://t.co/gQ1e7NTJvb",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.046142+00:00"
+  },
+  "https://t.co/oeXhHNRtQk": {
+    "url": "https://t.co/oeXhHNRtQk",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.091513+00:00"
+  },
+  "https://t.co/nzgaxXJRNR": {
+    "url": "https://t.co/nzgaxXJRNR",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.278728+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1704462586060865569": {
+    "url": "https://x.com/RemoteJobs/status/1704462586060865569",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.419401+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1927172198881538523": {
+    "url": "https://x.com/RemoteJobs/status/1927172198881538523",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.507836+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1743734889361674357": {
+    "url": "https://x.com/RemoteJobs/status/1743734889361674357",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.582026+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1687886582517542914": {
+    "url": "https://x.com/RemoteJobs/status/1687886582517542914",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.590487+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1763662456717783152": {
+    "url": "https://x.com/RemoteJobs/status/1763662456717783152",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.662167+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1696209492978155954": {
+    "url": "https://x.com/RemoteJobs/status/1696209492978155954",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.691811+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1960811221533516274": {
+    "url": "https://x.com/RemoteJobs/status/1960811221533516274",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.713415+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1756110404101845220": {
+    "url": "https://x.com/RemoteJobs/status/1756110404101845220",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.777176+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1760332064271016080": {
+    "url": "https://x.com/RemoteJobs/status/1760332064271016080",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.797639+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1723095038195085679": {
+    "url": "https://x.com/RemoteJobs/status/1723095038195085679",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.884830+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1735426781631664241": {
+    "url": "https://x.com/RemoteJobs/status/1735426781631664241",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:12.965768+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1721567793739657269": {
+    "url": "https://x.com/RemoteJobs/status/1721567793739657269",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.101866+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1715154060515639342": {
+    "url": "https://x.com/RemoteJobs/status/1715154060515639342",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.117333+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1970990718639628325": {
+    "url": "https://x.com/RemoteJobs/status/1970990718639628325",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.141167+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1717245941433225650": {
+    "url": "https://x.com/RemoteJobs/status/1717245941433225650",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.207034+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1950661864754737576": {
+    "url": "https://x.com/RemoteJobs/status/1950661864754737576",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.291711+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1948040832667582811": {
+    "url": "https://x.com/RemoteJobs/status/1948040832667582811",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.462193+00:00"
+  },
+  "https://x.com/RemoteJobs/status/1610717553697116160": {
+    "url": "https://x.com/RemoteJobs/status/1610717553697116160",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-11T06:39:13.473757+00:00"
   }
 }

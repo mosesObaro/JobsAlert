@@ -75,12 +75,55 @@
     .content {
       padding: 24px 28px;
     }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 28px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .section-header:first-child {
+      margin-top: 0;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .section-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .badge-jobs {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .badge-income {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
     .job-card {
       background-color: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .income-card {
+      background-color: #ffffff;
+      border: 1px solid #d1fae5;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
       transition: all 0.2s ease;
     }
     .card-top {
@@ -89,7 +132,7 @@
       align-items: flex-start;
       margin-bottom: 12px;
     }
-    .job-title {
+    .job-title, .opp-title {
       font-size: 18px;
       font-weight: 700;
       color: #0f172a;
@@ -100,6 +143,11 @@
       font-size: 15px;
       font-weight: 600;
       color: #2563eb;
+    }
+    .org-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #059669;
     }
     .score-badge {
       display: inline-flex;
@@ -143,15 +191,34 @@
       color: #854d0e;
       font-weight: 600;
     }
+    .chip-income-pay {
+      background-color: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+      font-weight: 700;
+    }
     .chip-remote {
       background-color: #f0fdf4;
       border-color: #bbf7d0;
       color: #166534;
       font-weight: 600;
     }
+    .chip-verified {
+      background-color: #ecfeff;
+      border-color: #a5f3fc;
+      color: #0e7490;
+      font-weight: 600;
+    }
     .why-match-box {
       background-color: #f8fafc;
       border-left: 3px solid #3b82f6;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+    .why-match-box-income {
+      background-color: #f0fdf4;
+      border-left: 3px solid #10b981;
       border-radius: 4px;
       padding: 12px 16px;
       margin: 16px 0;
@@ -162,6 +229,14 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .why-match-title-income {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #065f46;
       margin-bottom: 6px;
     }
     .why-match-list {
@@ -199,6 +274,17 @@
       border-radius: 6px;
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
+    .apply-btn-income {
+      display: inline-block;
+      background-color: #059669;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
     .footer {
       background-color: #0f172a;
       padding: 24px 28px;
@@ -218,35 +304,45 @@
       <!-- Header -->
       <div class="header">
         <div class="logo-row">
-          <span class="logo-badge">Autonomous Career Scout</span>
+          <span class="logo-badge">Autonomous Career & Income Scout</span>
           <span style="font-size: 12px; color: #94a3b8;">Friday, 11 September 2026</span>
         </div>
         <h1 class="header-title">1 High-Match Opportunities Found</h1>
         <p class="header-subtitle">
-          Aggregated & scored against target profile for <strong>Candidate</strong>
+          Aggregated, scam-verified & scored against target profile for <strong>Candidate</strong>
         </p>
       </div>
 
       <!-- Stats Bar -->
       <div class="stats-bar">
-        <span>⚡ 1 Verified Matches</span>
-        <span>🎯 Min Score: 9.5/10</span>
+        
+        <span>⚡ 1 Verified Career Matches</span>
+        <span>🎯 Min Score: 7.3/10</span>
         <span>🌐 Remote & Verified ATS</span>
+        
       </div>
 
-      <!-- Job Cards -->
+      <!-- Main Content -->
       <div class="content">
+
+        <!-- SECTION 1: TARGET CAREER ROLES -->
+        
+        <div class="section-header">
+          <h3 class="section-title">🎯 Target Career & Employment Opportunities</h3>
+          <span class="section-badge badge-jobs">1 Roles</span>
+        </div>
+
         
         <div class="job-card">
           <div class="card-top">
             <div>
-              <h2 class="job-title">Staff Distributed Systems Engineer</h2>
-              <div class="company-name">Cloudflare</div>
+              <h2 class="job-title">Senior Financial Analyst</h2>
+              <div class="company-name">Moniepoint</div>
             </div>
             <div>
               
-              <div class="score-badge score-high">
-                ★ 9.5/10 Match
+              <div class="score-badge score-strong">
+                ✦ 7.3/10 Match
               </div>
               
             </div>
@@ -259,7 +355,7 @@
             </span>
             
             <span class="chip chip-salary">
-              💰 $180,000 - $240,000
+              💰 $75,000 - $95,000
             </span>
             
             <span class="chip">
@@ -275,13 +371,13 @@
             <div class="why-match-title">Why You Match:</div>
             <ul class="why-match-list">
               
-              <li>Role matches target &#39;Staff Distributed Systems Engineer&#39;</li>
+              <li>Role matches target &#39;Senior Software Engineer&#39;</li>
               
-              <li>Aligned core skills: Go, Kubernetes, Distributed Systems</li>
+              <li>Worldwide remote: zero geo-restrictions</li>
               
-              <li>Top-tier compensation: $180,000 - $240,000</li>
+              <li>Direct verified employer ATS posting (Greenhouse)</li>
               
-              <li>Priority Watchlist Company: Cloudflare (1.3x boost)</li>
+              <li>Published within the last 24h (Early Applicant advantage)</li>
               
             </ul>
           </div>
@@ -289,18 +385,23 @@
           <!-- Card Footer & Direct Apply Button -->
           <div class="card-footer">
             <span class="source-tag">Source: Verified greenhouse</span>
-            <a href="https://boards.greenhouse.io/cloudflare/jobs/9999" class="apply-btn" target="_blank" rel="noopener noreferrer">
+            <a href="https://boards.greenhouse.io/moniepoint/jobs/101" class="apply-btn" target="_blank" rel="noopener noreferrer">
               Apply Directly →
             </a>
           </div>
         </div>
         
+        
+
+        <!-- SECTION 2: ONLINE INCOME & FLEXIBLE REMOTE TRACKS -->
+        
+
       </div>
 
       <!-- Footer -->
       <div class="footer">
         <p style="margin: 0 0 8px 0; color: #94a3b8;">
-          Sent by <strong>JobsAlert Autonomous Career Scout</strong> • 100% Free Open Infrastructure
+          Sent by <strong>JobsAlert Autonomous Intelligence System</strong> • 100% Free Open Infrastructure
         </p>
         <p style="margin: 0;">
           Configured for candidate@example.com • Modify preferences anytime via your Web Control Panel.

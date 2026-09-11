@@ -44,8 +44,14 @@ def compute_opportunity_fingerprint(
 class IncomeStateManager:
     """Manages seen and alerted status for online income opportunities."""
 
-    def __init__(self, state_file: Optional[Path] = None):
-        self.state_file = state_file or DEFAULT_INCOME_STATE_FILE
+    def __init__(
+        self,
+        state_file: Optional[Path | str] = None,
+        filepath: Optional[Path | str] = None,
+        state_file_path: Optional[Path | str] = None,
+    ):
+        target = state_file or filepath or state_file_path or DEFAULT_INCOME_STATE_FILE
+        self.state_file = Path(target)
         self._state: Dict[str, Dict] = self._load()
 
     def _load(self) -> Dict[str, Dict]:
@@ -69,6 +75,17 @@ class IncomeStateManager:
     def is_seen(self, fingerprint: str) -> bool:
         """Returns True if the fingerprint exists in state."""
         return fingerprint in self._state
+
+    def is_alerted(self, fingerprint: str) -> bool:
+        """Returns True if the opportunity has already been sent to the user."""
+        entry = self._state.get(fingerprint)
+        return bool(entry and entry.get("alerted", False))
+
+    def mark_alerted(self, fingerprint: str) -> None:
+        """Flags an existing opportunity as alerted to prevent duplicate dispatch."""
+        if fingerprint in self._state:
+            self._state[fingerprint]["alerted"] = True
+            self._state[fingerprint]["alerted_at"] = datetime.now(timezone.utc).isoformat()
 
     def is_dismissed(self, fingerprint: str) -> bool:
         """Returns True if the user manually dismissed this opportunity."""

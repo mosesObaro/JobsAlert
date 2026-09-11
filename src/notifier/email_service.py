@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Dict, List, Optional
 import httpx
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from src.config import AppConfig
 from src.models import ScoredJob
@@ -25,7 +25,10 @@ class EmailNotifier:
     """Renders structured templates and handles multi-provider dispatch."""
 
     def __init__(self):
-        self.env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
+        self.env = Environment(
+            loader=FileSystemLoader(TEMPLATES_DIR),
+            autoescape=select_autoescape(["html", "xml"])
+        )
         self.digest_html_tmpl = self.env.get_template("digest.html")
         self.digest_txt_tmpl = self.env.get_template("digest.txt")
         self.immediate_html_tmpl = self.env.get_template("immediate.html")
@@ -33,12 +36,28 @@ class EmailNotifier:
         self.income_digest_txt_tmpl = self.env.get_template("income_digest.txt")
         self.income_immediate_html_tmpl = self.env.get_template("income_immediate.html")
 
-    def format_digest_subject(self, jobs: List[ScoredJob]) -> str:
-        """Formats standard subject: [Job Alert] 27 Aug 2026 — 5 High-Match Opportunities Found"""
+    def format_digest_subject(
+        self,
+        jobs: Optional[List[ScoredJob]] = None,
+        income_opportunities: Optional[list] = None
+    ) -> str:
+        """Formats standard subject dynamically for jobs, income tracks, or unified alerts."""
         date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
-        count = len(jobs)
-        plural = "Opportunities" if count != 1 else "Opportunity"
-        return f"[Job Alert] {date_str} — {count} High-Match {plural} Found"
+        job_count = len(jobs) if jobs else 0
+        income_count = len(income_opportunities) if income_opportunities else 0
+
+        if job_count > 0 and income_count > 0:
+            job_plural = "Roles" if job_count != 1 else "Role"
+            inc_plural = "Income Tracks" if income_count != 1 else "Income Track"
+            return f"[Daily Alert] {date_str} — {job_count} Target {job_plural} & {income_count} Online {inc_plural} Found"
+        elif job_count > 0:
+            plural = "Opportunities" if job_count != 1 else "Opportunity"
+            return f"[Job Alert] {date_str} — {job_count} High-Match {plural} Found"
+        elif income_count > 0:
+            plural = "Tracks" if income_count != 1 else "Track"
+            return f"[Income Alert] {date_str} — {income_count} Verified Online Income {plural} Found"
+        else:
+            return f"[Daily Alert] {date_str} — Daily Intelligence Digest"
 
     def format_income_digest_subject(self, opportunities: list) -> str:
         """Formats standard subject: [Income Alert] 27 Aug 2026 — 4 Verified Online Gigs & AI Evaluation Tracks"""
@@ -47,20 +66,47 @@ class EmailNotifier:
         plural = "Tracks" if count != 1 else "Track"
         return f"[Income Alert] {date_str} — {count} Verified Online Income {plural} Found"
 
-    def render_digest(self, jobs: List[ScoredJob], config: AppConfig) -> tuple[str, str, str]:
-        """Renders HTML and plaintext versions of the digest email."""
+    def render_digest(
+        self,
+        jobs: Optional[List[ScoredJob]] = None,
+        config: Optional[AppConfig] = None,
+        income_opportunities: Optional[list] = None
+    ) -> tuple[str, str, str]:
+        """Renders HTML and plaintext versions of the digest email, supporting combined jobs & income tracks."""
         date_str = datetime.now(timezone.utc).strftime("%A, %d %B %Y")
-        subject = self.format_digest_subject(jobs)
-        min_score = min([j.score for j in jobs]) if jobs else 7.0
+        jobs_list = jobs or []
+        income_list = income_opportunities or []
+        subject = self.format_digest_subject(jobs_list, income_list)
 
+        all_scores = [j.score for j in jobs_list]
+        for opp in income_list:
+            if isinstance(opp, dict):
+                all_scores.append(opp.get("score", 0.0))
+            else:
+                all_scores.append(getattr(opp, "score", 0.0))
+
+        min_score = min(all_scores) if all_scores else 7.0
+
+        if jobs_list and income_list:
+            header_title = f"{len(jobs_list)} Target Roles & {len(income_list)} Online Income Tracks"
+        elif jobs_list:
+            header_title = f"{len(jobs_list)} High-Match Opportunities Found"
+        elif income_list:
+            header_title = f"{len(income_list)} Verified Online Income Tracks"
+        else:
+            header_title = "Daily Intelligence Digest"
+
+        candidate_name = config.profile.candidate_name if config else "Candidate"
+        recipient_email = config.delivery.recipient_email if config else "candidate@example.com"
 
         ctx = {
             "subject": subject,
-            "header_title": f"{len(jobs)} High-Match Opportunities Found",
+            "header_title": header_title,
             "date_str": date_str,
-            "candidate_name": config.profile.candidate_name,
-            "recipient_email": config.delivery.recipient_email,
-            "jobs": jobs,
+            "candidate_name": candidate_name,
+            "recipient_email": recipient_email,
+            "jobs": jobs_list,
+            "income_opportunities": income_list,
             "min_score": min_score,
         }
 
@@ -88,27 +134,34 @@ class EmailNotifier:
 
     async def send_digest(
         self,
-        jobs: List[ScoredJob],
-        config: AppConfig,
+        jobs: Optional[List[ScoredJob]] = None,
+        config: Optional[AppConfig] = None,
+        income_opportunities: Optional[list] = None,
         dry_run: bool = False
     ) -> bool:
-        """Sends the digest email or outputs preview in dry-run mode."""
-        if not jobs:
+        """Sends the digest email or outputs preview in dry-run mode, supporting combined opportunities."""
+        jobs_list = jobs or []
+        income_list = income_opportunities or []
+        if not jobs_list and not income_list:
             return True
 
-        subject, html_body, text_body = self.render_digest(jobs, config)
+        subject, html_body, text_body = self.render_digest(jobs_list, config, income_opportunities=income_list)
         self.save_preview(html_body)
 
-        if dry_run or config.delivery.email_provider == "console":
+        to_email = config.delivery.recipient_email if config else "candidate@example.com"
+        provider = config.delivery.email_provider if config else "console"
+        from_email = config.delivery.from_email if config else "alerts@jobsalert.dev"
+
+        if dry_run or provider == "console":
             print(f"\n[DRY RUN / PREVIEW] Email Subject: {subject}")
-            print(f"[DRY RUN / PREVIEW] Recipient: {config.delivery.recipient_email}")
+            print(f"[DRY RUN / PREVIEW] Recipient: {to_email}")
             print(f"[DRY RUN / PREVIEW] Preview saved to: {PREVIEW_FILE.resolve()}")
             return True
 
         return await self._dispatch_provider(
-            provider=config.delivery.email_provider,
-            to_email=config.delivery.recipient_email,
-            from_email=config.delivery.from_email,
+            provider=provider,
+            to_email=to_email,
+            from_email=from_email,
             subject=subject,
             html_body=html_body,
             text_body=text_body,

@@ -75,12 +75,55 @@
     .content {
       padding: 24px 28px;
     }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 28px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .section-header:first-child {
+      margin-top: 0;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .section-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .badge-jobs {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .badge-income {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
     .job-card {
       background-color: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .income-card {
+      background-color: #ffffff;
+      border: 1px solid #d1fae5;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
       transition: all 0.2s ease;
     }
     .card-top {
@@ -89,7 +132,7 @@
       align-items: flex-start;
       margin-bottom: 12px;
     }
-    .job-title {
+    .job-title, .opp-title {
       font-size: 18px;
       font-weight: 700;
       color: #0f172a;
@@ -100,6 +143,11 @@
       font-size: 15px;
       font-weight: 600;
       color: #2563eb;
+    }
+    .org-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #059669;
     }
     .score-badge {
       display: inline-flex;
@@ -143,15 +191,34 @@
       color: #854d0e;
       font-weight: 600;
     }
+    .chip-income-pay {
+      background-color: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+      font-weight: 700;
+    }
     .chip-remote {
       background-color: #f0fdf4;
       border-color: #bbf7d0;
       color: #166534;
       font-weight: 600;
     }
+    .chip-verified {
+      background-color: #ecfeff;
+      border-color: #a5f3fc;
+      color: #0e7490;
+      font-weight: 600;
+    }
     .why-match-box {
       background-color: #f8fafc;
       border-left: 3px solid #3b82f6;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+    .why-match-box-income {
+      background-color: #f0fdf4;
+      border-left: 3px solid #10b981;
       border-radius: 4px;
       padding: 12px 16px;
       margin: 16px 0;
@@ -162,6 +229,14 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .why-match-title-income {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #065f46;
       margin-bottom: 6px;
     }
     .why-match-list {
@@ -199,6 +274,17 @@
       border-radius: 6px;
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
+    .apply-btn-income {
+      display: inline-block;
+      background-color: #059669;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
     .footer {
       background-color: #0f172a;
       padding: 24px 28px;
@@ -218,24 +304,46 @@
       <!-- Header -->
       <div class="header">
         <div class="logo-row">
-          <span class="logo-badge">Autonomous Career Scout</span>
+          <span class="logo-badge">Autonomous Career & Income Scout</span>
           <span style="font-size: 12px; color: #94a3b8;">{{ date_str }}</span>
         </div>
         <h1 class="header-title">{{ header_title }}</h1>
         <p class="header-subtitle">
-          Aggregated & scored against target profile for <strong>{{ candidate_name }}</strong>
+          Aggregated, scam-verified & scored against target profile for <strong>{{ candidate_name }}</strong>
         </p>
       </div>
 
       <!-- Stats Bar -->
       <div class="stats-bar">
-        <span>⚡ {{ jobs|length }} Verified Matches</span>
+        {% if jobs and income_opportunities %}
+        <span>⚡ {{ jobs|length }} Career Roles</span>
+        <span>💰 {{ income_opportunities|length }} Online Income Tracks</span>
+        <span>🎯 Min Score: {{ min_score }}/10</span>
+        {% elif jobs %}
+        <span>⚡ {{ jobs|length }} Verified Career Matches</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
         <span>🌐 Remote & Verified ATS</span>
+        {% elif income_opportunities %}
+        <span>💰 {{ income_opportunities|length }} Verified Income Tracks</span>
+        <span>🎯 Min Score: {{ min_score }}/10</span>
+        <span>🛡️ Scam & Safety Screened</span>
+        {% else %}
+        <span>⚡ 0 New Alerts Today</span>
+        <span>🎯 Standing Guard</span>
+        <span>🌐 Remote & Verified</span>
+        {% endif %}
       </div>
 
-      <!-- Job Cards -->
+      <!-- Main Content -->
       <div class="content">
+
+        <!-- SECTION 1: TARGET CAREER ROLES -->
+        {% if jobs %}
+        <div class="section-header">
+          <h3 class="section-title">🎯 Target Career & Employment Opportunities</h3>
+          <span class="section-badge badge-jobs">{{ jobs|length }} Roles</span>
+        </div>
+
         {% for scored in jobs %}
         <div class="job-card">
           <div class="card-top">
@@ -297,12 +405,84 @@
           </div>
         </div>
         {% endfor %}
+        {% endif %}
+
+        <!-- SECTION 2: ONLINE INCOME & FLEXIBLE REMOTE TRACKS -->
+        {% if income_opportunities %}
+        <div class="section-header" style="{% if jobs %}margin-top: 36px;{% endif %}">
+          <h3 class="section-title">💰 Verified Online Income & Flexible Remote Tracks</h3>
+          <span class="section-badge badge-income">{{ income_opportunities|length }} Tracks</span>
+        </div>
+
+        {% for scored in income_opportunities %}
+        <div class="income-card">
+          <div class="card-top">
+            <div>
+              <h2 class="opp-title">{{ scored.opportunity.title }}</h2>
+              <div class="org-name">{{ scored.opportunity.organization }}</div>
+            </div>
+            <div>
+              {% if scored.score >= 9.0 %}
+              <div class="score-badge score-high">
+                ★ {{ scored.score }}/10 Match
+              </div>
+              {% else %}
+              <div class="score-badge score-strong">
+                ✦ {{ scored.score }}/10 Match
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Metadata Chips -->
+          <div class="chips-row">
+            <span class="chip chip-verified">
+              🛡️ Scam-Screened
+            </span>
+            <span class="chip chip-remote">
+              📍 {{ scored.opportunity.location_eligibility }}
+            </span>
+            <span class="chip">
+              🏷️ {{ (scored.opportunity.category or 'flexible').replace('_', ' ').title() }}
+            </span>
+            {% if scored.opportunity.pay_rate_display %}
+            <span class="chip chip-income-pay">
+              💵 {{ scored.opportunity.pay_rate_display }}
+            </span>
+            {% else %}
+            <span class="chip">
+              💵 Flexible Compensation
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Why This Opportunity Matches -->
+          <div class="why-match-box-income">
+            <div class="why-match-title-income">Why This Track Is Worth Considering:</div>
+            <ul class="why-match-list">
+              {% for highlight in scored.breakdown.highlights %}
+              <li>{{ highlight }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Card Footer & Direct Apply Button -->
+          <div class="card-footer">
+            <span class="source-tag">Platform: {{ scored.opportunity.organization }}</span>
+            <a href="{{ scored.opportunity.application_url or scored.opportunity.url }}" class="apply-btn-income" target="_blank" rel="noopener noreferrer">
+              Apply / Start →
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
       </div>
 
       <!-- Footer -->
       <div class="footer">
         <p style="margin: 0 0 8px 0; color: #94a3b8;">
-          Sent by <strong>JobsAlert Autonomous Career Scout</strong> • 100% Free Open Infrastructure
+          Sent by <strong>JobsAlert Autonomous Intelligence System</strong> • 100% Free Open Infrastructure
         </p>
         <p style="margin: 0;">
           Configured for {{ recipient_email }} • Modify preferences anytime via your Web Control Panel.

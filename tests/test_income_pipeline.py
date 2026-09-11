@@ -13,6 +13,7 @@ def test_income_pipeline_dry_run(tmp_path):
         eligible_countries=["Nigeria", "Worldwide"],
         minimum_score=7.0,
         instant_alert_score=9.0,
+        require_link_verification=False,
     )
 
     pipeline = IncomeOpportunityPipeline(config=config, state_manager=state_mgr)
@@ -36,6 +37,7 @@ def test_income_pipeline_live_state_persistence(tmp_path):
 
     config = OnlineIncomeConfig(
         eligible_countries=["Nigeria", "Worldwide"],
+        require_link_verification=False,
     )
 
     pipeline = IncomeOpportunityPipeline(config=config, state_manager=state_mgr)

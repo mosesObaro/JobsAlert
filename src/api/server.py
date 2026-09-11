@@ -196,12 +196,15 @@ async def trigger_run(req: RunRequest):
 
         latest_run_summary = summary.model_dump(mode="json")
         latest_scored_jobs = [s.model_dump(mode="json") for s in scored]
+        latest_scored_income_opps = [s.model_dump(mode="json") for s in pipeline.latest_income_opportunities]
 
         return {
             "status": "completed",
             "summary": latest_run_summary,
             "jobs_count": len(scored),
+            "income_count": len(latest_scored_income_opps),
             "top_matches": [s for s in latest_scored_jobs if s["score"] >= 7.0][:10],
+            "top_income_matches": [s for s in latest_scored_income_opps if s["score"] >= 7.0][:10],
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {str(e)}")

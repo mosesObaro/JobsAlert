@@ -1,103 +1,519 @@
 [
   {
-    "run_id": "run_20260911_032517_299394",
-    "timestamp": "2026-09-11T03:25:22.868873Z",
-    "total_fetched": 412,
-    "unique_candidates": 76,
-    "discarded": 59,
-    "low_matches": 12,
-    "digest_matches": 5,
-    "instant_matches": 0,
+    "run_id": "run_20260911_064704_2879ee",
+    "timestamp": "2026-09-11T06:47:04.041975Z",
+    "total_fetched": 3,
+    "unique_candidates": 3,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 2,
+    "instant_matches": 1,
     "emails_dispatched": 1,
-    "expired_links_removed": 2,
-    "execution_time_seconds": 4.93,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 2,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_064703_a00c93",
+    "timestamp": "2026-09-11T06:47:04.006961Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_064703_b0974a",
+    "timestamp": "2026-09-11T06:47:03.961064Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_064641_bf638d",
+    "timestamp": "2026-09-11T06:46:41.030211Z",
+    "total_fetched": 3,
+    "unique_candidates": 3,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 2,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 2,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_064640_990de5",
+    "timestamp": "2026-09-11T06:46:40.997788Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_064640_98d049",
+    "timestamp": "2026-09-11T06:46:40.952840Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_063906_62fb93",
+    "timestamp": "2026-09-11T06:39:19.900314Z",
+    "total_fetched": 460,
+    "unique_candidates": 124,
+    "discarded": 96,
+    "low_matches": 10,
+    "digest_matches": 5,
+    "instant_matches": 13,
+    "emails_dispatched": 0,
+    "expired_links_removed": 5,
+    "execution_time_seconds": 13.78,
     "source_health": [
       {
         "source_name": "greenhouse",
         "status": "healthy",
         "jobs_found": 198,
-        "latency_ms": 491.52,
-        "last_crawled": "2026-09-11T03:25:17.940735Z",
+        "latency_ms": 2729.19,
+        "last_crawled": "2026-09-11T06:39:06.118892Z",
         "error_message": null
       },
       {
         "source_name": "lever",
         "status": "healthy",
         "jobs_found": 0,
-        "latency_ms": 11.82,
-        "last_crawled": "2026-09-11T03:25:17.983473Z",
+        "latency_ms": 5.55,
+        "last_crawled": "2026-09-11T06:39:06.164939Z",
         "error_message": null
       },
       {
         "source_name": "ashby",
         "status": "healthy",
         "jobs_found": 20,
-        "latency_ms": 397.22,
-        "last_crawled": "2026-09-11T03:25:17.995350Z",
+        "latency_ms": 838.18,
+        "last_crawled": "2026-09-11T06:39:06.170518Z",
         "error_message": null
       },
       {
         "source_name": "remotive",
         "status": "healthy",
         "jobs_found": 18,
-        "latency_ms": 186.86,
-        "last_crawled": "2026-09-11T03:25:18.006743Z",
+        "latency_ms": 367.18,
+        "last_crawled": "2026-09-11T06:39:06.175763Z",
         "error_message": null
       },
       {
         "source_name": "remoteok",
         "status": "healthy",
         "jobs_found": 60,
-        "latency_ms": 668.08,
-        "last_crawled": "2026-09-11T03:25:18.018253Z",
+        "latency_ms": 1896.77,
+        "last_crawled": "2026-09-11T06:39:06.180969Z",
         "error_message": null
       },
       {
         "source_name": "arbeitnow",
         "status": "healthy",
         "jobs_found": 50,
-        "latency_ms": 415.39,
-        "last_crawled": "2026-09-11T03:25:18.029990Z",
+        "latency_ms": 659.6,
+        "last_crawled": "2026-09-11T06:39:06.185951Z",
         "error_message": null
       },
       {
         "source_name": "jobicy",
         "status": "healthy",
         "jobs_found": 0,
-        "latency_ms": 614.63,
-        "last_crawled": "2026-09-11T03:25:18.041728Z",
+        "latency_ms": 947.35,
+        "last_crawled": "2026-09-11T06:39:06.190757Z",
         "error_message": null
       },
       {
         "source_name": "hackernews",
         "status": "healthy",
         "jobs_found": 60,
-        "latency_ms": 755.31,
-        "last_crawled": "2026-09-11T03:25:18.053465Z",
+        "latency_ms": 1480.1,
+        "last_crawled": "2026-09-11T06:39:06.195532Z",
         "error_message": null
       },
       {
         "source_name": "rss",
         "status": "healthy",
         "jobs_found": 0,
-        "latency_ms": 0.02,
-        "last_crawled": "2026-09-11T03:25:18.065154Z",
+        "latency_ms": 0.01,
+        "last_crawled": "2026-09-11T06:39:06.200997Z",
         "error_message": null
       },
       {
         "source_name": "custom",
         "status": "healthy",
         "jobs_found": 6,
-        "latency_ms": 0.56,
-        "last_crawled": "2026-09-11T03:25:18.065186Z",
+        "latency_ms": 0.92,
+        "last_crawled": "2026-09-11T06:39:06.201013Z",
         "error_message": null
       },
       {
         "source_name": "twitter",
         "status": "healthy",
-        "jobs_found": 0,
-        "latency_ms": 1967.44,
-        "last_crawled": "2026-09-11T03:25:18.065762Z",
+        "jobs_found": 30,
+        "latency_ms": 2039.37,
+        "last_crawled": "2026-09-11T06:39:06.201948Z",
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.24,
+        "last_crawled": "2026-09-11T06:39:06.207027Z",
+        "error_message": null
+      },
+      {
+        "source_name": "user_testing",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.1,
+        "last_crawled": "2026-09-11T06:39:06.207284Z",
+        "error_message": null
+      },
+      {
+        "source_name": "academic_tutoring",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.12,
+        "last_crawled": "2026-09-11T06:39:06.207392Z",
+        "error_message": null
+      },
+      {
+        "source_name": "transcription_support",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.09,
+        "last_crawled": "2026-09-11T06:39:06.207516Z",
+        "error_message": null
+      },
+      {
+        "source_name": "income_rss",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": "2026-09-11T06:39:06.207608Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.11,
+        "last_crawled": "2026-09-11T06:39:06.207614Z",
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_063903_d52966",
+    "timestamp": "2026-09-11T06:39:03.012954Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_063902_f1e63d",
+    "timestamp": "2026-09-11T06:39:02.971031Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_063841_8d08b9",
+    "timestamp": "2026-09-11T06:38:41.887466Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_063841_8d3f31",
+    "timestamp": "2026-09-11T06:38:41.814202Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_034108_c9977f",
+    "timestamp": "2026-09-11T03:41:08.549015Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_034102_65976b",
+    "timestamp": "2026-09-11T03:41:08.499986Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 1,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 1,
+    "expired_links_removed": 1,
+    "execution_time_seconds": 6.14,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_033938_d3b426",
+    "timestamp": "2026-09-11T03:39:38.917818Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
         "error_message": null
       }
     ],
@@ -410,6 +826,110 @@
         "jobs_found": 0,
         "latency_ms": 1222.4,
         "last_crawled": "2026-09-09T12:25:18.542086Z",
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260911_032517_299394",
+    "timestamp": "2026-09-11T03:25:22.868873Z",
+    "total_fetched": 412,
+    "unique_candidates": 76,
+    "discarded": 59,
+    "low_matches": 12,
+    "digest_matches": 5,
+    "instant_matches": 0,
+    "emails_dispatched": 1,
+    "expired_links_removed": 2,
+    "execution_time_seconds": 4.93,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 198,
+        "latency_ms": 491.52,
+        "last_crawled": "2026-09-11T03:25:17.940735Z",
+        "error_message": null
+      },
+      {
+        "source_name": "lever",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 11.82,
+        "last_crawled": "2026-09-11T03:25:17.983473Z",
+        "error_message": null
+      },
+      {
+        "source_name": "ashby",
+        "status": "healthy",
+        "jobs_found": 20,
+        "latency_ms": 397.22,
+        "last_crawled": "2026-09-11T03:25:17.995350Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remotive",
+        "status": "healthy",
+        "jobs_found": 18,
+        "latency_ms": 186.86,
+        "last_crawled": "2026-09-11T03:25:18.006743Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remoteok",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 668.08,
+        "last_crawled": "2026-09-11T03:25:18.018253Z",
+        "error_message": null
+      },
+      {
+        "source_name": "arbeitnow",
+        "status": "healthy",
+        "jobs_found": 50,
+        "latency_ms": 415.39,
+        "last_crawled": "2026-09-11T03:25:18.029990Z",
+        "error_message": null
+      },
+      {
+        "source_name": "jobicy",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 614.63,
+        "last_crawled": "2026-09-11T03:25:18.041728Z",
+        "error_message": null
+      },
+      {
+        "source_name": "hackernews",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 755.31,
+        "last_crawled": "2026-09-11T03:25:18.053465Z",
+        "error_message": null
+      },
+      {
+        "source_name": "rss",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 0.02,
+        "last_crawled": "2026-09-11T03:25:18.065154Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "jobs_found": 6,
+        "latency_ms": 0.56,
+        "last_crawled": "2026-09-11T03:25:18.065186Z",
+        "error_message": null
+      },
+      {
+        "source_name": "twitter",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 1967.44,
+        "last_crawled": "2026-09-11T03:25:18.065762Z",
         "error_message": null
       }
     ],

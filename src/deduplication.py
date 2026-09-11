@@ -109,8 +109,13 @@ class StateManager:
     and optional Supabase PostgreSQL sync.
     """
 
-    def __init__(self, state_file_path: Optional[Path | str] = None):
-        self.state_file = Path(state_file_path) if state_file_path else DEFAULT_STATE_FILE
+    def __init__(
+        self,
+        state_file_path: Optional[Path | str] = None,
+        filepath: Optional[Path | str] = None,
+    ):
+        target_path = state_file_path or filepath or DEFAULT_STATE_FILE
+        self.state_file = Path(target_path)
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         self.seen_data: Dict[str, dict] = {}
         self._load()
@@ -134,6 +139,11 @@ class StateManager:
     def is_seen(self, fingerprint: str) -> bool:
         """Returns True if the job fingerprint has already been processed."""
         return fingerprint in self.seen_data
+
+    def is_alerted(self, fingerprint: str) -> bool:
+        """Returns True if the job has already been alerted/sent to the candidate."""
+        entry = self.seen_data.get(fingerprint)
+        return bool(entry and entry.get("alerted", False))
 
     def record_job(
         self,

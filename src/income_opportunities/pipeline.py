@@ -134,12 +134,20 @@ class IncomeOpportunityPipeline:
         print(f"   · Low Matches (5.0-6.9):    {len(low_matches)} (saved for dashboard)")
         print(f"   ✕ Discarded (0.0-4.9):      {len(discarded)}")
 
-        # 5. Email Notifications
+        # 5. Filter Unalerted Matches & Dispatch Notifications
+        unalerted_instant = [m for m in instant_matches if not self.state_manager.is_alerted(m.opportunity.fingerprint)]
+        unalerted_digest = [m for m in digest_matches if not self.state_manager.is_alerted(m.opportunity.fingerprint)]
+        unalerted_all_opps = unalerted_instant + unalerted_digest
+
+        already_sent_count = len(all_alert_opps) - len(unalerted_all_opps)
+        if already_sent_count > 0:
+            print(f"🛡️ [PREVIOUSLY SENT FILTER] Suppressed {already_sent_count} income track(s) already emailed previously.")
+
         emails_dispatched = 0
         if not dry_run and send_email:
-            # Immediate Alerts
-            if instant_matches:
-                for match in instant_matches:
+            # Immediate Alerts (New / Unalerted Only)
+            if unalerted_instant:
+                for match in unalerted_instant:
                     success = await self.notifier.send_income_immediate(
                         scored=match,
                         candidate_name=self.config.candidate_name,
@@ -152,10 +160,10 @@ class IncomeOpportunityPipeline:
                         emails_dispatched += 1
                         self.state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
 
-            # Scheduled Digest
-            if not immediate_only and all_alert_opps:
+            # Scheduled Digest (New / Unalerted Only)
+            if not immediate_only and unalerted_all_opps:
                 success = await self.notifier.send_income_digest(
-                    opportunities=all_alert_opps,
+                    opportunities=unalerted_all_opps,
                     candidate_name=self.config.candidate_name,
                     recipient_email=recipient_email,
                     email_provider=email_provider,
@@ -164,11 +172,13 @@ class IncomeOpportunityPipeline:
                 )
                 if success:
                     emails_dispatched += 1
-                    for match in all_alert_opps:
+                    for match in unalerted_all_opps:
                         self.state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
+            elif not immediate_only and send_email and not unalerted_all_opps:
+                print("ℹ️ [NOTIFICATIONS] No new unalerted income tracks to dispatch. All matching tracks were previously sent.")
         else:
             # Render and save preview for dry run
-            preview_opps = all_alert_opps if all_alert_opps else (low_matches[:5] or scored_opps[:5])
+            preview_opps = unalerted_all_opps if unalerted_all_opps else (all_alert_opps or low_matches[:5] or scored_opps[:5])
             if preview_opps:
                 self.notifier.render_income_digest(
                     preview_opps,

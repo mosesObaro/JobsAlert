@@ -156,17 +156,29 @@ async def run_cli(args):
         immediate_only=args.immediate_only,
     )
 
-    # Print top 5 matches
+    # Print top career matches
     high_matches = [s for s in scored_jobs if s.score >= 7.0]
     if high_matches:
-        print("\n🏆 Top Matched Opportunities:")
+        print("\n🏆 Top Matched Career Opportunities:")
         for s in high_matches[:5]:
             print(f"  ★ [{s.score}/10] {s.job.title} @ {s.job.company} ({s.job.location})")
             print(f"    🔗 {s.job.url}")
             for h in s.breakdown.highlights[:2]:
                 print(f"       • {h}")
     else:
-        print("\nℹ️ No jobs currently meet the 7.0+ alert threshold for this run.")
+        print("\nℹ️ No career jobs currently meet the 7.0+ alert threshold for this run.")
+
+    # Print top online income matches
+    if pipeline.latest_income_opportunities:
+        high_income = [s for s in pipeline.latest_income_opportunities if s.score >= 7.0]
+        if high_income:
+            print("\n💰 Top Matched Online Income Tracks:")
+            for s in high_income[:5]:
+                print(f"  ★ [{s.score}/10] {s.opportunity.title} ({s.opportunity.organization})")
+                print(f"    💵 Comp: {s.opportunity.pay_rate_display or 'Flexible'} | 📍 {s.opportunity.location_eligibility}")
+                print(f"    🔗 Apply: {s.opportunity.application_url or s.opportunity.url}")
+                for h in s.breakdown.highlights[:2]:
+                    print(f"       • {h}")
 
 
 def main():

@@ -155,6 +155,7 @@ delivery:
   send_daily_digest: true
 online_income:
   enabled: true
+  include_in_daily_digest: true
   candidate_name: Finance Candidate
   eligible_countries:
   - Nigeria

@@ -5,7 +5,7 @@ Standardized representation for job postings, scoring results, configuration, an
 
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
@@ -84,6 +84,6 @@ class RunSummary(BaseModel):
     emails_dispatched: int = 0
     expired_links_removed: int = 0
     execution_time_seconds: float = 0.0
-    source_health: List[CrawlerHealth] = Field(default_factory=list)
+    source_health: List[Any] = Field(default_factory=list)
     error_count: int = 0
 

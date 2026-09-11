@@ -65,6 +65,7 @@ class IncomeScoringWeightsConfig(BaseModel):
 class OnlineIncomeConfig(BaseModel):
     """Complete configuration settings for Online Income Opportunities scout."""
     enabled: bool = True
+    include_in_daily_digest: bool = True
     candidate_name: str = "Candidate"
     eligible_countries: List[str] = Field(
         default_factory=lambda: ["Nigeria", "Worldwide", "Global", "All Countries", "Africa"]
