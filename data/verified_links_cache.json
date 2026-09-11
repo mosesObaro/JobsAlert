@@ -4,13 +4,2365 @@
     "is_valid": true,
     "status_code": 200,
     "reason": "mock_valid",
-    "verified_at": "2026-09-05T11:47:57.448539+00:00"
+    "verified_at": "2026-09-11T03:14:22.106259+00:00"
   },
   "https://real-site.com/closed-job": {
     "url": "https://real-site.com/closed-job",
     "is_valid": false,
     "status_code": 200,
     "reason": "Position closed ('this job is no longer available')",
-    "verified_at": "2026-09-05T11:47:57.448663+00:00"
+    "verified_at": "2026-09-11T03:14:22.106409+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943306101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943306101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.119060+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4118354101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4118354101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.194033+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4880701101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4880701101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.198581+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4703534101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4703534101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.285367+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943301101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943301101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.328077+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4035027101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4035027101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.454278+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736464101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736464101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.464877+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4951041101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4951041101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.477237+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943302101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943302101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.532686+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4880858101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4880858101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.544669+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4107464101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4107464101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.547340+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925536101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925536101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.552368+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737157101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737157101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.553349+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4021411101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4021411101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.554328+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736488101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736488101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.574127+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4118338101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4118338101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.637271+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912002101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912002101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.638352+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828406101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828406101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.642148+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4939426101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4939426101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.642836+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943297101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943297101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.643829+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828394101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828394101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.644867+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736463101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736463101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.672850+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4938471101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4938471101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.673998+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4928260101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4928260101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.676761+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941103101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941103101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.719439+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737173101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737173101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.844001+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4874410101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4874410101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.861248+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941104101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941104101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.889430+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950097101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950097101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.890626+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950072101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950072101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.895419+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941105101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941105101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.896397+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950094101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950094101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.914490+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950085101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950085101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.924136+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4938273101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4938273101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.925995+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950093101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950093101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.934587+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4940889101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4940889101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.948278+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950095101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950095101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:09.955565+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4939598101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4939598101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.000932+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923321101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923321101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.015493+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4355709101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4355709101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.030594+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950096101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4950096101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.166347+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4718744101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4718744101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.334303+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4928579101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4928579101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.341015+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828016101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828016101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.344864+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4930731101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4930731101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.380105+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4883663101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4883663101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.404129+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923290101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923290101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.435816+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931501101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931501101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.458762+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4889337101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4889337101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.460250+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925535101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925535101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.474745+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925534101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925534101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.483523+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4930013101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4930013101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.486653+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4850128101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4850128101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.507356+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4889340101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4889340101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.553280+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4609653101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4609653101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.589558+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931500101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931500101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.596494+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931504101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931504101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.603262+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958569101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958569101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.612735+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925530101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4925530101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.618243+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923301101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4923301101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.633904+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4827952101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4827952101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.654815+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4900313101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4900313101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.665268+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4885572101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4885572101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.699948+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.773461+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4773461101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4773461101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.793980+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4966435101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4966435101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.851083+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4781774101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4781774101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.858338+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4827872101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4827872101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.942777+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4148334101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4148334101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.951111+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828024101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4828024101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.956050+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4330952101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4330952101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.970148+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931489101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4931489101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:10.973481+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4687148101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4687148101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.029315+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4634345101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4634345101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.037406+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4008227101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4008227101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.038182+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4378148101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4378148101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.038820+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4244613101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4244613101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.050761+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4932688101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4932688101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.081514+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943404101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943404101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.091797+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4936062101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4936062101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.094788+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4929771101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4929771101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.095443+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4629880101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4629880101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.139344+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4953768101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4953768101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.147632+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4008231101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4008231101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.157359+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4955964101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4955964101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.158128+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944264101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944264101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.212781+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944263101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944263101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.234413+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4821858101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4821858101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.243614+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943408101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943408101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.293753+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944062101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944062101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.465951+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912592101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912592101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.472833+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4924934101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4924934101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.473541+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912941101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4912941101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.477891+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4791652101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4791652101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.478503+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4954434101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4954434101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.501106+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4942965101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4942965101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.515168+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4956399101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4956399101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.515799+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944575101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4944575101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.520737+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4936515101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4936515101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.528451+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4960916101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4960916101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.534447+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4808999101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4808999101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.540844+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941322101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941322101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.657838+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958069101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958069101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.660388+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4940527101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4940527101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.672923+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736481101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4736481101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.674285+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4942964101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4942964101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.708416+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4960920101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4960920101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.760311+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4001852101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4001852101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.794794+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4587490101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4587490101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.806734+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4906474101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4906474101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.850307+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4612209101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4612209101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.860190+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958054101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4958054101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.862345+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4777710101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4777710101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.869431+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4612208101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4612208101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.872316+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941088101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941088101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.914438+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4918894101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4918894101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.917525+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4823390101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4823390101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:11.962479+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4955355101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4955355101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.021040+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4952445101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4952445101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.021867+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710853101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710853101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.031456+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119159101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4119159101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.073306+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4056914101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4056914101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.079369+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4775383101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4775383101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.087237+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4576013101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4576013101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.155723+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710851101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710851101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.156743+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710852101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710852101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.157658+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4957381101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4957381101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.172404+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4369828101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4369828101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.181020+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737166101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4737166101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.192863+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4781739101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4781739101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.211823+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4962161101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4962161101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.457779+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/26215174-361a-4c1c-93bc-db6aaadb3d05": {
+    "url": "https://jobs.ashbyhq.com/lemfi/26215174-361a-4c1c-93bc-db6aaadb3d05",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.820260+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/4be1ce46-7e10-478c-9a19-15fff8be95eb": {
+    "url": "https://jobs.ashbyhq.com/lemfi/4be1ce46-7e10-478c-9a19-15fff8be95eb",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.831869+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/a755eb5b-7166-45db-a30c-73b2edf0cf01": {
+    "url": "https://jobs.ashbyhq.com/lemfi/a755eb5b-7166-45db-a30c-73b2edf0cf01",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.834895+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/8aa09d6f-3f71-41ff-9cf9-39b78c5d9b84": {
+    "url": "https://jobs.ashbyhq.com/lemfi/8aa09d6f-3f71-41ff-9cf9-39b78c5d9b84",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.839260+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/32e53e62-c50c-4a0c-9353-cd65abc3ee92": {
+    "url": "https://jobs.ashbyhq.com/lemfi/32e53e62-c50c-4a0c-9353-cd65abc3ee92",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.844026+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/14ba8b89-6aca-40a6-a3e0-2f54dcda85aa": {
+    "url": "https://jobs.ashbyhq.com/lemfi/14ba8b89-6aca-40a6-a3e0-2f54dcda85aa",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.851212+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/0b9af51d-ddcd-418c-a5e1-e1187fa48ec0": {
+    "url": "https://jobs.ashbyhq.com/lemfi/0b9af51d-ddcd-418c-a5e1-e1187fa48ec0",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.852775+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/da4efb7a-0795-4c8c-82d8-bc85278eb09e": {
+    "url": "https://jobs.ashbyhq.com/lemfi/da4efb7a-0795-4c8c-82d8-bc85278eb09e",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.853661+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/0ff18aec-df10-4536-95a3-07a09161cec5": {
+    "url": "https://jobs.ashbyhq.com/lemfi/0ff18aec-df10-4536-95a3-07a09161cec5",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.864800+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/d4574049-0b7a-4bf0-ad25-d3b38c143033": {
+    "url": "https://jobs.ashbyhq.com/lemfi/d4574049-0b7a-4bf0-ad25-d3b38c143033",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.871260+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/4291590d-2b78-4b80-8d8e-4274fd769356": {
+    "url": "https://jobs.ashbyhq.com/lemfi/4291590d-2b78-4b80-8d8e-4274fd769356",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:12.989472+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/51635316-a29e-4901-9282-367d1493c780": {
+    "url": "https://jobs.ashbyhq.com/lemfi/51635316-a29e-4901-9282-367d1493c780",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.037383+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/ba662f51-ce3b-42cf-b009-aa0ec46230e5": {
+    "url": "https://jobs.ashbyhq.com/lemfi/ba662f51-ce3b-42cf-b009-aa0ec46230e5",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.039800+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/e067e896-7d27-4d05-a456-298b6d371f25": {
+    "url": "https://jobs.ashbyhq.com/lemfi/e067e896-7d27-4d05-a456-298b6d371f25",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.050541+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/be72bcb9-a11d-4b55-8e85-9b4bd9f37952": {
+    "url": "https://jobs.ashbyhq.com/lemfi/be72bcb9-a11d-4b55-8e85-9b4bd9f37952",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.051632+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/46b3817d-1394-4050-bf40-67040b8483fc": {
+    "url": "https://jobs.ashbyhq.com/lemfi/46b3817d-1394-4050-bf40-67040b8483fc",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.056380+00:00"
+  },
+  "https://remotive.com/remote-jobs/writing/freelance-copywriter-1749306": {
+    "url": "https://remotive.com/remote-jobs/writing/freelance-copywriter-1749306",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.078119+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/4ecb0151-d460-413c-bf07-fd1f18174632": {
+    "url": "https://jobs.ashbyhq.com/lemfi/4ecb0151-d460-413c-bf07-fd1f18174632",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.089994+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi/b8752748-02fc-4bc9-84b1-f55a96a8edb1": {
+    "url": "https://jobs.ashbyhq.com/lemfi/b8752748-02fc-4bc9-84b1-f55a96a8edb1",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.267125+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/senior-react-full-stack-developer-2091101": {
+    "url": "https://remotive.com/remote-jobs/software-development/senior-react-full-stack-developer-2091101",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.290779+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/tech-lead-full-stack-rails-engineer-2069746": {
+    "url": "https://remotive.com/remote-jobs/software-development/tech-lead-full-stack-rails-engineer-2069746",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.705877+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/senior-data-engineer-2091097": {
+    "url": "https://remotive.com/remote-jobs/software-development/senior-data-engineer-2091097",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.726142+00:00"
+  },
+  "https://remotive.com/remote-jobs/all-others/face-deduplication-collection-2091093": {
+    "url": "https://remotive.com/remote-jobs/all-others/face-deduplication-collection-2091093",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.727252+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/senior-independent-ai-engineer-architect-1919266": {
+    "url": "https://remotive.com/remote-jobs/software-development/senior-independent-ai-engineer-architect-1919266",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.735990+00:00"
+  },
+  "https://remotive.com/remote-jobs/qa/senior-qa-engineer-2091100": {
+    "url": "https://remotive.com/remote-jobs/qa/senior-qa-engineer-2091100",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.741823+00:00"
+  },
+  "https://remotive.com/remote-jobs/all-others/content-reviewer-english-us-2091105": {
+    "url": "https://remotive.com/remote-jobs/all-others/content-reviewer-english-us-2091105",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.743475+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/senior-golang-developer-2091098": {
+    "url": "https://remotive.com/remote-jobs/software-development/senior-golang-developer-2091098",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.747009+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-development/senior-independent-software-developer-1919265": {
+    "url": "https://remotive.com/remote-jobs/software-development/senior-independent-software-developer-1919265",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.748806+00:00"
+  },
+  "https://remotive.com/remote-jobs/devops/senior-devops-engineer-2091099": {
+    "url": "https://remotive.com/remote-jobs/devops/senior-devops-engineer-2091099",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.784168+00:00"
+  },
+  "https://remotive.com/remote-jobs/marketing/head-of-marketing-communications-2091068": {
+    "url": "https://remotive.com/remote-jobs/marketing/head-of-marketing-communications-2091068",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.786804+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-store-manager-boss-store-plaza-las-americas-hugo-boss-1137301": {
+    "url": "https://remoteOK.com/remote-jobs/remote-store-manager-boss-store-plaza-las-americas-hugo-boss-1137301",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.845979+00:00"
+  },
+  "https://remotive.com/remote-jobs/marketing/remote-office-assistant-1680495": {
+    "url": "https://remotive.com/remote-jobs/marketing/remote-office-assistant-1680495",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.846817+00:00"
+  },
+  "https://remotive.com/remote-jobs/information-technology/tier-iii-service-desk-engineer-2091045": {
+    "url": "https://remotive.com/remote-jobs/information-technology/tier-iii-service-desk-engineer-2091045",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.897755+00:00"
+  },
+  "https://remotive.com/remote-jobs/sales/inside-sales-contractor-2086540": {
+    "url": "https://remotive.com/remote-jobs/sales/inside-sales-contractor-2086540",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.930701+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-qa-engineer-sunnydata-1137300": {
+    "url": "https://remoteOK.com/remote-jobs/remote-qa-engineer-sunnydata-1137300",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:13.994270+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-mro-buyer-u-p-pro-1137303": {
+    "url": "https://remoteOK.com/remote-jobs/remote-mro-buyer-u-p-pro-1137303",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.032608+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-urban-walker-walkr-turn-your-google-meet-walk-friendly-1137296": {
+    "url": "https://remoteOK.com/remote-jobs/remote-urban-walker-walkr-turn-your-google-meet-walk-friendly-1137296",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.037102+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-office-maid-hacksaw-gaming-1137306": {
+    "url": "https://remoteOK.com/remote-jobs/remote-office-maid-hacksaw-gaming-1137306",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.038703+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-customer-support-success-specialist-warehance-1137302": {
+    "url": "https://remoteOK.com/remote-jobs/remote-customer-support-success-specialist-warehance-1137302",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.052096+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-roupeiro-muro-alto-pe-gav-resorts-1137304": {
+    "url": "https://remoteOK.com/remote-jobs/remote-roupeiro-muro-alto-pe-gav-resorts-1137304",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.078760+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-store-manager-port-macquarie-ampol-1137295": {
+    "url": "https://remoteOK.com/remote-jobs/remote-store-manager-port-macquarie-ampol-1137295",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.156583+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-kitchen-technician-four-seasons-1137265": {
+    "url": "https://remoteOK.com/remote-jobs/remote-kitchen-technician-four-seasons-1137265",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.342681+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-mapping-test-via-sandra-ennismore-1137292": {
+    "url": "https://remoteOK.com/remote-jobs/remote-mapping-test-via-sandra-ennismore-1137292",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.372698+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-detailer-go-auto-1137277": {
+    "url": "https://remoteOK.com/remote-jobs/remote-detailer-go-auto-1137277",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.410256+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-amazon-specialist-volar-fashion-1137268": {
+    "url": "https://remoteOK.com/remote-jobs/remote-amazon-specialist-volar-fashion-1137268",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.523062+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-domestic-nt-health-1137261": {
+    "url": "https://remoteOK.com/remote-jobs/remote-domestic-nt-health-1137261",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.557512+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-regional-sales-manager-orderyoyo-1137279": {
+    "url": "https://remoteOK.com/remote-jobs/remote-regional-sales-manager-orderyoyo-1137279",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.558754+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-public-area-attendant-four-seasons-1137297": {
+    "url": "https://remoteOK.com/remote-jobs/remote-public-area-attendant-four-seasons-1137297",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.560176+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-police-officer-scottish-police-authority-1137305": {
+    "url": "https://remoteOK.com/remote-jobs/remote-police-officer-scottish-police-authority-1137305",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.561124+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-joiner-city-of-york-council-1137263": {
+    "url": "https://remoteOK.com/remote-jobs/remote-joiner-city-of-york-council-1137263",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.565628+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-chief-steward-w-hotels-1137272": {
+    "url": "https://remoteOK.com/remote-jobs/remote-chief-steward-w-hotels-1137272",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.616748+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-grades-person-wilco-contractors-northwest-inc-1137293": {
+    "url": "https://remoteOK.com/remote-jobs/remote-grades-person-wilco-contractors-northwest-inc-1137293",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.628963+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-field-officer-bendigo-department-of-justice-and-community-safety-victoria-1137267": {
+    "url": "https://remoteOK.com/remote-jobs/remote-field-officer-bendigo-department-of-justice-and-community-safety-victoria-1137267",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.648387+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-janitor-buffalo-wild-wings-fralich-inc-1137266": {
+    "url": "https://remoteOK.com/remote-jobs/remote-janitor-buffalo-wild-wings-fralich-inc-1137266",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.721962+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-vehicle-technician-mot-tester-halfords-1137258": {
+    "url": "https://remoteOK.com/remote-jobs/remote-vehicle-technician-mot-tester-halfords-1137258",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.754110+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-multi-skilled-maintenance-technician-sigma-1137273": {
+    "url": "https://remoteOK.com/remote-jobs/remote-multi-skilled-maintenance-technician-sigma-1137273",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.761737+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-driver-st-georges-university-1137289": {
+    "url": "https://remoteOK.com/remote-jobs/remote-driver-st-georges-university-1137289",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.830377+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-data-entry-clerk-astrek-careers-1137286": {
+    "url": "https://remoteOK.com/remote-jobs/remote-data-entry-clerk-astrek-careers-1137286",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.843219+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-assistant-housekeeping-manager-marriott-international-1137255": {
+    "url": "https://remoteOK.com/remote-jobs/remote-assistant-housekeeping-manager-marriott-international-1137255",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.853297+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-carpenter-st-regis-hotels-amp-resorts-1137253": {
+    "url": "https://remoteOK.com/remote-jobs/remote-carpenter-st-regis-hotels-amp-resorts-1137253",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.880020+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-expression-of-interest-cant-see-a-role-thats-right-for-you-c2-group-1137251": {
+    "url": "https://remoteOK.com/remote-jobs/remote-expression-of-interest-cant-see-a-role-thats-right-for-you-c2-group-1137251",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.919257+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-job-role-tap-growth-ai-1137246": {
+    "url": "https://remoteOK.com/remote-jobs/remote-job-role-tap-growth-ai-1137246",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.941202+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-produce-clerk-food-basics-1137247": {
+    "url": "https://remoteOK.com/remote-jobs/remote-produce-clerk-food-basics-1137247",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.963101+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-flm-hovis-bakeries-1137262": {
+    "url": "https://remoteOK.com/remote-jobs/remote-flm-hovis-bakeries-1137262",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.966187+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-handyman-woman-the-russell-inn-hotel-amp-conference-centre-1137282": {
+    "url": "https://remoteOK.com/remote-jobs/remote-handyman-woman-the-russell-inn-hotel-amp-conference-centre-1137282",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.969711+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-maintenance-technician-40hrs-week-delta-hotels-by-marriott-edinburgh-1137257": {
+    "url": "https://remoteOK.com/remote-jobs/remote-maintenance-technician-40hrs-week-delta-hotels-by-marriott-edinburgh-1137257",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.971884+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-assistant-store-manager-puerto-rico-premium-outlets-brooks-brothers-1137241": {
+    "url": "https://remoteOK.com/remote-jobs/remote-assistant-store-manager-puerto-rico-premium-outlets-brooks-brothers-1137241",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.997638+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-rural-and-suburban-mail-carrier-canada-post-postes-canada-1137283": {
+    "url": "https://remoteOK.com/remote-jobs/remote-rural-and-suburban-mail-carrier-canada-post-postes-canada-1137283",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:14.999748+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-business-analyst-it-gildan-1137243": {
+    "url": "https://remoteOK.com/remote-jobs/remote-business-analyst-it-gildan-1137243",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.085101+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-hampm-visual-merchandiser-plaza-del-sol-hampm-1137270": {
+    "url": "https://remoteOK.com/remote-jobs/remote-hampm-visual-merchandiser-plaza-del-sol-hampm-1137270",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.124071+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-construction-estimator-streamline-search-1137238": {
+    "url": "https://remoteOK.com/remote-jobs/remote-construction-estimator-streamline-search-1137238",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.142190+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-kitchen-porter-w-edinburgh-w-hotels-1137237": {
+    "url": "https://remoteOK.com/remote-jobs/remote-kitchen-porter-w-edinburgh-w-hotels-1137237",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.159756+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-estimator-fifth-avenue-properties-fifth-avenue-homes-1137236": {
+    "url": "https://remoteOK.com/remote-jobs/remote-estimator-fifth-avenue-properties-fifth-avenue-homes-1137236",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.205155+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-plant-fitter-linsco-ltd-1137259": {
+    "url": "https://remoteOK.com/remote-jobs/remote-plant-fitter-linsco-ltd-1137259",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.213354+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-delivery-driver-the-drinks-llab-1137242": {
+    "url": "https://remoteOK.com/remote-jobs/remote-delivery-driver-the-drinks-llab-1137242",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.217396+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-picker-vashi-integrated-solutions-1137239": {
+    "url": "https://remoteOK.com/remote-jobs/remote-picker-vashi-integrated-solutions-1137239",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.246333+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-fire-officer-jll-1137230": {
+    "url": "https://remoteOK.com/remote-jobs/remote-fire-officer-jll-1137230",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.290906+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-production-lead-itc-limited-1137233": {
+    "url": "https://remoteOK.com/remote-jobs/remote-production-lead-itc-limited-1137233",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.326715+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-merchandiser-jugopetrol-ad-1137234": {
+    "url": "https://remoteOK.com/remote-jobs/remote-merchandiser-jugopetrol-ad-1137234",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.381049+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-parts-person-ama-group-ltd-1137250": {
+    "url": "https://remoteOK.com/remote-jobs/remote-parts-person-ama-group-ltd-1137250",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.381804+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-employee-hartmann-group-international-1137232": {
+    "url": "https://remoteOK.com/remote-jobs/remote-employee-hartmann-group-international-1137232",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.385252+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-manager-rewards-management-coca-cola-cambodia-beverage-company-ltd-1137227": {
+    "url": "https://remoteOK.com/remote-jobs/remote-manager-rewards-management-coca-cola-cambodia-beverage-company-ltd-1137227",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.385916+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-cloud-computing-amazon-web-services-aws-1137231": {
+    "url": "https://remoteOK.com/remote-jobs/remote-cloud-computing-amazon-web-services-aws-1137231",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.388979+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-commercial-building-estimator-complex-co-1137228": {
+    "url": "https://remoteOK.com/remote-jobs/remote-commercial-building-estimator-complex-co-1137228",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.403536+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-payroll-clerk-pvh-group-inc-1137264": {
+    "url": "https://remoteOK.com/remote-jobs/remote-payroll-clerk-pvh-group-inc-1137264",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.440427+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-enterprise-architect-l0-wipro-1137226": {
+    "url": "https://remoteOK.com/remote-jobs/remote-enterprise-architect-l0-wipro-1137226",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.455703+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-airport-ground-staff-customer-service-associate-fronix-services-1137254": {
+    "url": "https://remoteOK.com/remote-jobs/remote-airport-ground-staff-customer-service-associate-fronix-services-1137254",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.570982+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-job-summary-workajobs-1137290": {
+    "url": "https://remoteOK.com/remote-jobs/remote-job-summary-workajobs-1137290",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.588511+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-ai-engineer-data-apis-benzinga-1137224": {
+    "url": "https://remoteOK.com/remote-jobs/remote-ai-engineer-data-apis-benzinga-1137224",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.589732+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-gtm-wonderful-1137225": {
+    "url": "https://remoteOK.com/remote-jobs/remote-gtm-wonderful-1137225",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.591141+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-vehicle-detailer-clutch-1137278": {
+    "url": "https://remoteOK.com/remote-jobs/remote-vehicle-detailer-clutch-1137278",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.592402+00:00"
+  },
+  "https://remoteOK.com/remote-jobs/remote-irrigation-technician-msc-cruises-1137298": {
+    "url": "https://remoteOK.com/remote-jobs/remote-irrigation-technician-msc-cruises-1137298",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.736739+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/claudius-wurth-agrarberatung/fachberaterin-pferd-offenburg-342116": {
+    "url": "https://www.arbeitnow.com/jobs/companies/claudius-wurth-agrarberatung/fachberaterin-pferd-offenburg-342116",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.959953+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/presch-tools-gmbh/qualitatsmanager-lieferantenqualitat-produktprufung-ganderkesee-394337": {
+    "url": "https://www.arbeitnow.com/jobs/companies/presch-tools-gmbh/qualitatsmanager-lieferantenqualitat-produktprufung-ganderkesee-394337",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.970991+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/ventx-gmbh/business-development-representative-bdr-munich-189050": {
+    "url": "https://www.arbeitnow.com/jobs/companies/ventx-gmbh/business-development-representative-bdr-munich-189050",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.972570+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/camunda/remote-senior-gtm-systems-ai-and-automation-engineer-43415": {
+    "url": "https://www.arbeitnow.com/jobs/companies/camunda/remote-senior-gtm-systems-ai-and-automation-engineer-43415",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.980431+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/sohohouseco/senior-accountant-berlin-berlin-86188": {
+    "url": "https://www.arbeitnow.com/jobs/companies/sohohouseco/senior-accountant-berlin-berlin-86188",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:15.993402+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/natuvion-gmbh/remote-senior-sap-abap-developer-architect-data-management-ilm-berlin-78818": {
+    "url": "https://www.arbeitnow.com/jobs/companies/natuvion-gmbh/remote-senior-sap-abap-developer-architect-data-management-ilm-berlin-78818",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.092685+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/grayoak/devops-engineer-release-deployment-frankfurt-am-main-154373": {
+    "url": "https://www.arbeitnow.com/jobs/companies/grayoak/devops-engineer-release-deployment-frankfurt-am-main-154373",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.134851+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/enpal/working-student-venture-development-tech-berlin-154250": {
+    "url": "https://www.arbeitnow.com/jobs/companies/enpal/working-student-venture-development-tech-berlin-154250",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.141888+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/nucs-ai/remote-senior-software-engineer-berlin-462841": {
+    "url": "https://www.arbeitnow.com/jobs/companies/nucs-ai/remote-senior-software-engineer-berlin-462841",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.147895+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-projektentwicklung-dresden-9222": {
+    "url": "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-projektentwicklung-dresden-9222",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.154100+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/veaxo-unternehmensgruppe/schweisser-konstruktionsmechaniker-schlosser-als-teamleiter-im-bereich-anarbeitung-metall-und-anlagenbau-freital-in-vollzeit-304599": {
+    "url": "https://www.arbeitnow.com/jobs/companies/veaxo-unternehmensgruppe/schweisser-konstruktionsmechaniker-schlosser-als-teamleiter-im-bereich-anarbeitung-metall-und-anlagenbau-freital-in-vollzeit-304599",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.168593+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/the-exploration-company/senior-avionics-system-engineer-munich-58956": {
+    "url": "https://www.arbeitnow.com/jobs/companies/the-exploration-company/senior-avionics-system-engineer-munich-58956",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.172052+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/atira/deployment-strategist-munich-168997": {
+    "url": "https://www.arbeitnow.com/jobs/companies/atira/deployment-strategist-munich-168997",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.319475+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/the-exploration-company/avionics-system-engineer-munich-496384": {
+    "url": "https://www.arbeitnow.com/jobs/companies/the-exploration-company/avionics-system-engineer-munich-496384",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.337497+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-polch-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-178039": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-polch-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-178039",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.348061+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-marktanalyse-vertriebskonzeption-im-bereich-biologische-landwirtschaft-dresden-344147": {
+    "url": "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-marktanalyse-vertriebskonzeption-im-bereich-biologische-landwirtschaft-dresden-344147",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.356204+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/dilitrust/account-executive-legal-tech-dach-berlin-206710": {
+    "url": "https://www.arbeitnow.com/jobs/companies/dilitrust/account-executive-legal-tech-dach-berlin-206710",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.363700+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/lemonaid-beverages-gmbh/senior-brand-managerin-hamburg-494202": {
+    "url": "https://www.arbeitnow.com/jobs/companies/lemonaid-beverages-gmbh/senior-brand-managerin-hamburg-494202",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.367259+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-plauen-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-414717": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-plauen-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-414717",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.373112+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-rheinmunster-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-277279": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-rheinmunster-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-277279",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.374322+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/argo-residential/werkstudent-im-bereich-abrechnung-von-betriebskosten-rechnungswesen-leipzig-11009": {
+    "url": "https://www.arbeitnow.com/jobs/companies/argo-residential/werkstudent-im-bereich-abrechnung-von-betriebskosten-rechnungswesen-leipzig-11009",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.378466+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-asset-management-dresden-370059": {
+    "url": "https://www.arbeitnow.com/jobs/companies/bewerbung-uniplan/werkstudent-asset-management-dresden-370059",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.383691+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/tmh/senior-ecommerce-manager-munchen-161122": {
+    "url": "https://www.arbeitnow.com/jobs/companies/tmh/senior-ecommerce-manager-munchen-161122",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.399002+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-bornheim-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-104227": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-bornheim-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-104227",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.449276+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-grunhain-beierfeld-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-269917": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-grunhain-beierfeld-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-269917",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.451566+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/tmh/product-manager-home-energy-solution-b2c-munchen-423872": {
+    "url": "https://www.arbeitnow.com/jobs/companies/tmh/product-manager-home-energy-solution-b2c-munchen-423872",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.476345+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-unterschleissheim-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-18424": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-unterschleissheim-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-18424",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.536706+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-siek-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-44426": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-siek-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-44426",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:16.538746+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/maxsolar/senior-project-manager-rooftop-pv-systems-emobility-bess-frankfurt-am-main-118226": {
+    "url": "https://www.arbeitnow.com/jobs/companies/maxsolar/senior-project-manager-rooftop-pv-systems-emobility-bess-frankfurt-am-main-118226",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.627008+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-sap-abap-entwickler-fokus-cloud-api-integration-rest-odata-btp-vollzeit-passau-250921": {
+    "url": "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-sap-abap-entwickler-fokus-cloud-api-integration-rest-odata-btp-vollzeit-passau-250921",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.627756+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-senior-sap-logistics-consultant-vollzeit-passau-339837": {
+    "url": "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-senior-sap-logistics-consultant-vollzeit-passau-339837",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.643159+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/transperfect/senior-hr-generalist-2-year-contract-berlin-322157": {
+    "url": "https://www.arbeitnow.com/jobs/companies/transperfect/senior-hr-generalist-2-year-contract-berlin-322157",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.643447+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/werkstudentin-strategy-research-berlin-schlesische-strasse-26-373163": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/werkstudentin-strategy-research-berlin-schlesische-strasse-26-373163",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.648041+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/test-automation-engineer-gilching-80166": {
+    "url": "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/test-automation-engineer-gilching-80166",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.648421+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/maxsolar/senior-project-engineer-technische-projektplanung-pv-bess-utility-scale-munchen-hamburg-traunstein-berlin-frankfurt-276956": {
+    "url": "https://www.arbeitnow.com/jobs/companies/maxsolar/senior-project-engineer-technische-projektplanung-pv-bess-utility-scale-munchen-hamburg-traunstein-berlin-frankfurt-276956",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.648662+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/headsquare-gmbh/product-designer-ux-ui-digitale-gesundheitsplattform-munchen-383536": {
+    "url": "https://www.arbeitnow.com/jobs/companies/headsquare-gmbh/product-designer-ux-ui-digitale-gesundheitsplattform-munchen-383536",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.648853+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/junior-art-director-berlin-schlesische-strasse-26-374914": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/junior-art-director-berlin-schlesische-strasse-26-374914",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.655692+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/senior-projektmanager-print-berlin-schlesische-strasse-26-15913": {
+    "url": "https://www.arbeitnow.com/jobs/companies/hirschen-group-gmbh/senior-projektmanager-print-berlin-schlesische-strasse-26-15913",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.657810+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/kleines-kraftwerk-de-gmbh/senior-seo-managerin-i-seo-geo-ai-search-i-e-commerce-hybrid-achim-achim-bei-bremen-428972": {
+    "url": "https://www.arbeitnow.com/jobs/companies/kleines-kraftwerk-de-gmbh/senior-seo-managerin-i-seo-geo-ai-search-i-e-commerce-hybrid-achim-achim-bei-bremen-428972",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.799359+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/gocomo-gmbh/werkstudent-graphic-social-media-design-berlin-403148": {
+    "url": "https://www.arbeitnow.com/jobs/companies/gocomo-gmbh/werkstudent-graphic-social-media-design-berlin-403148",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.810969+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-senior-sap-logistics-developer-vollzeit-passau-417649": {
+    "url": "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-senior-sap-logistics-developer-vollzeit-passau-417649",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.854086+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/team-lead-software-production-support-gilching-372177": {
+    "url": "https://www.arbeitnow.com/jobs/companies/quantum-systems-gmbh/team-lead-software-production-support-gilching-372177",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:16.854520+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/gocomo-gmbh/senior-financial-controller-berlin-28169": {
+    "url": "https://www.arbeitnow.com/jobs/companies/gocomo-gmbh/senior-financial-controller-berlin-28169",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.155813+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/glasfaserplus-gmbh/werkstudent-projektmanagement-glasfaserausbau-koln-28560": {
+    "url": "https://www.arbeitnow.com/jobs/companies/glasfaserplus-gmbh/werkstudent-projektmanagement-glasfaserausbau-koln-28560",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.242194+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-sap-abap-entwickler-fokus-output-management-formulare-vollzeit-passau-326197": {
+    "url": "https://www.arbeitnow.com/jobs/companies/24-log-gmbh/remote-sap-abap-entwickler-fokus-output-management-formulare-vollzeit-passau-326197",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.445231+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12949379": {
+    "url": "https://news.ycombinator.com/item?id=12949379",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.674425+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12956838": {
+    "url": "https://news.ycombinator.com/item?id=12956838",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.674865+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12946845": {
+    "url": "https://news.ycombinator.com/item?id=12946845",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.683108+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12956693": {
+    "url": "https://news.ycombinator.com/item?id=12956693",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.687091+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12948459": {
+    "url": "https://news.ycombinator.com/item?id=12948459",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.698562+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12940799": {
+    "url": "https://news.ycombinator.com/item?id=12940799",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.703390+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12945315": {
+    "url": "https://news.ycombinator.com/item?id=12945315",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.705412+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12944551": {
+    "url": "https://news.ycombinator.com/item?id=12944551",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.739898+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12935577": {
+    "url": "https://news.ycombinator.com/item?id=12935577",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.994991+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12934090": {
+    "url": "https://news.ycombinator.com/item?id=12934090",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.995245+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12933810": {
+    "url": "https://news.ycombinator.com/item?id=12933810",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.995495+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12935632": {
+    "url": "https://news.ycombinator.com/item?id=12935632",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:17.995706+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12930050": {
+    "url": "https://news.ycombinator.com/item?id=12930050",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.018312+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/idealo-internet-gmbh/senior-ios-engineer-swift-mwd-berlin-330230": {
+    "url": "https://www.arbeitnow.com/jobs/companies/idealo-internet-gmbh/senior-ios-engineer-swift-mwd-berlin-330230",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.025984+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12928149": {
+    "url": "https://news.ycombinator.com/item?id=12928149",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.047769+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12929347": {
+    "url": "https://news.ycombinator.com/item?id=12929347",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.048327+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12932785": {
+    "url": "https://news.ycombinator.com/item?id=12932785",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.048734+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12940517": {
+    "url": "https://news.ycombinator.com/item?id=12940517",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.073415+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12938790": {
+    "url": "https://news.ycombinator.com/item?id=12938790",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.149815+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12928112": {
+    "url": "https://news.ycombinator.com/item?id=12928112",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.271054+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12928119": {
+    "url": "https://news.ycombinator.com/item?id=12928119",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.281211+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12928097": {
+    "url": "https://news.ycombinator.com/item?id=12928097",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.281797+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12928132": {
+    "url": "https://news.ycombinator.com/item?id=12928132",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.295808+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12927748": {
+    "url": "https://news.ycombinator.com/item?id=12927748",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.321745+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12957511": {
+    "url": "https://news.ycombinator.com/item?id=12957511",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.410185+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12958151": {
+    "url": "https://news.ycombinator.com/item?id=12958151",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.410881+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12922133": {
+    "url": "https://news.ycombinator.com/item?id=12922133",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.443627+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12935956": {
+    "url": "https://news.ycombinator.com/item?id=12935956",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.447181+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12960296": {
+    "url": "https://news.ycombinator.com/item?id=12960296",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.451469+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/sunday-natural/senior-devops-engineer-all-genders-berlin-413735": {
+    "url": "https://www.arbeitnow.com/jobs/companies/sunday-natural/senior-devops-engineer-all-genders-berlin-413735",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:18.457766+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12921212": {
+    "url": "https://news.ycombinator.com/item?id=12921212",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.461197+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12922420": {
+    "url": "https://news.ycombinator.com/item?id=12922420",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.463758+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12922366": {
+    "url": "https://news.ycombinator.com/item?id=12922366",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.464164+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12921753": {
+    "url": "https://news.ycombinator.com/item?id=12921753",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.469824+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/constructor/fullstack-engineer-prospect-ui-solutions-munich-415043": {
+    "url": "https://www.arbeitnow.com/jobs/companies/constructor/fullstack-engineer-prospect-ui-solutions-munich-415043",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:18.481970+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12954771": {
+    "url": "https://news.ycombinator.com/item?id=12954771",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.493500+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12920534": {
+    "url": "https://news.ycombinator.com/item?id=12920534",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.553664+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12920396": {
+    "url": "https://news.ycombinator.com/item?id=12920396",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.575836+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12920209": {
+    "url": "https://news.ycombinator.com/item?id=12920209",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.580517+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12919425": {
+    "url": "https://news.ycombinator.com/item?id=12919425",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.590406+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12916718": {
+    "url": "https://news.ycombinator.com/item?id=12916718",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.599917+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12915606": {
+    "url": "https://news.ycombinator.com/item?id=12915606",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.717540+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12915010": {
+    "url": "https://news.ycombinator.com/item?id=12915010",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.725769+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12911910": {
+    "url": "https://news.ycombinator.com/item?id=12911910",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.750910+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12912932": {
+    "url": "https://news.ycombinator.com/item?id=12912932",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.751340+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12912197": {
+    "url": "https://news.ycombinator.com/item?id=12912197",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.760182+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12905873": {
+    "url": "https://news.ycombinator.com/item?id=12905873",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.760643+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12902144": {
+    "url": "https://news.ycombinator.com/item?id=12902144",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.777040+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12900946": {
+    "url": "https://news.ycombinator.com/item?id=12900946",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.777299+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12903803": {
+    "url": "https://news.ycombinator.com/item?id=12903803",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.777513+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12899378": {
+    "url": "https://news.ycombinator.com/item?id=12899378",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.790167+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12899064": {
+    "url": "https://news.ycombinator.com/item?id=12899064",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.842725+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12897964": {
+    "url": "https://news.ycombinator.com/item?id=12897964",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.889453+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12896869": {
+    "url": "https://news.ycombinator.com/item?id=12896869",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.890680+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12896189": {
+    "url": "https://news.ycombinator.com/item?id=12896189",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.896891+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12896490": {
+    "url": "https://news.ycombinator.com/item?id=12896490",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:18.898333+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12924095": {
+    "url": "https://news.ycombinator.com/item?id=12924095",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.004668+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12895507": {
+    "url": "https://news.ycombinator.com/item?id=12895507",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.006147+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12895490": {
+    "url": "https://news.ycombinator.com/item?id=12895490",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.015397+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12895321": {
+    "url": "https://news.ycombinator.com/item?id=12895321",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.034854+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12894794": {
+    "url": "https://news.ycombinator.com/item?id=12894794",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.086889+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12908841": {
+    "url": "https://news.ycombinator.com/item?id=12908841",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.384634+00:00"
+  },
+  "https://news.ycombinator.com/item?id=12900504": {
+    "url": "https://news.ycombinator.com/item?id=12900504",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.398230+00:00"
+  },
+  "https://jobs.ashbyhq.com/scalearmy": {
+    "url": "https://jobs.ashbyhq.com/scalearmy",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:19.432478+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/liqid-lig/senior-data-engineer-berlin-462279": {
+    "url": "https://www.arbeitnow.com/jobs/companies/liqid-lig/senior-data-engineer-berlin-462279",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:19.502988+00:00"
+  },
+  "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-sankt-augustin-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-350105": {
+    "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-sankt-augustin-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-350105",
+    "is_valid": false,
+    "status_code": 429,
+    "reason": "HTTP Error 429",
+    "verified_at": "2026-09-05T11:57:19.615007+00:00"
+  },
+  "https://www.jobberman.com": {
+    "url": "https://www.jobberman.com",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:19.918650+00:00"
+  },
+  "https://boards.greenhouse.io/moniepoint": {
+    "url": "https://boards.greenhouse.io/moniepoint",
+    "is_valid": true,
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-05T11:57:22.490762+00:00"
   }
 }

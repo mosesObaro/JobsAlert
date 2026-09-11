@@ -25,6 +25,10 @@ def parse_args():
     parser.add_argument("--immediate-only", action="store_true", default=False, help="Only dispatch alerts for 9.0+ immediate target matches")
     parser.add_argument("--profile", type=str, default=None, help="Preset profile name to execute (e.g. remote_high_comp)")
     parser.add_argument("--add-job", action="store_true", default=False, help="Interactively add a custom job posting")
+    parser.add_argument("--income", action="store_true", default=False, help="Run the Online Income Opportunities scout pipeline")
+    parser.add_argument("--income-dry-run", action="store_true", default=False, help="Evaluate online income opportunities without sending email")
+    parser.add_argument("--income-send-email", action="store_true", default=False, help="Dispatch online income email digest")
+    parser.add_argument("--add-income", action="store_true", default=False, help="Interactively add a custom online income opportunity")
     parser.add_argument("--server", action="store_true", default=False, help="Launch the FastAPI Web Control Panel server")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Web server host")
     parser.add_argument("--port", type=int, default=8000, help="Web server port")
@@ -63,6 +67,73 @@ def interactive_add_job():
     print(f"\n✓ Custom job '{title}' at '{company}' saved to data/custom_jobs.json!")
     print("Run 'python run.py --dry-run' to score and preview it.\n")
 
+
+def interactive_add_income():
+    from src.income_opportunities.collectors.custom import add_custom_income_opportunity
+    print("\n💰 Add a Custom Online Income Opportunity")
+    print("---------------------------------------------")
+    title = input("Opportunity Title: ").strip()
+    if not title:
+        print("Error: Opportunity title is required.")
+        return
+    org = input("Platform / Organization (e.g. Outlier AI, Preply): ").strip()
+    if not org:
+        print("Error: Platform/organization is required.")
+        return
+    category = input("Category (default: ai_evaluation): ").strip() or "ai_evaluation"
+    location = input("Location Eligibility (default: Worldwide): ").strip() or "Worldwide"
+    pay_display = input("Pay Rate Display (e.g. $20–$30/hr) [optional]: ").strip() or None
+    url = input("Application URL: ").strip()
+    desc = input("Brief Description: ").strip()
+
+    entry = add_custom_income_opportunity(
+        title=title,
+        organization=org,
+        category=category,
+        location_eligibility=location,
+        pay_rate_display=pay_display,
+        url=url,
+        description=desc,
+    )
+    print(f"\n✓ Custom income opportunity '{title}' at '{org}' saved to data/custom_income_opportunities.json!")
+    print("Run 'python run.py --income --income-dry-run' to score and preview it.\n")
+
+
+async def run_income_cli(args):
+    from src.income_opportunities.pipeline import IncomeOpportunityPipeline
+
+    if args.profile:
+        print(f"📁 Loading profile preset: {args.profile}")
+        config = load_profile(args.profile)
+    else:
+        config = load_config()
+
+    is_dry_run = not args.income_send_email or args.income_dry_run or args.dry_run
+
+    pipeline = IncomeOpportunityPipeline(config=config.online_income)
+
+    summary, scored_opps = await pipeline.execute(
+        dry_run=is_dry_run,
+        send_email=args.income_send_email or (args.send_email and not is_dry_run),
+        force_all=args.force_all,
+        immediate_only=args.immediate_only,
+        recipient_email=config.delivery.recipient_email,
+        email_provider=config.delivery.email_provider,
+        from_email=config.delivery.from_email,
+    )
+
+    high_matches = [s for s in scored_opps if s.score >= 7.0]
+    if high_matches:
+        print("\n🏆 Top Matched Online Income Opportunities:")
+        for s in high_matches[:8]:
+            print(f"  ★ [{s.score}/10] {s.opportunity.title} ({s.opportunity.organization})")
+            print(f"    💵 Comp: {s.opportunity.pay_rate_display or 'Flexible'}")
+            print(f"    📍 Eligibility: {s.opportunity.location_eligibility}")
+            print(f"    🔗 Apply: {s.opportunity.application_url or s.opportunity.url}")
+            for h in s.breakdown.highlights[:2]:
+                print(f"       • {h}")
+    else:
+        print("\nℹ️ No income opportunities currently meet the 7.0+ alert threshold.")
 
 
 async def run_cli(args):
@@ -103,13 +174,18 @@ def main():
     if args.add_job:
         interactive_add_job()
         return
+    if args.add_income:
+        interactive_add_income()
+        return
+    if args.income or args.income_dry_run or args.income_send_email:
+        asyncio.run(run_income_cli(args))
+        return
     if args.server:
         import uvicorn
         print(f"🌐 Launching JobsAlert Web Control Panel on http://{args.host}:{args.port}")
         uvicorn.run("src.api.server:app", host=args.host, port=args.port, reload=False)
     else:
         asyncio.run(run_cli(args))
-
 
 
 if __name__ == "__main__":

@@ -155,3 +155,87 @@ export interface RunSummary {
   error_count: number;
 }
 
+export interface OnlineIncomeOpportunity {
+  id: string;
+  fingerprint: string;
+  title: string;
+  organization: string;
+  description: string;
+  category: string;
+  opportunity_type: string;
+  url: string;
+  application_url?: string;
+  location_eligibility: string;
+  country_restrictions: string[];
+  eligible_countries: string[];
+  is_remote: boolean;
+  is_flexible: boolean;
+  estimated_pay_min?: number;
+  estimated_pay_max?: number;
+  pay_rate_display?: string;
+  pay_currency: string;
+  pay_frequency: string;
+  experience_requirement: string;
+  time_commitment: string;
+  flexibility: string;
+  source: string;
+  tags: string[];
+  date_discovered: string;
+  date_published?: string;
+  verification_status: 'verified_source' | 'needs_review' | 'risk_flagged' | 'rejected';
+  legitimacy_indicators: string[];
+  scam_risk_indicators: string[];
+  is_verified: boolean;
+  link_verification_status?: string;
+}
+
+export interface IncomeMatchBreakdown {
+  category_score: number;
+  country_eligibility_score: number;
+  compensation_score: number;
+  flexibility_score: number;
+  time_commitment_score: number;
+  legitimacy_score: number;
+  ease_of_entry_score: number;
+  recurring_potential_score: number;
+  source_quality_score: number;
+  penalties_applied: string[];
+  highlights: string[];
+  risk_flags: string[];
+  is_verified: boolean;
+}
+
+export interface ScoredOpportunity {
+  opportunity: OnlineIncomeOpportunity;
+  score: number;
+  action: 'discard' | 'low_match' | 'digest' | 'instant';
+  breakdown: IncomeMatchBreakdown;
+  scored_at: string;
+}
+
+export interface IncomeCollectorHealth {
+  source_name: string;
+  status: 'healthy' | 'degraded' | 'error';
+  opportunities_found: number;
+  latency_ms: number;
+  last_crawled?: string;
+  error_message?: string;
+}
+
+export interface IncomeRunSummary {
+  run_id: string;
+  timestamp: string;
+  total_fetched: number;
+  unique_candidates: number;
+  discarded: number;
+  low_matches: number;
+  digest_matches: number;
+  instant_matches: number;
+  emails_dispatched: number;
+  expired_links_removed: number;
+  risk_rejected: number;
+  execution_time_seconds: number;
+  source_health: IncomeCollectorHealth[];
+  error_count: number;
+}
+

@@ -11,6 +11,8 @@ import yaml
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
+from src.income_opportunities.config import OnlineIncomeConfig
+
 # Load .env if present
 load_dotenv()
 
@@ -134,6 +136,7 @@ class AppConfig(BaseModel):
     link_verification: LinkVerificationConfig = Field(default_factory=LinkVerificationConfig)
     schedule: ScheduleConfig = Field(default_factory=ScheduleConfig)
     delivery: DeliveryConfig = Field(default_factory=DeliveryConfig)
+    online_income: OnlineIncomeConfig = Field(default_factory=OnlineIncomeConfig)
 
 
 

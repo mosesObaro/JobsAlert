@@ -23,6 +23,18 @@ from src.config import (
     save_config,
 )
 from src.deduplication import StateManager
+from src.income_opportunities.collectors.custom import (
+    CUSTOM_INCOME_FILE,
+    add_custom_income_opportunity,
+)
+from src.income_opportunities.config import OnlineIncomeConfig
+from src.income_opportunities.deduplication import IncomeStateManager
+from src.income_opportunities.models import IncomeRunSummary, ScoredOpportunity
+from src.income_opportunities.pipeline import (
+    INCOME_RUN_LOGS_FILE,
+    IncomeOpportunityPipeline,
+    get_income_run_logs,
+)
 from src.models import RunSummary, ScoredJob
 from src.notifier.email_service import PREVIEW_FILE, EmailNotifier
 from src.pipeline import JobPipeline, get_run_logs
@@ -47,8 +59,20 @@ active_pipeline_running = False
 latest_run_summary: Optional[Dict[str, Any]] = None
 latest_scored_jobs: List[Dict[str, Any]] = []
 
+# Income scout pipeline cache
+active_income_pipeline_running = False
+latest_income_run_summary: Optional[Dict[str, Any]] = None
+latest_scored_income_opps: List[Dict[str, Any]] = []
+
 
 class RunRequest(BaseModel):
+    dry_run: bool = True
+    send_email: bool = False
+    force_all: bool = True
+    profile: Optional[str] = None
+
+
+class IncomeRunRequest(BaseModel):
     dry_run: bool = True
     send_email: bool = False
     force_all: bool = True
@@ -67,6 +91,24 @@ class CustomJobRequest(BaseModel):
     description: str = ""
     salary_min: Optional[float] = None
     salary_max: Optional[float] = None
+
+
+class CustomIncomeRequest(BaseModel):
+    title: str
+    organization: str
+    category: str = "general_flexible"
+    url: str = ""
+    application_url: str = ""
+    location_eligibility: str = "Worldwide"
+    description: str = ""
+    estimated_pay_min: Optional[float] = None
+    estimated_pay_max: Optional[float] = None
+    pay_rate_display: Optional[str] = None
+    opportunity_type: str = "hourly"
+
+
+class DismissIncomeRequest(BaseModel):
+    fingerprint: str
 
 
 
@@ -267,6 +309,180 @@ async def clear_seen_jobs():
     count = state.get_seen_count()
     state.seen_data = {}
     state.save()
+    return {"status": "success", "cleared_count": count}
+
+
+# ==============================================================================
+# ONLINE INCOME OPPORTUNITIES ENDPOINTS
+# ==============================================================================
+
+@app.get("/api/income/config")
+async def get_income_config():
+    """Returns the online income scout configuration."""
+    config = load_config()
+    return config.online_income.model_dump()
+
+
+@app.post("/api/income/config")
+async def update_income_config(income_cfg_data: Dict[str, Any]):
+    """Updates and validates online income scout configuration."""
+    try:
+        config = load_config()
+        config.online_income = OnlineIncomeConfig(**income_cfg_data)
+        save_config(config)
+        return {"status": "success", "message": "Online Income configuration updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid online income configuration: {str(e)}")
+
+
+@app.post("/api/income/run")
+async def trigger_income_run(req: IncomeRunRequest):
+    """Executes the online income opportunities discovery and evaluation pipeline on-demand."""
+    global active_income_pipeline_running, latest_income_run_summary, latest_scored_income_opps
+
+    if active_income_pipeline_running:
+        raise HTTPException(status_code=429, detail="Income scout pipeline is already executing. Please wait.")
+
+    active_income_pipeline_running = True
+    try:
+        config = load_profile(req.profile) if req.profile else load_config()
+        pipeline = IncomeOpportunityPipeline(config=config.online_income)
+
+        summary, scored = await pipeline.execute(
+            dry_run=req.dry_run,
+            send_email=req.send_email,
+            force_all=req.force_all,
+            recipient_email=config.delivery.recipient_email,
+            email_provider=config.delivery.email_provider,
+            from_email=config.delivery.from_email,
+        )
+
+        latest_income_run_summary = summary.model_dump(mode="json")
+        latest_scored_income_opps = [s.model_dump(mode="json") for s in scored]
+
+        return {
+            "status": "completed",
+            "summary": latest_income_run_summary,
+            "opportunities_count": len(scored),
+            "top_matches": [s for s in latest_scored_income_opps if s["score"] >= 7.0][:10],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Income scout execution failed: {str(e)}")
+    finally:
+        active_income_pipeline_running = False
+
+
+@app.get("/api/income/opportunities")
+async def get_latest_income_opportunities(min_score: float = 0.0, category: Optional[str] = None, limit: int = 50):
+    """Returns the latest scored online income opportunities."""
+    global latest_scored_income_opps
+    filtered = [o for o in latest_scored_income_opps if o["score"] >= min_score]
+    if category and category.strip():
+        norm_c = category.strip().lower()
+        filtered = [o for o in filtered if norm_c in o["opportunity"]["category"].lower()]
+    filtered.sort(key=lambda x: x["score"], reverse=True)
+    return {"total": len(filtered), "opportunities": filtered[:limit]}
+
+
+@app.post("/api/income/custom")
+async def create_custom_income_opportunity(req: CustomIncomeRequest):
+    """Allows manual creation of an online income opportunity."""
+    entry = add_custom_income_opportunity(
+        title=req.title,
+        organization=req.organization,
+        category=req.category,
+        url=req.url,
+        application_url=req.application_url,
+        location_eligibility=req.location_eligibility,
+        description=req.description,
+        estimated_pay_min=req.estimated_pay_min,
+        estimated_pay_max=req.estimated_pay_max,
+        pay_rate_display=req.pay_rate_display,
+        opportunity_type=req.opportunity_type,
+    )
+    return {"status": "success", "message": "Custom income opportunity added", "opportunity": entry}
+
+
+@app.get("/api/income/custom")
+async def list_custom_income_opportunities():
+    """Lists all manually added custom income opportunities."""
+    if not CUSTOM_INCOME_FILE.exists():
+        return {"custom_opportunities": []}
+    try:
+        with open(CUSTOM_INCOME_FILE, "r", encoding="utf-8") as f:
+            return {"custom_opportunities": json.load(f)}
+    except Exception:
+        return {"custom_opportunities": []}
+
+
+@app.delete("/api/income/custom/{index}")
+async def delete_custom_income_opportunity(index: int):
+    """Removes a custom income opportunity by index."""
+    if not CUSTOM_INCOME_FILE.exists():
+        raise HTTPException(status_code=404, detail="No custom income opportunities found")
+    try:
+        with open(CUSTOM_INCOME_FILE, "r", encoding="utf-8") as f:
+            items = json.load(f)
+        if 0 <= index < len(items):
+            deleted = items.pop(index)
+            with open(CUSTOM_INCOME_FILE, "w", encoding="utf-8") as f:
+                json.dump(items, f, indent=2)
+            return {"status": "success", "deleted": deleted}
+        raise HTTPException(status_code=404, detail="Index out of range")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/income/dismiss")
+async def dismiss_income_opportunity(req: DismissIncomeRequest):
+    """Marks an opportunity as dismissed so it will not reappear in future digests."""
+    state = IncomeStateManager()
+    state.dismiss_opportunity(req.fingerprint)
+    return {"status": "success", "fingerprint": req.fingerprint, "dismissed": True}
+
+
+@app.get("/api/income/preview-email", response_class=HTMLResponse)
+async def preview_income_email_html():
+    """Renders HTML email preview for online income opportunities."""
+    global latest_scored_income_opps
+    config = load_config()
+    notifier = EmailNotifier()
+    preview_opps = latest_scored_income_opps or []
+    # If no run happened yet, run lightweight collection to preview
+    if not preview_opps:
+        pipeline = IncomeOpportunityPipeline(config=config.online_income)
+        _, scored = await pipeline.execute(dry_run=True, send_email=False, force_all=True)
+        preview_opps = scored
+
+    subject, html_content, _ = notifier.render_income_digest(
+        preview_opps,
+        config.online_income.candidate_name,
+        config.delivery.recipient_email
+    )
+    return HTMLResponse(content=html_content, status_code=200)
+
+
+@app.get("/api/income/logs")
+async def get_income_logs():
+    """Returns past execution logs and health telemetry for online income discovery."""
+    logs = get_income_run_logs()
+    return {"logs": logs}
+
+
+@app.get("/api/income/seen")
+async def get_seen_income_summary():
+    """Returns seen state telemetry for online income opportunities."""
+    state = IncomeStateManager()
+    records = state.get_all_records()
+    return {"total_seen": len(records), "sample": list(records.values())[:30]}
+
+
+@app.post("/api/income/seen/clear")
+async def clear_seen_income():
+    """Clears the seen income opportunities database."""
+    state = IncomeStateManager()
+    count = len(state.get_all_records())
+    state.clear()
     return {"status": "success", "cleared_count": count}
 
 

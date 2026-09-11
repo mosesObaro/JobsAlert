@@ -4,6 +4,7 @@ Tests HTTP status code evaluation, soft-404 closed posting keyword detection, ca
 """
 
 import asyncio
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 import pytest
 import httpx
@@ -22,7 +23,7 @@ def test_link_verifier_cache(tmp_path):
         is_valid=True,
         status_code=200,
         reason="active",
-        verified_at="2026-09-05T12:00:00+00:00",
+        verified_at=datetime.now(timezone.utc).isoformat(),
     )
     verifier.cache_result(res)
     verifier._save_cache()

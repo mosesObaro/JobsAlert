@@ -18,7 +18,7 @@ from src.config import AppConfig
 from src.models import ScoredJob
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
-PREVIEW_FILE = Path(__file__).resolve().parent.parent / "data" / "latest_email_preview.html"
+PREVIEW_FILE = Path(__file__).resolve().parent.parent.parent / "data" / "latest_email_preview.html"
 
 
 class EmailNotifier:
@@ -29,6 +29,9 @@ class EmailNotifier:
         self.digest_html_tmpl = self.env.get_template("digest.html")
         self.digest_txt_tmpl = self.env.get_template("digest.txt")
         self.immediate_html_tmpl = self.env.get_template("immediate.html")
+        self.income_digest_html_tmpl = self.env.get_template("income_digest.html")
+        self.income_digest_txt_tmpl = self.env.get_template("income_digest.txt")
+        self.income_immediate_html_tmpl = self.env.get_template("income_immediate.html")
 
     def format_digest_subject(self, jobs: List[ScoredJob]) -> str:
         """Formats standard subject: [Job Alert] 27 Aug 2026 — 5 High-Match Opportunities Found"""
@@ -36,6 +39,13 @@ class EmailNotifier:
         count = len(jobs)
         plural = "Opportunities" if count != 1 else "Opportunity"
         return f"[Job Alert] {date_str} — {count} High-Match {plural} Found"
+
+    def format_income_digest_subject(self, opportunities: list) -> str:
+        """Formats standard subject: [Income Alert] 27 Aug 2026 — 4 Verified Online Gigs & AI Evaluation Tracks"""
+        date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
+        count = len(opportunities)
+        plural = "Tracks" if count != 1 else "Track"
+        return f"[Income Alert] {date_str} — {count} Verified Online Income {plural} Found"
 
     def render_digest(self, jobs: List[ScoredJob], config: AppConfig) -> tuple[str, str, str]:
         """Renders HTML and plaintext versions of the digest email."""
@@ -125,6 +135,99 @@ class EmailNotifier:
             subject=subject,
             html_body=html_body,
             text_body=f"Instant Match: {job.job.title} at {job.job.company}. Apply at: {job.job.url}",
+        )
+
+    def render_income_digest(self, opportunities: list, candidate_name: str, recipient_email: str) -> tuple[str, str, str]:
+        """Renders HTML and plaintext versions of the online income opportunities digest."""
+        date_str = datetime.now(timezone.utc).strftime("%A, %d %B %Y")
+        subject = self.format_income_digest_subject(opportunities)
+        
+        def _get_score(o):
+            return o.get("score", 0.0) if isinstance(o, dict) else getattr(o, "score", 0.0)
+
+        scores = [_get_score(o) for o in opportunities]
+        min_score = min(scores) if scores else 7.0
+
+        ctx = {
+            "subject": subject,
+            "header_title": f"{len(opportunities)} Verified Income Tracks Found",
+            "date_str": date_str,
+            "candidate_name": candidate_name,
+            "recipient_email": recipient_email,
+            "opportunities": opportunities,
+            "min_score": min_score,
+        }
+
+        html_content = self.income_digest_html_tmpl.render(ctx)
+        text_content = self.income_digest_txt_tmpl.render(ctx)
+        return subject, html_content, text_content
+
+    def render_income_immediate(self, scored: any, candidate_name: str, recipient_email: str) -> tuple[str, str]:
+        """Renders an instant high-priority alert for a 9.0+ income opportunity."""
+        subject = f"[URGENT 9.0+] Top Online Income Track: {scored.opportunity.title} ({scored.opportunity.organization})"
+        ctx = {
+            "scored": scored,
+            "candidate_name": candidate_name,
+            "recipient_email": recipient_email,
+        }
+        html_content = self.income_immediate_html_tmpl.render(ctx)
+        return subject, html_content
+
+    async def send_income_digest(
+        self,
+        opportunities: list,
+        candidate_name: str,
+        recipient_email: str,
+        email_provider: str = "console",
+        from_email: str = "alerts@jobsalert.dev",
+        dry_run: bool = False
+    ) -> bool:
+        """Sends the online income digest email or outputs preview in dry-run mode."""
+        if not opportunities:
+            return True
+
+        subject, html_body, text_body = self.render_income_digest(opportunities, candidate_name, recipient_email)
+        self.save_preview(html_body)
+
+        if dry_run or email_provider == "console":
+            print(f"\n[INCOME SCOUT PREVIEW] Email Subject: {subject}")
+            print(f"[INCOME SCOUT PREVIEW] Recipient: {recipient_email}")
+            print(f"[INCOME SCOUT PREVIEW] Preview saved to: {PREVIEW_FILE.resolve()}")
+            return True
+
+        return await self._dispatch_provider(
+            provider=email_provider,
+            to_email=recipient_email,
+            from_email=from_email,
+            subject=subject,
+            html_body=html_body,
+            text_body=text_body,
+        )
+
+    async def send_income_immediate(
+        self,
+        scored: any,
+        candidate_name: str,
+        recipient_email: str,
+        email_provider: str = "console",
+        from_email: str = "alerts@jobsalert.dev",
+        dry_run: bool = False
+    ) -> bool:
+        """Dispatches an immediate alert for a top-tier income track."""
+        subject, html_body = self.render_income_immediate(scored, candidate_name, recipient_email)
+        self.save_preview(html_body)
+
+        if dry_run or email_provider == "console":
+            print(f"\n[INCOME SCOUT PREVIEW] Instant Alert: {subject}")
+            return True
+
+        return await self._dispatch_provider(
+            provider=email_provider,
+            to_email=recipient_email,
+            from_email=from_email,
+            subject=subject,
+            html_body=html_body,
+            text_body=f"Instant Income Match: {scored.opportunity.title} ({scored.opportunity.organization}). Apply at: {scored.opportunity.application_url or scored.opportunity.url}",
         )
 
     async def _dispatch_provider(

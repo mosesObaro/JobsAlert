@@ -88,8 +88,10 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       <button onclick="switchTab('custom')" id="tabBtn-custom" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
         <i data-lucide="plus-circle" class="w-4 h-4 text-purple-400"></i> Custom Jobs
       </button>
+      <button onclick="switchTab('income')" id="tabBtn-income" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
+        <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i> Online Income
+      </button>
       <button onclick="switchTab('dryrun')" id="tabBtn-dryrun" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
-
         <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Dry-Run & Email Preview
       </button>
       <button onclick="switchTab('health')" id="tabBtn-health" class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition">
@@ -459,6 +461,191 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       </div>
     </div>
 
+    <!-- ONLINE INCOME TAB -->
+    <div id="tab-income" class="hidden space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i> Online Income Opportunities & Flexible Gigs
+          </h2>
+          <p class="text-xs text-slate-400">Legitimate remote work: AI evaluation, tutoring, proofreading, transcription, user testing & research.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="triggerIncomeRun(true)" id="btnScanIncome" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-md transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Online Income
+          </button>
+          <button onclick="setIncomeSubTab('cards')" id="btnIncomeSubCards" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+            Opportunity Tracks
+          </button>
+          <button onclick="setIncomeSubTab('email')" id="btnIncomeSubEmail" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+            HTML Email Preview
+          </button>
+          <button onclick="setIncomeSubTab('settings')" id="btnIncomeSubSettings" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+            Preferences
+          </button>
+          <button onclick="setIncomeSubTab('custom')" id="btnIncomeSubCustom" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+            Custom Gigs
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div id="incomeCategoryPills" class="flex flex-wrap gap-2 text-xs">
+        <button onclick="filterIncomeCategory('')" class="income-cat-pill bg-emerald-950 border border-emerald-700 text-emerald-300 px-3 py-1 rounded-full font-semibold">All Categories</button>
+        <button onclick="filterIncomeCategory('ai_evaluation')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">AI Evaluation & Training</button>
+        <button onclick="filterIncomeCategory('data_annotation')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Data Annotation</button>
+        <button onclick="filterIncomeCategory('user_testing')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">User Testing & UX</button>
+        <button onclick="filterIncomeCategory('survey_research')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Research & Studies</button>
+        <button onclick="filterIncomeCategory('academic_proofreading')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Academic Editing</button>
+        <button onclick="filterIncomeCategory('online_tutoring')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Online Tutoring</button>
+        <button onclick="filterIncomeCategory('transcription')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Transcription</button>
+        <button onclick="filterIncomeCategory('virtual_assistant')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Virtual Assistant</button>
+        <button onclick="filterIncomeCategory('remote_support')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Remote Support</button>
+      </div>
+
+      <!-- 1. Cards View -->
+      <div id="incomeCardsView" class="space-y-3"></div>
+
+      <!-- 2. Email Preview View -->
+      <div id="incomeEmailView" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-2">
+        <iframe id="incomeEmailIframe" src="/api/income/preview-email" class="w-full h-[700px] border-0 rounded-lg bg-slate-950"></iframe>
+      </div>
+
+      <!-- 3. Preferences View -->
+      <div id="incomeSettingsView" class="hidden space-y-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i> Country & Location Eligibility
+          </h3>
+          <p class="text-xs text-slate-400 mb-3">Include countries/regions where you reside to match location requirements.</p>
+          <div class="flex gap-2 mb-3">
+            <input id="incomeInputCountry" type="text" placeholder="e.g. Nigeria, Worldwide, Africa, United Kingdom" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <button onclick="addIncomeCountry()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Add Region</button>
+          </div>
+          <div id="incomeCountriesList" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="dollar-sign" class="w-4 h-4 text-amber-400"></i> Minimum Hourly Pay Floor (USD)
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Floor ($/hr)</label>
+              <input id="incomeMinRate" type="number" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Max Weekly Hours</label>
+              <input id="incomeMaxHours" type="number" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i> Platform Sources & Verification
+          </h3>
+          <div class="space-y-3 text-xs">
+            <label class="flex items-center gap-2.5 text-slate-200">
+              <input type="checkbox" id="chkIncomeLinkVerify" class="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+              <span><strong>Enforce Live Link & Scam Verification:</strong> Drop dead links and scam signatures immediately.</span>
+            </label>
+            <label class="flex items-center gap-2.5 text-slate-200">
+              <input type="checkbox" id="chkIncomeAiEval" class="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+              <span>AI Evaluation & Annotation Platforms (DataAnnotation, Outlier, OneForma, TELUS, Appen)</span>
+            </label>
+            <label class="flex items-center gap-2.5 text-slate-200">
+              <input type="checkbox" id="chkIncomeUserTesting" class="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+              <span>User Testing & Research Studies (UserTesting, Testbirds, Respondent, Prolific)</span>
+            </label>
+            <label class="flex items-center gap-2.5 text-slate-200">
+              <input type="checkbox" id="chkIncomeAcademic" class="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+              <span>Academic Proofreading & Online Tutoring (Cambridge, Scribbr, Preply, Cambly)</span>
+            </label>
+            <label class="flex items-center gap-2.5 text-slate-200">
+              <input type="checkbox" id="chkIncomeSupport" class="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+              <span>Transcription, Virtual Assistant & Remote Support (Rev, GoTranscript, ModSquad, Belay)</span>
+            </label>
+          </div>
+          <div class="mt-4">
+            <button onclick="saveIncomeConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-2">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Online Income Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Custom Gigs View -->
+      <div id="incomeCustomView" class="hidden space-y-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> Add Custom Online Income Gig
+          </h3>
+          <p class="text-xs text-slate-400 mb-4">Add legitimate online micro-work, freelance tracks, or platform listings to evaluate and track.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Opportunity Title *</label>
+              <input id="customIncTitle" type="text" placeholder="e.g. Remote Financial Data Annotator" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Platform / Organization *</label>
+              <input id="customIncOrg" type="text" placeholder="e.g. Outlier AI / Telus" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Category</label>
+              <select id="customIncCat" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                <option value="ai_evaluation">AI Evaluation & Training</option>
+                <option value="data_annotation">Data Annotation</option>
+                <option value="user_testing">User Testing</option>
+                <option value="survey_research">Survey / Research Study</option>
+                <option value="academic_proofreading">Academic Proofreading</option>
+                <option value="online_tutoring">Online Tutoring</option>
+                <option value="transcription">Transcription</option>
+                <option value="virtual_assistant">Virtual Assistant</option>
+                <option value="bookkeeping">Bookkeeping</option>
+                <option value="remote_support">Remote Support</option>
+                <option value="general_flexible">General Flexible Work</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Pay Rate Display</label>
+              <input id="customIncPayDisplay" type="text" placeholder="e.g. $20–$30/hr or $15/test" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Application URL</label>
+              <input id="customIncUrl" type="url" placeholder="https://example.com/apply" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Location / Country Eligibility</label>
+              <input id="customIncLocation" type="text" placeholder="Worldwide / Nigeria Eligible" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-300 font-semibold mb-1">Description</label>
+              <textarea id="customIncDesc" rows="2" placeholder="Task description, payout methods, requirements..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white"></textarea>
+            </div>
+          </div>
+          <button onclick="submitCustomIncome()" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Income Opportunity
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="list" class="w-4 h-4 text-emerald-400"></i> Manually Added Custom Gigs
+            </h3>
+            <button onclick="loadCustomIncomeList()" class="text-slate-400 hover:text-white text-xs flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
+            </button>
+          </div>
+          <div id="customIncomeList" class="space-y-3">
+            <div class="text-xs text-slate-500">Loading custom opportunities...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 7. DRY-RUN TAB -->
     <div id="tab-dryrun" class="hidden space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between items-center">
@@ -533,7 +720,7 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
     }
 
     function switchTab(tabId) {
-      ['roles', 'filters', 'watchlist', 'sources', 'schedule', 'custom', 'dryrun', 'health'].forEach(t => {
+      ['roles', 'filters', 'watchlist', 'sources', 'schedule', 'custom', 'income', 'dryrun', 'health'].forEach(t => {
         document.getElementById('tab-' + t).classList.add('hidden');
         document.getElementById('tabBtn-' + t).className = 'flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition';
       });
@@ -541,6 +728,10 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       document.getElementById('tabBtn-' + tabId).className = 'flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-600 text-white transition';
       if (tabId === 'health') loadTelemetry();
       if (tabId === 'custom') loadCustomJobs();
+      if (tabId === 'income') {
+        loadIncomeOpportunities();
+        loadCustomIncomeList();
+      }
       lucide.createIcons();
     }
 
@@ -720,6 +911,9 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
       document.getElementById('schedInstant').value = appConfig.schedule.instant_alert_threshold;
       document.getElementById('delivProvider').value = appConfig.delivery.email_provider;
       document.getElementById('delivEmail').value = appConfig.delivery.recipient_email;
+
+      // Online Income Settings
+      renderIncomeSettings();
     }
 
     function addRole() {
@@ -951,6 +1145,266 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
         await fetch('/api/seen-jobs/clear', { method: 'POST' });
         showToast('Seen cache cleared!');
       }
+    }
+
+    let currentIncomeCategory = '';
+
+    function setIncomeSubTab(sub) {
+      document.getElementById('incomeCardsView').classList.add('hidden');
+      document.getElementById('incomeEmailView').classList.add('hidden');
+      document.getElementById('incomeSettingsView').classList.add('hidden');
+      document.getElementById('incomeCustomView').classList.add('hidden');
+
+      ['Cards', 'Email', 'Settings', 'Custom'].forEach(t => {
+        document.getElementById('btnIncomeSub' + t).className = 'bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold';
+      });
+
+      if (sub === 'cards') {
+        document.getElementById('incomeCardsView').classList.remove('hidden');
+        document.getElementById('btnIncomeSubCards').className = 'bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold';
+      } else if (sub === 'email') {
+        document.getElementById('incomeEmailView').classList.remove('hidden');
+        document.getElementById('btnIncomeSubEmail').className = 'bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold';
+        document.getElementById('incomeEmailIframe').src = '/api/income/preview-email?t=' + Date.now();
+      } else if (sub === 'settings') {
+        document.getElementById('incomeSettingsView').classList.remove('hidden');
+        document.getElementById('btnIncomeSubSettings').className = 'bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold';
+      } else if (sub === 'custom') {
+        document.getElementById('incomeCustomView').classList.remove('hidden');
+        document.getElementById('btnIncomeSubCustom').className = 'bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold';
+        loadCustomIncomeList();
+      }
+      lucide.createIcons();
+    }
+
+    function renderIncomeSettings() {
+      if (!appConfig || !appConfig.online_income) return;
+      const inc = appConfig.online_income;
+      const list = document.getElementById('incomeCountriesList');
+      if (list) {
+        list.innerHTML = (inc.eligible_countries || []).map((c, i) => `
+          <span class="bg-emerald-950 border border-emerald-800 text-emerald-200 text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5">
+            🌍 ${c} <button onclick="removeIncomeCountry(${i})" class="hover:text-red-400">×</button>
+          </span>
+        `).join('');
+      }
+
+      document.getElementById('incomeMinRate').value = inc.minimum_hourly_rate_usd || 5.0;
+      document.getElementById('incomeMaxHours').value = inc.maximum_hours_per_week || 25;
+      document.getElementById('chkIncomeLinkVerify').checked = inc.require_link_verification !== false;
+
+      if (inc.sources) {
+        document.getElementById('chkIncomeAiEval').checked = inc.sources.ai_evaluation?.enabled !== false;
+        document.getElementById('chkIncomeUserTesting').checked = inc.sources.user_testing?.enabled !== false;
+        document.getElementById('chkIncomeAcademic').checked = inc.sources.academic_tutoring?.enabled !== false;
+        document.getElementById('chkIncomeSupport').checked = inc.sources.transcription_support?.enabled !== false;
+      }
+    }
+
+    function addIncomeCountry() {
+      const val = document.getElementById('incomeInputCountry').value.trim();
+      if (!val) return;
+      if (!appConfig.online_income.eligible_countries) appConfig.online_income.eligible_countries = [];
+      appConfig.online_income.eligible_countries.push(val);
+      document.getElementById('incomeInputCountry').value = '';
+      renderIncomeSettings();
+    }
+
+    function removeIncomeCountry(i) {
+      appConfig.online_income.eligible_countries.splice(i, 1);
+      renderIncomeSettings();
+    }
+
+    async function saveIncomeConfig() {
+      if (!appConfig.online_income) appConfig.online_income = {};
+      appConfig.online_income.minimum_hourly_rate_usd = parseFloat(document.getElementById('incomeMinRate').value) || 5.0;
+      appConfig.online_income.maximum_hours_per_week = parseInt(document.getElementById('incomeMaxHours').value) || 25;
+      appConfig.online_income.require_link_verification = document.getElementById('chkIncomeLinkVerify').checked;
+
+      if (!appConfig.online_income.sources) appConfig.online_income.sources = {};
+      appConfig.online_income.sources.ai_evaluation = { enabled: document.getElementById('chkIncomeAiEval').checked };
+      appConfig.online_income.sources.user_testing = { enabled: document.getElementById('chkIncomeUserTesting').checked };
+      appConfig.online_income.sources.academic_tutoring = { enabled: document.getElementById('chkIncomeAcademic').checked };
+      appConfig.online_income.sources.transcription_support = { enabled: document.getElementById('chkIncomeSupport').checked };
+
+      const res = await fetch('/api/income/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appConfig.online_income)
+      });
+      if (res.ok) {
+        showToast('Online Income preferences saved!');
+      }
+    }
+
+    async function triggerIncomeRun(dryRun) {
+      const btn = document.getElementById('btnScanIncome');
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Scanning...';
+      lucide.createIcons();
+      try {
+        const res = await fetch('/api/income/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dry_run: dryRun, force_all: true })
+        });
+        const data = await res.json();
+        setIncomeSubTab('cards');
+        renderIncomeOpportunities(data.top_matches || []);
+        showToast('Found ' + (data.opportunities_count || 0) + ' income opportunities!');
+      } catch (e) {
+        alert('Income scan error: ' + e);
+      } finally {
+        btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Online Income';
+        lucide.createIcons();
+      }
+    }
+
+    async function loadIncomeOpportunities(category) {
+      const catParam = category !== undefined ? category : currentIncomeCategory;
+      const url = '/api/income/opportunities' + (catParam ? '?category=' + encodeURIComponent(catParam) : '');
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.opportunities || data.opportunities.length === 0) {
+        triggerIncomeRun(true);
+      } else {
+        renderIncomeOpportunities(data.opportunities);
+      }
+    }
+
+    function filterIncomeCategory(cat) {
+      currentIncomeCategory = cat;
+      document.querySelectorAll('.income-cat-pill').forEach(btn => {
+        btn.className = 'income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full';
+      });
+      event.target.className = 'income-cat-pill bg-emerald-950 border border-emerald-700 text-emerald-300 px-3 py-1 rounded-full font-semibold';
+      loadIncomeOpportunities(cat);
+    }
+
+    function renderIncomeOpportunities(opps) {
+      const container = document.getElementById('incomeCardsView');
+      if (!opps || opps.length === 0) {
+        container.innerHTML = '<div class="bg-slate-900 p-8 rounded-xl text-center text-slate-500 text-xs">No opportunities found for this filter. Click "Scan Online Income" to refresh.</div>';
+        return;
+      }
+      container.innerHTML = opps.map(item => `
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-bold text-white">${item.opportunity.title}</h3>
+                <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <i data-lucide="shield-check" class="w-3 h-3"></i> ${(item.opportunity.verification_status || 'verified').replace('_', ' ').toUpperCase()}
+                </span>
+              </div>
+              <div class="text-xs text-emerald-400 font-semibold">${item.opportunity.organization} • <span class="text-slate-400">📍 ${item.opportunity.location_eligibility}</span></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
+                ★ ${item.score}/10 Match
+              </span>
+              <button onclick="dismissIncomeOpportunity('${item.opportunity.fingerprint}')" class="text-slate-500 hover:text-red-400 p-1" title="Dismiss opportunity">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 my-2">
+            ${item.opportunity.pay_rate_display ? `<span class="bg-amber-950/80 border border-amber-800 text-amber-300 text-[11px] font-mono px-2 py-0.5 rounded font-bold">💵 ${item.opportunity.pay_rate_display}</span>` : ''}
+            <span class="bg-slate-950 border border-slate-800 text-slate-300 text-[11px] px-2 py-0.5 rounded">📂 ${(item.opportunity.category || '').replace('_', ' ')}</span>
+            <span class="bg-slate-950 border border-slate-800 text-slate-300 text-[11px] px-2 py-0.5 rounded">⚡ ${item.opportunity.opportunity_type}</span>
+          </div>
+          <p class="text-xs text-slate-300 mb-2">${item.opportunity.description || ''}</p>
+          <div class="bg-slate-950 p-2.5 rounded-lg border-l-2 border-emerald-500 text-xs text-slate-300 my-2">
+            <div class="font-bold text-emerald-400 text-[11px] uppercase mb-1">Why this is worth considering:</div>
+            <ul class="list-disc pl-4 space-y-0.5">
+              ${(item.breakdown.highlights || []).map(h => `<li>${h}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
+            <span class="text-slate-500">Source: ${(item.opportunity.source || '').replace('_', ' ')}</span>
+            <a href="${item.opportunity.application_url || item.opportunity.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded text-xs flex items-center gap-1">
+              Apply / Start Earning →
+            </a>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function dismissIncomeOpportunity(fingerprint) {
+      if (!confirm('Dismiss this opportunity? It will not appear in future alerts.')) return;
+      await fetch('/api/income/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fingerprint })
+      });
+      showToast('Opportunity dismissed');
+      loadIncomeOpportunities();
+    }
+
+    async function submitCustomIncome() {
+      const title = document.getElementById('customIncTitle').value.trim();
+      const organization = document.getElementById('customIncOrg').value.trim();
+      const category = document.getElementById('customIncCat').value;
+      const pay_rate_display = document.getElementById('customIncPayDisplay').value.trim();
+      const url = document.getElementById('customIncUrl').value.trim();
+      const location_eligibility = document.getElementById('customIncLocation').value.trim() || 'Worldwide';
+      const description = document.getElementById('customIncDesc').value.trim();
+
+      if (!title || !organization) {
+        alert('Please provide at least Title and Platform/Organization.');
+        return;
+      }
+
+      const res = await fetch('/api/income/custom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, organization, category, pay_rate_display, url, location_eligibility, description })
+      });
+      if (res.ok) {
+        showToast('Custom income gig added!');
+        document.getElementById('customIncTitle').value = '';
+        document.getElementById('customIncOrg').value = '';
+        document.getElementById('customIncPayDisplay').value = '';
+        document.getElementById('customIncUrl').value = '';
+        document.getElementById('customIncDesc').value = '';
+        loadCustomIncomeList();
+      }
+    }
+
+    async function loadCustomIncomeList() {
+      const res = await fetch('/api/income/custom');
+      const data = await res.json();
+      const list = data.custom_opportunities || [];
+      const cont = document.getElementById('customIncomeList');
+      if (!cont) return;
+      if (!list || list.length === 0) {
+        cont.innerHTML = '<div class="text-xs text-slate-500">No custom income opportunities entered yet. Add one above!</div>';
+        return;
+      }
+      cont.innerHTML = list.map((opp, idx) => `
+        <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex justify-between items-start text-xs">
+          <div>
+            <div class="font-bold text-white text-sm">${opp.title}</div>
+            <div class="text-emerald-400 font-semibold mt-0.5">${opp.organization} • <span class="text-slate-400">${opp.location_eligibility}</span></div>
+            ${opp.pay_rate_display ? `<div class="text-amber-400 font-mono font-semibold mt-1">💵 ${opp.pay_rate_display}</div>` : ''}
+            ${opp.description ? `<p class="text-slate-400 mt-1 line-clamp-2">${opp.description}</p>` : ''}
+          </div>
+          <div class="flex items-center gap-3 shrink-0 ml-4">
+            ${opp.url ? `<a href="${opp.url}" target="_blank" class="text-blue-400 hover:underline font-semibold">Apply →</a>` : ''}
+            <button onclick="deleteCustomIncome(${idx})" class="text-slate-500 hover:text-red-400 p-1" title="Delete opportunity">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function deleteCustomIncome(idx) {
+      if (!confirm('Remove this custom income opportunity?')) return;
+      await fetch('/api/income/custom/' + idx, { method: 'DELETE' });
+      showToast('Custom opportunity removed');
+      loadCustomIncomeList();
     }
 
     function showToast(msg) {

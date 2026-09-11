@@ -83,15 +83,38 @@ jobs:
           echo "Running: python run.py $FLAGS"
           python run.py $FLAGS
 
+      - name: Execute Online Income Scout
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          CANDIDATE_EMAIL: ${{ secrets.CANDIDATE_EMAIL }}
+          ALERTS_FROM_EMAIL: ${{ secrets.ALERTS_FROM_EMAIL }}
+        run: |
+          FLAGS="--income --income-send-email"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="--income --income-dry-run"
+          fi
+          if [ -n "${{ inputs.profile }}" ]; then
+            FLAGS="$FLAGS --profile ${{ inputs.profile }}"
+          fi
+
+          echo "Running: python run.py $FLAGS"
+          python run.py $FLAGS
+
       - name: Persist State & Logs
         if: inputs.dry_run != true
         run: |
           git config user.name "JobsAlert Automation Bot"
           git config user.email "bot@jobsalert.internal"
-          git add data/seen_jobs.json data/run_logs.json config/jobs.yaml || true
+          git add data/seen_jobs.json data/run_logs.json data/seen_income_opportunities.json data/income_run_logs.json data/custom_income_opportunities.json config/jobs.yaml || true
           if git diff --staged --quiet; then
             echo "No state changes to commit."
           else
-            git commit -m "chore(state): update seen jobs and crawler telemetry [skip ci]"
+            git commit -m "chore(state): update seen jobs, income opportunities, and crawler telemetry [skip ci]"
             git push origin HEAD
           fi

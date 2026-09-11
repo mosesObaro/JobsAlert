@@ -127,13 +127,13 @@ sources:
   twitter:
     enabled: true
     search_queries:
-      - "remote hiring (accountant OR finance OR intern OR engineer)"
-      - "#hiring #remotejobs"
-      - "#jobalert Nigeria"
+    - remote hiring (accountant OR finance OR intern OR engineer)
+    - '#hiring #remotejobs'
+    - '#jobalert Nigeria'
     monitored_accounts:
-      - "TechJobsAfrica"
-      - "JobbermanOnline"
-      - "RemoteJobs"
+    - TechJobsAfrica
+    - JobbermanOnline
+    - RemoteJobs
     max_tweets: 30
   rss_feeds: []
 link_verification:
@@ -153,4 +153,115 @@ delivery:
   from_email: Job Intelligence <alerts@resend.dev>
   send_instant_alerts: true
   send_daily_digest: true
-
+online_income:
+  enabled: true
+  candidate_name: Finance Candidate
+  eligible_countries:
+  - Nigeria
+  - Worldwide
+  - Global
+  - All Countries
+  - Africa
+  preferred_categories:
+  - ai_evaluation
+  - data_annotation
+  - research_assistant
+  - academic_proofreading
+  - online_tutoring
+  - transcription
+  - user_testing
+  - virtual_assistant
+  - remote_support
+  - data_entry
+  - bookkeeping
+  - survey_research
+  - content_editorial
+  - general_flexible
+  excluded_categories:
+  - software_dev
+  - tech_engineering
+  - marketing
+  - advertising
+  - sales
+  - social_media_promotion
+  - trading
+  - crypto
+  - gambling
+  - betting
+  - mlm
+  minimum_score: 7.0
+  instant_alert_score: 9.0
+  minimum_hourly_rate_usd: 8.0
+  preferred_flexibility: high
+  maximum_hours_per_week: 25
+  preferred_payment_methods:
+  - PayPal
+  - Direct Deposit
+  - Payoneer
+  - Wise
+  - Bank Transfer
+  - Stripe
+  preferred_currencies:
+  - USD
+  - EUR
+  - GBP
+  - NGN
+  require_link_verification: true
+  scoring_weights:
+    country_eligibility: 25.0
+    compensation: 20.0
+    legitimacy_verification: 20.0
+    flexibility_time: 15.0
+    category_alignment: 15.0
+    ease_and_recurring: 5.0
+  sources:
+    ai_evaluation:
+      enabled: true
+      platforms:
+      - dataannotation
+      - outlier
+      - oneforma
+      - telus
+      - appen
+      categories: []
+      tags: []
+      limit_items: 30
+    user_testing:
+      enabled: true
+      platforms:
+      - usertesting
+      - testbirds
+      - respondent
+      - prolific
+      categories: []
+      tags: []
+      limit_items: 30
+    academic_tutoring:
+      enabled: true
+      platforms:
+      - cambridge_proofreading
+      - scribbr
+      - preply
+      - cambly
+      - academic_positions
+      categories: []
+      tags: []
+      limit_items: 30
+    transcription_support:
+      enabled: true
+      platforms:
+      - rev
+      - gotranscript
+      - modsquad
+      - belay
+      - time_etc
+      categories: []
+      tags: []
+      limit_items: 30
+    rss_feeds: []
+    custom:
+      enabled: true
+      platforms: []
+      categories: []
+      tags: []
+      limit_items: 30

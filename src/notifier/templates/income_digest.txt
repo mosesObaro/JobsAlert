@@ -1,0 +1,28 @@
+================================================================================
+💰 ONLINE INCOME OPPORTUNITIES DIGEST — {{ date_str }}
+================================================================================
+Hi {{ candidate_name }},
+
+We discovered {{ opportunities|length }} verified flexible online income opportunities matching your criteria:
+
+{% for scored in opportunities %}
+--------------------------------------------------------------------------------
+[{{ scored.score }}/10 MATCH] {{ scored.opportunity.title }}
+Platform / Organization: {{ scored.opportunity.organization }}
+Category: {{ scored.opportunity.category.replace('_', ' ').title() }}
+Location / Eligibility: {{ scored.opportunity.location_eligibility }}
+Compensation: {{ scored.opportunity.pay_rate_display or "Flexible / Task-based" }}
+Status: {{ scored.opportunity.verification_status.replace('_', ' ').title() }}
+
+Why this is worth considering:
+{% for h in scored.breakdown.highlights %}
+  * {{ h }}
+{% endfor %}
+
+Apply / Learn More: {{ scored.opportunity.application_url or scored.opportunity.url }}
+{% endfor %}
+
+================================================================================
+Sent by JobsAlert Online Income Scout • Delivered to {{ recipient_email }}
+Modify your preferences anytime via the Web Control Panel.
+================================================================================
