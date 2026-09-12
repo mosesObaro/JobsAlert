@@ -46330,5 +46330,83 @@
     "action": "low_match",
     "alerted": false,
     "alerted_at": null
+  },
+  "76ba4861eeca6c820f4a9fa9fe3acfd5619106594bf7a607c2a04af61928ed1a": {
+    "fingerprint": "76ba4861eeca6c820f4a9fa9fe3acfd5619106594bf7a607c2a04af61928ed1a",
+    "company": "Moniepoint",
+    "title": "Financial Planning Analyst (FP&A)",
+    "canonical_url": "https://boards.greenhouse.io/moniepoint",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373355+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373421+00:00",
+    "score": 8.6,
+    "action": "digest",
+    "alerted": true,
+    "alerted_at": "2026-09-12T03:01:59.373421+00:00"
+  },
+  "3c17d832c8485fb4abfa86ddec11e11e3760b998f8f8bef5bb2bee15420ffef9": {
+    "fingerprint": "3c17d832c8485fb4abfa86ddec11e11e3760b998f8f8bef5bb2bee15420ffef9",
+    "company": "HR On Wheels",
+    "title": "Financial Reporting Accountant",
+    "canonical_url": "https://www.jobberman.com",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373371+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373454+00:00",
+    "score": 8.6,
+    "action": "digest",
+    "alerted": true,
+    "alerted_at": "2026-09-12T03:01:59.373454+00:00"
+  },
+  "57d8364545a39e2f26e8168ceb65b3013196375f61a0881e4d96599a216a13bd": {
+    "fingerprint": "57d8364545a39e2f26e8168ceb65b3013196375f61a0881e4d96599a216a13bd",
+    "company": "Scale Army",
+    "title": "Finance & Accounting Intern (Paid)",
+    "canonical_url": "https://jobs.ashbyhq.com/scalearmy",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373376+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373447+00:00",
+    "score": 8.5,
+    "action": "digest",
+    "alerted": true,
+    "alerted_at": "2026-09-12T03:01:59.373447+00:00"
+  },
+  "bf3340a71d1f1dabfb38cea04f238d5ce5605da364e868e1aca29f2b01df9bb4": {
+    "fingerprint": "bf3340a71d1f1dabfb38cea04f238d5ce5605da364e868e1aca29f2b01df9bb4",
+    "company": "Gap Financial Technologies Ltd",
+    "title": "Finance Accountant",
+    "canonical_url": "https://www.jobberman.com",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373380+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373465+00:00",
+    "score": 7.9,
+    "action": "digest",
+    "alerted": true,
+    "alerted_at": "2026-09-12T03:01:59.373465+00:00"
+  },
+  "4e830392e7be55bc785171c859d3e19f0314ed76f05fec8af1baf85fe93a56a7": {
+    "fingerprint": "4e830392e7be55bc785171c859d3e19f0314ed76f05fec8af1baf85fe93a56a7",
+    "company": "Pixelpulse International",
+    "title": "Junior Accountant / Virtual Bookkeeper",
+    "canonical_url": "https://www.jobberman.com",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373384+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373478+00:00",
+    "score": 7.1,
+    "action": "digest",
+    "alerted": true,
+    "alerted_at": "2026-09-12T03:01:59.373478+00:00"
+  },
+  "18240caa513a55a5cf1babd8db38076e53d9f93616b70e78d1e73556580241a0": {
+    "fingerprint": "18240caa513a55a5cf1babd8db38076e53d9f93616b70e78d1e73556580241a0",
+    "company": "R & R Group",
+    "title": "Accounting Intern (Paid Graduate Trainee)",
+    "canonical_url": "https://www.jobberman.com",
+    "source": "custom",
+    "first_seen_at": "2026-09-12T03:01:59.373494+00:00",
+    "last_seen_at": "2026-09-12T03:01:59.373494+00:00",
+    "score": 6.5,
+    "action": "low_match",
+    "alerted": false,
+    "alerted_at": null
   }
 }
