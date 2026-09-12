@@ -1,5 +1,95 @@
 [
   {
+    "run_id": "run_20260912_030049_857ec9",
+    "timestamp": "2026-09-12T03:00:49.224270Z",
+    "total_fetched": 3,
+    "unique_candidates": 3,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 2,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 2,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null,
+        "telemetry": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260912_030049_497bb8",
+    "timestamp": "2026-09-12T03:00:49.186640Z",
+    "total_fetched": 1,
+    "unique_candidates": 1,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 0,
+    "emails_dispatched": 0,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.01,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
+    "run_id": "run_20260912_030049_8cf761",
+    "timestamp": "2026-09-12T03:00:49.136246Z",
+    "total_fetched": 2,
+    "unique_candidates": 2,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 1,
+    "instant_matches": 1,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "execution_time_seconds": 0.0,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 1,
+        "latency_ms": 100.0,
+        "last_crawled": null,
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": null,
+        "error_message": null,
+        "telemetry": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
     "run_id": "run_20260912_020938_992cc8",
     "timestamp": "2026-09-12T02:09:42.953991Z",
     "total_fetched": 437,
