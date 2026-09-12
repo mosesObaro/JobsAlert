@@ -9,14 +9,21 @@ from typing import List, Dict, Any
 
 from src.income_opportunities.collectors.base import BaseIncomeCollector
 from src.income_opportunities.config import OnlineIncomeConfig
-from src.income_opportunities.models import OnlineIncomeOpportunity
+from src.income_opportunities.models import (
+    CompensationDetails,
+    CompensationType,
+    GeographicScope,
+    OnlineIncomeOpportunity,
+    OpportunityStatus,
+    SourceTrustTier,
+)
 
 
 class AcademicTutoringCollector(BaseIncomeCollector):
     """Discovers academic proofreading, research assistant, and online tutoring opportunities."""
 
     def __init__(self):
-        super().__init__(name="academic_tutoring")
+        super().__init__(name="academic_tutoring", trust_tier=SourceTrustTier.TIER_1_HIGHEST)
 
     async def collect(self, config: OnlineIncomeConfig) -> List[OnlineIncomeOpportunity]:
         sub_cfg = config.sources.academic_tutoring
@@ -30,6 +37,18 @@ class AcademicTutoringCollector(BaseIncomeCollector):
         for track in tracks:
             platform_id = track.get("platform_id", "")
             if any(p in platform_id for p in platforms) or not platforms:
+                comp_details = CompensationDetails(
+                    min_pay=track.get("estimated_pay_min"),
+                    max_pay=track.get("estimated_pay_max"),
+                    currency="USD",
+                    pay_period=track.get("pay_frequency", "hourly"),
+                    pay_type=CompensationType.HOURLY if track.get("opportunity_type") == "hourly" else CompensationType.PER_TASK,
+                    compensation_verified=True,
+                    pay_rate_display=track.get("pay_rate_display"),
+                )
+
+                tier = SourceTrustTier.TIER_1_HIGHEST if track.get("is_tier_1", True) else SourceTrustTier.TIER_2_GOOD
+
                 opp = OnlineIncomeOpportunity(
                     id=track["id"],
                     title=track["title"],
@@ -39,11 +58,18 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                     opportunity_type=track.get("opportunity_type", "hourly"),
                     url=track["url"],
                     application_url=track.get("application_url", track["url"]),
+                    source=self.name,
+                    source_type="official_portal" if tier == SourceTrustTier.TIER_1_HIGHEST else "verified_platform",
+                    source_trust_tier=tier,
+                    source_url=track["url"],
                     location_eligibility=track.get("location_eligibility", "Worldwide"),
+                    geographic_scope=GeographicScope.WORLDWIDE,
                     eligible_countries=track.get("eligible_countries", ["Worldwide", "Nigeria"]),
                     country_restrictions=track.get("country_restrictions", []),
                     is_remote=True,
                     is_flexible=True,
+                    is_asynchronous=track.get("is_asynchronous", True),
+                    compensation=comp_details,
                     estimated_pay_min=track.get("estimated_pay_min"),
                     estimated_pay_max=track.get("estimated_pay_max"),
                     pay_rate_display=track.get("pay_rate_display"),
@@ -52,9 +78,10 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                     experience_requirement=track.get("experience_requirement", "intermediate"),
                     time_commitment="flexible",
                     flexibility="high",
-                    source=self.name,
+                    status=OpportunityStatus.NEW,
                     tags=track.get("tags", ["Proofreading", "Tutoring", "Academic"]),
                     verification_status="verified_source",
+                    is_verified=True,
                     legitimacy_indicators=[
                         f"Established academic/tutoring provider ({track['organization']})",
                         "Direct onboarding with clear quality guidelines"
@@ -72,10 +99,12 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "platform_id": "cambridge_proofreading",
                 "title": "Remote Academic Proofreader & Editor",
                 "organization": "Cambridge Proofreading LLC",
-                "description": "Edit academic manuscripts, theses, journal papers, and research proposals for international scholars and university researchers. Work flexibly on your own schedule.",
-                "category": "academic_proofreading",
+                "description": "Edit academic manuscripts, theses, journal papers, and research proposals for international scholars. 100% self-paced asynchronous manuscript editing.",
+                "category": "academic_editing",
                 "opportunity_type": "hourly",
                 "pay_frequency": "biweekly",
+                "is_asynchronous": True,
+                "is_tier_1": True,
                 "url": "https://proofreading.org",
                 "application_url": "https://proofreading.org/careers/",
                 "location_eligibility": "Worldwide (Native or Near-Native English)",
@@ -84,17 +113,19 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "estimated_pay_max": 30.0,
                 "pay_rate_display": "$20–$30/hr equivalent",
                 "experience_requirement": "intermediate",
-                "tags": ["Academic Proofreading", "Manuscript Editing", "Flexible Schedule"]
+                "tags": ["Academic Proofreading", "Manuscript Editing", "Flexible Schedule", "Asynchronous"]
             },
             {
                 "id": "scribbr-editor-01",
                 "platform_id": "scribbr",
                 "title": "Academic Essay & Thesis Editor",
                 "organization": "Scribbr / Enago",
-                "description": "Proofread and polish university dissertations, essays, and academic publications. Flexible volume with continuous order availability during academic semesters.",
-                "category": "academic_proofreading",
+                "description": "Proofread and polish university dissertations, essays, and academic publications. Flexible volume with self-paced order pickup during academic semesters.",
+                "category": "academic_editing",
                 "opportunity_type": "per_task",
                 "pay_frequency": "monthly",
+                "is_asynchronous": True,
+                "is_tier_1": True,
                 "url": "https://www.scribbr.com",
                 "application_url": "https://www.scribbr.com/jobs/freelance-editor/",
                 "location_eligibility": "Worldwide",
@@ -103,7 +134,7 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "estimated_pay_max": 28.0,
                 "pay_rate_display": "€20–€30/hr equivalent",
                 "experience_requirement": "intermediate",
-                "tags": ["Academic Editing", "Dissertation Support", "Global"]
+                "tags": ["Academic Editing", "Dissertation Support", "Global", "Asynchronous"]
             },
             {
                 "id": "preply-tutor-01",
@@ -111,9 +142,11 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "title": "Online Subject / Language Tutor (Finance, Accounting, English)",
                 "organization": "Preply",
                 "description": "Teach students worldwide in subjects of your expertise, such as Business English, Accounting principles, Economics, or Languages. Set your own pricing and lesson availability.",
-                "category": "online_tutoring",
+                "category": "tutoring",
                 "opportunity_type": "hourly",
                 "pay_frequency": "hourly",
+                "is_asynchronous": False,
+                "is_tier_1": False,
                 "url": "https://preply.com",
                 "application_url": "https://preply.com/en/teach",
                 "location_eligibility": "Worldwide (Global Tutors Welcomed)",
@@ -130,9 +163,11 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "title": "Conversational English Tutor (No Degree or Lesson Prep Needed)",
                 "organization": "Cambly",
                 "description": "Help adult and young learners practice conversational English on a flexible drop-in basis. Log in whenever you are free with zero lesson planning required.",
-                "category": "online_tutoring",
+                "category": "tutoring",
                 "opportunity_type": "hourly",
                 "pay_frequency": "weekly",
+                "is_asynchronous": False,
+                "is_tier_1": False,
                 "url": "https://www.cambly.com",
                 "application_url": "https://www.cambly.com/en/tutors",
                 "location_eligibility": "Worldwide",
@@ -149,9 +184,11 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "title": "Remote Academic Research Assistant & Literature Synthesizer",
                 "organization": "Academic Positions Network",
                 "description": "Support academic faculty and research labs with literature searches, data synthesis, citation formatting (APA/Harvard), and bibliography management.",
-                "category": "research_assistant",
+                "category": "research",
                 "opportunity_type": "hourly",
                 "pay_frequency": "monthly",
+                "is_asynchronous": True,
+                "is_tier_1": True,
                 "url": "https://academicpositions.com",
                 "application_url": "https://academicpositions.com/jobs",
                 "location_eligibility": "Worldwide / Remote",
@@ -160,6 +197,6 @@ class AcademicTutoringCollector(BaseIncomeCollector):
                 "estimated_pay_max": 26.0,
                 "pay_rate_display": "$16–$26/hr",
                 "experience_requirement": "intermediate",
-                "tags": ["Research Assistant", "Literature Review", "Remote Academic"]
+                "tags": ["Research Assistant", "Literature Review", "Remote Academic", "Asynchronous"]
             }
         ]

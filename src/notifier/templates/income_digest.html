@@ -243,23 +243,47 @@
           <div class="card-top">
             <div>
               <h2 class="opp-title">{{ scored.opportunity.title }}</h2>
-              <div class="org-name">{{ scored.opportunity.organization }}</div>
+              <div class="org-name">
+                {{ scored.opportunity.organization }}
+                {% if scored.opportunity.source_trust_tier %}
+                <span style="font-size: 11px; color: #047857; font-weight: 700; text-transform: uppercase; margin-left: 6px;">
+                  • {{ (scored.opportunity.source_trust_tier.value if scored.opportunity.source_trust_tier.value is defined else scored.opportunity.source_trust_tier)|replace('_', ' ')|title }}
+                </span>
+                {% endif %}
+              </div>
             </div>
-            <div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
               {% if scored.score >= 9.0 %}
               <div class="score-badge score-high">
-                ★ {{ scored.score }}/10 Match
+                ★ {{ scored.score }}/10 Overall
               </div>
               {% else %}
               <div class="score-badge score-strong">
-                ✦ {{ scored.score }}/10 Match
+                ✦ {{ scored.score }}/10 Overall
               </div>
               {% endif %}
+              <span style="font-size: 11px; color: #065f46; font-weight: 700;">
+                Quality: {{ scored.breakdown.quality_score or scored.opportunity.quality_score }}/10
+              </span>
             </div>
           </div>
 
           <!-- Metadata Chips -->
           <div class="chips-row">
+            <span class="chip chip-verified">
+              🛡️ Quality Gated & Scam-Screened
+            </span>
+            <span class="chip chip-country">
+              📍 {{ scored.opportunity.location_eligibility }}
+            </span>
+            {% if scored.breakdown.side_job_fit_score or scored.opportunity.side_job_fit_score %}
+            <span class="chip" style="background-color: #f0fdf4; border-color: #86efac; color: #15803d; font-weight: 700;">
+              🌙 Side-Job Fit: {{ scored.breakdown.side_job_fit_score or scored.opportunity.side_job_fit_score }}/10
+            </span>
+            {% endif %}
+            <span class="chip">
+              📂 {{ scored.opportunity.category.replace('_', ' ').title() }}
+            </span>
             {% if scored.opportunity.pay_rate_display %}
             <span class="chip chip-pay">
               💵 {{ scored.opportunity.pay_rate_display }}
@@ -268,15 +292,11 @@
             <span class="chip chip-pay">
               💵 ${{ "{:,.0f}".format(scored.opportunity.estimated_pay_min or 0) }}{% if scored.opportunity.estimated_pay_max and scored.opportunity.estimated_pay_max != scored.opportunity.estimated_pay_min %}–${{ "{:,.0f}".format(scored.opportunity.estimated_pay_max) }}{% endif %}/hr
             </span>
+            {% else %}
+            <span class="chip chip-pay">
+              💵 Project / Task Compensation
+            </span>
             {% endif %}
-
-            <span class="chip chip-country">
-              📍 {{ scored.opportunity.location_eligibility }}
-            </span>
-
-            <span class="chip">
-              📂 {{ scored.opportunity.category.replace('_', ' ').title() }}
-            </span>
 
             <span class="chip chip-verified">
               ✓ {{ scored.opportunity.verification_status.replace('_', ' ').title() }}

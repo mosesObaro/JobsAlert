@@ -1,6 +1,7 @@
 """
 Online Income Opportunities RSS / Syndication Collector.
 Parses public RSS/Atom feeds configured for flexible micro-work, academic gigs, and research.
+Applies early HardRejectionClassifier filtering to discard SEO articles and listicles.
 """
 
 from __future__ import annotations
@@ -12,14 +13,22 @@ from typing import List
 
 from src.income_opportunities.collectors.base import BaseIncomeCollector
 from src.income_opportunities.config import OnlineIncomeConfig
-from src.income_opportunities.models import OnlineIncomeOpportunity
+from src.income_opportunities.models import (
+    CompensationDetails,
+    CompensationType,
+    GeographicScope,
+    OnlineIncomeOpportunity,
+    OpportunityStatus,
+    SourceTrustTier,
+)
+from src.income_opportunities.verifier import HardRejectionClassifier
 
 
 class IncomeRSSCollector(BaseIncomeCollector):
-    """Parses configured RSS and Atom feeds for flexible online gigs."""
+    """Parses configured RSS and Atom feeds for concrete flexible online gigs."""
 
     def __init__(self):
-        super().__init__(name="income_rss")
+        super().__init__(name="income_rss", trust_tier=SourceTrustTier.TIER_3_REVIEW)
 
     async def collect(self, config: OnlineIncomeConfig) -> List[OnlineIncomeOpportunity]:
         feeds = [f for f in config.sources.rss_feeds if f.enabled]
@@ -84,18 +93,28 @@ class IncomeRSSCollector(BaseIncomeCollector):
                             title=title,
                             organization=feed.name,
                             description=clean_desc[:3000],
-                            category=feed.category or "general_flexible",
+                            category=feed.category or "other_verified_remote_work",
                             url=link,
+                            application_url=link,
+                            source=self.name,
+                            source_type="aggregator",
+                            source_trust_tier=SourceTrustTier.TIER_3_REVIEW,
+                            source_url=feed.url,
                             location_eligibility=location_eligibility,
+                            geographic_scope=GeographicScope.WORLDWIDE if "worldwide" in location_eligibility.lower() else GeographicScope.UNKNOWN,
                             is_remote=is_remote,
                             is_flexible=True,
-                            source=self.name,
+                            status=OpportunityStatus.NEW,
                             date_published=date_pub,
                             tags=["RSS", feed.name],
                             verification_status="needs_review",
                             legitimacy_indicators=[f"Aggregated from RSS feed ({feed.name})"]
                         )
-                        all_opps.append(opp)
+
+                        # Filter out non-work advice and scam listicles immediately
+                        is_rejected, reasons = HardRejectionClassifier.evaluate(opp)
+                        if not is_rejected:
+                            all_opps.append(opp)
                 except Exception:
                     continue
 

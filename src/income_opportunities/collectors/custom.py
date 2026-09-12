@@ -12,7 +12,14 @@ from typing import List, Optional
 
 from src.income_opportunities.collectors.base import BaseIncomeCollector
 from src.income_opportunities.config import OnlineIncomeConfig
-from src.income_opportunities.models import OnlineIncomeOpportunity
+from src.income_opportunities.models import (
+    CompensationDetails,
+    CompensationType,
+    GeographicScope,
+    OnlineIncomeOpportunity,
+    OpportunityStatus,
+    SourceTrustTier,
+)
 
 CUSTOM_INCOME_FILE = Path(__file__).resolve().parent.parent.parent.parent / "data" / "custom_income_opportunities.json"
 
@@ -21,7 +28,7 @@ class CustomIncomeCollector(BaseIncomeCollector):
     """Loads manually entered income opportunities from data/custom_income_opportunities.json."""
 
     def __init__(self):
-        super().__init__(name="custom")
+        super().__init__(name="custom", trust_tier=SourceTrustTier.TIER_2_GOOD)
 
     async def collect(self, config: OnlineIncomeConfig) -> List[OnlineIncomeOpportunity]:
         all_opps: List[OnlineIncomeOpportunity] = []
@@ -39,7 +46,7 @@ class CustomIncomeCollector(BaseIncomeCollector):
             for idx, item in enumerate(raw_items):
                 title = item.get("title", "").strip()
                 org = item.get("organization", "Custom Opportunity").strip()
-                category = item.get("category", "general_flexible").strip()
+                category = item.get("category", "ai_evaluation").strip()
                 opp_type = item.get("opportunity_type", "hourly")
                 url = item.get("url", f"https://example.com/custom-income-{idx}")
                 app_url = item.get("application_url", url)
@@ -49,6 +56,15 @@ class CustomIncomeCollector(BaseIncomeCollector):
                 p_max = float(item.get("estimated_pay_max", 0)) or None
                 p_display = item.get("pay_rate_display")
 
+                comp_details = CompensationDetails(
+                    min_pay=p_min,
+                    max_pay=p_max,
+                    currency="USD",
+                    pay_period="hourly" if opp_type == "hourly" else "per_task",
+                    pay_type=CompensationType.HOURLY if opp_type == "hourly" else CompensationType.PER_TASK,
+                    pay_rate_display=p_display,
+                )
+
                 opp = OnlineIncomeOpportunity(
                     id=f"custom_income_{idx}_{abs(hash(url or title))}",
                     title=title,
@@ -57,17 +73,22 @@ class CustomIncomeCollector(BaseIncomeCollector):
                     opportunity_type=opp_type,
                     url=url,
                     application_url=app_url,
+                    source=self.name,
+                    source_type="custom",
+                    source_trust_tier=SourceTrustTier.TIER_2_GOOD,
                     location_eligibility=location,
-                    eligible_countries=item.get("eligible_countries", ["Worldwide"]),
+                    geographic_scope=GeographicScope.WORLDWIDE if "worldwide" in location.lower() else GeographicScope.UNKNOWN,
+                    eligible_countries=item.get("eligible_countries", ["Worldwide", "Nigeria"]),
                     country_restrictions=item.get("country_restrictions", []),
                     is_remote=True,
                     is_flexible=True,
                     description=desc[:3000],
+                    compensation=comp_details,
                     estimated_pay_min=p_min,
                     estimated_pay_max=p_max,
                     pay_rate_display=p_display,
-                    source="custom",
                     date_discovered=datetime.now(timezone.utc),
+                    status=OpportunityStatus.NEW,
                     tags=["Manual / Custom", org],
                     verification_status="needs_review",
                     legitimacy_indicators=[f"Manually added by user ({org})"]
@@ -82,7 +103,7 @@ class CustomIncomeCollector(BaseIncomeCollector):
 def add_custom_income_opportunity(
     title: str,
     organization: str,
-    category: str = "general_flexible",
+    category: str = "ai_evaluation",
     url: str = "",
     application_url: str = "",
     location_eligibility: str = "Worldwide",

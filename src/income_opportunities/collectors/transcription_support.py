@@ -9,14 +9,21 @@ from typing import List, Dict, Any
 
 from src.income_opportunities.collectors.base import BaseIncomeCollector
 from src.income_opportunities.config import OnlineIncomeConfig
-from src.income_opportunities.models import OnlineIncomeOpportunity
+from src.income_opportunities.models import (
+    CompensationDetails,
+    CompensationType,
+    GeographicScope,
+    OnlineIncomeOpportunity,
+    OpportunityStatus,
+    SourceTrustTier,
+)
 
 
 class TranscriptionSupportCollector(BaseIncomeCollector):
     """Discovers transcription, virtual assistance, and remote support opportunities."""
 
     def __init__(self):
-        super().__init__(name="transcription_support")
+        super().__init__(name="transcription_support", trust_tier=SourceTrustTier.TIER_2_GOOD)
 
     async def collect(self, config: OnlineIncomeConfig) -> List[OnlineIncomeOpportunity]:
         sub_cfg = config.sources.transcription_support
@@ -30,6 +37,16 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
         for track in tracks:
             platform_id = track.get("platform_id", "")
             if any(p in platform_id for p in platforms) or not platforms:
+                comp_details = CompensationDetails(
+                    min_pay=track.get("estimated_pay_min"),
+                    max_pay=track.get("estimated_pay_max"),
+                    currency="USD",
+                    pay_period=track.get("pay_frequency", "hourly"),
+                    pay_type=CompensationType.HOURLY if track.get("opportunity_type") == "hourly" else CompensationType.PER_TASK,
+                    compensation_verified=True,
+                    pay_rate_display=track.get("pay_rate_display"),
+                )
+
                 opp = OnlineIncomeOpportunity(
                     id=track["id"],
                     title=track["title"],
@@ -39,11 +56,18 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                     opportunity_type=track.get("opportunity_type", "hourly"),
                     url=track["url"],
                     application_url=track.get("application_url", track["url"]),
+                    source=self.name,
+                    source_type="verified_platform",
+                    source_trust_tier=SourceTrustTier.TIER_2_GOOD,
+                    source_url=track["url"],
                     location_eligibility=track.get("location_eligibility", "Worldwide"),
+                    geographic_scope=GeographicScope.WORLDWIDE,
                     eligible_countries=track.get("eligible_countries", ["Worldwide", "Nigeria"]),
                     country_restrictions=track.get("country_restrictions", []),
                     is_remote=True,
                     is_flexible=True,
+                    is_asynchronous=track.get("is_asynchronous", True),
+                    compensation=comp_details,
                     estimated_pay_min=track.get("estimated_pay_min"),
                     estimated_pay_max=track.get("estimated_pay_max"),
                     pay_rate_display=track.get("pay_rate_display"),
@@ -52,11 +76,12 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                     experience_requirement=track.get("experience_requirement", "none"),
                     time_commitment="flexible",
                     flexibility="high",
-                    source=self.name,
+                    status=OpportunityStatus.NEW,
                     tags=track.get("tags", ["Transcription", "Virtual Assistant", "Remote Support"]),
                     verification_status="verified_source",
+                    is_verified=True,
                     legitimacy_indicators=[
-                        f"Established industry provider ({track['organization']})",
+                        f"Established Tier-2 industry provider ({track['organization']})",
                         "Weekly / monthly verified payouts"
                     ],
                 )
@@ -72,10 +97,11 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                 "platform_id": "rev",
                 "title": "Freelance Audio Transcriptionist & Captioner",
                 "organization": "Rev.com",
-                "description": "Listen to audio files and transcribe speech accurately with flexible weekly payouts via PayPal. Work as little or as much as you want.",
+                "description": "Listen to audio files and transcribe speech accurately with flexible weekly payouts via PayPal. 100% self-paced asynchronous audio transcription.",
                 "category": "transcription",
                 "opportunity_type": "per_task",
                 "pay_frequency": "weekly",
+                "is_asynchronous": True,
                 "url": "https://www.rev.com",
                 "application_url": "https://www.rev.com/freelancers/transcription",
                 "location_eligibility": "Worldwide (Select Countries Accepted)",
@@ -83,17 +109,18 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                 "estimated_pay_min": 12.0,
                 "estimated_pay_max": 22.0,
                 "pay_rate_display": "$0.30–$1.10 per audio/video minute ($12–$22/hr)",
-                "tags": ["Audio Transcription", "Weekly PayPal", "Flexible Hours"]
+                "tags": ["Audio Transcription", "Weekly PayPal", "Flexible Hours", "Asynchronous"]
             },
             {
                 "id": "gotranscript-transcriber-01",
                 "platform_id": "gotranscript",
                 "title": "Audio/Video Transcriber & Text Editor",
                 "organization": "GoTranscript",
-                "description": "Transcribe audio recordings from across medical, legal, and general disciplines. 100% remote with international contributor onboarding.",
+                "description": "Transcribe audio recordings across medical, legal, and general disciplines. 100% remote with international contributor onboarding.",
                 "category": "transcription",
                 "opportunity_type": "per_task",
                 "pay_frequency": "weekly",
+                "is_asynchronous": True,
                 "url": "https://gotranscript.com",
                 "application_url": "https://gotranscript.com/transcription-jobs",
                 "location_eligibility": "Worldwide",
@@ -101,7 +128,7 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                 "estimated_pay_min": 8.0,
                 "estimated_pay_max": 18.0,
                 "pay_rate_display": "Up to $0.60 per audio minute ($10–$18/hr avg)",
-                "tags": ["Transcription", "PayPal", "Payoneer", "Global"]
+                "tags": ["Transcription", "PayPal", "Payoneer", "Global", "Asynchronous"]
             },
             {
                 "id": "modsquad-mod-01",
@@ -109,9 +136,10 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                 "title": "Remote Community Moderator & Customer Support Specialist (Mod)",
                 "organization": "ModSquad",
                 "description": "Provide forum moderation, social media support, and ticketing customer service for top global gaming, entertainment, and e-commerce brands.",
-                "category": "remote_support",
+                "category": "customer_support",
                 "opportunity_type": "hourly",
                 "pay_frequency": "monthly",
+                "is_asynchronous": False,
                 "url": "https://modsquad.com",
                 "application_url": "https://modsquad.com/join-the-mods/",
                 "location_eligibility": "Worldwide (Mod Network)",
@@ -130,6 +158,7 @@ class TranscriptionSupportCollector(BaseIncomeCollector):
                 "category": "virtual_assistant",
                 "opportunity_type": "hourly",
                 "pay_frequency": "monthly",
+                "is_asynchronous": False,
                 "url": "https://web.timeetc.com",
                 "application_url": "https://web.timeetc.com/be-a-virtual-assistant",
                 "location_eligibility": "Worldwide / Remote",

@@ -6,6 +6,8 @@ from src.income_opportunities.models import (
     ScoredOpportunity,
     IncomeCollectorHealth,
     IncomeRunSummary,
+    SourceTrustTier,
+    OpportunityStatus,
 )
 from src.income_opportunities.config import OnlineIncomeConfig, IncomeSourcesConfig
 
@@ -18,11 +20,12 @@ def test_online_income_opportunity_defaults():
         url="https://dataannotation.tech",
     )
     assert opp.id == "test-opp-1"
-    assert opp.category == "general_flexible"
+    assert opp.category == "ai_evaluation"
     assert opp.is_remote is True
     assert opp.is_flexible is True
     assert opp.verification_status == "needs_review"
     assert opp.is_verified is True
+    assert opp.source_trust_tier == SourceTrustTier.TIER_1_HIGHEST
 
 
 def test_scored_opportunity_action():
@@ -33,6 +36,8 @@ def test_scored_opportunity_action():
         url="https://usertesting.com",
     )
     breakdown = IncomeMatchBreakdown(
+        quality_score=8.5,
+        side_job_fit_score=9.0,
         category_score=9.0,
         compensation_score=8.5,
         highlights=["Great flexibility", "Verified company"],
@@ -68,6 +73,10 @@ def test_online_income_config_defaults():
     assert "Nigeria" in cfg.eligible_countries
     assert "Worldwide" in cfg.eligible_countries
     assert "ai_evaluation" in cfg.preferred_categories
+    assert "passive_income" in cfg.excluded_categories
     assert "software_dev" in cfg.excluded_categories
-    assert cfg.minimum_score == 7.0
-    assert cfg.minimum_hourly_rate_usd == 5.0
+    assert cfg.minimum_quality_score == 7.0
+    assert cfg.minimum_side_job_fit_score == 6.0
+    assert cfg.minimum_final_score == 7.5
+    assert cfg.max_digest_items == 5
+    assert cfg.minimum_hourly_rate_usd == 8.0

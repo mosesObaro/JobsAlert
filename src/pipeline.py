@@ -19,11 +19,14 @@ from src.deduplication import StateManager
 from src.income_opportunities.collectors import run_all_income_collectors
 from src.income_opportunities.deduplication import IncomeStateManager
 from src.income_opportunities.models import (
+    EligibilityStatus,
     IncomeCollectorHealth,
     IncomeMatchBreakdown,
     IncomeRunSummary,
     OnlineIncomeOpportunity,
+    OpportunityStatus,
     ScoredOpportunity,
+    SourceTelemetry,
 )
 from src.income_opportunities.scoring import IncomeScoringEngine
 from src.income_opportunities.verifier import IncomeOpportunityVerifier
@@ -84,6 +87,10 @@ class JobPipeline:
             raw_jobs, health_reports = await run_all_collectors(self.config)
             raw_income, income_health = [], []
             print(f"📥 [COLLECTED] {len(raw_jobs)} total job postings across {len(health_reports)} source connectors.")
+
+        income_telemetry_map: Dict[str, SourceTelemetry] = {}
+        for h in income_health:
+            income_telemetry_map[h.source_name] = h.telemetry or SourceTelemetry(source_name=h.source_name, discovered=h.opportunities_found)
 
         # 2. Filter & Deduplicate Conventional Jobs
         new_jobs: List[JobPosting] = []
@@ -149,7 +156,7 @@ class JobPipeline:
         instant_matches.sort(key=lambda x: x.score, reverse=True)
         all_alert_jobs = instant_matches + digest_matches
 
-        # 5. Deduplicate, Verify & Score Online Income Opportunities
+        # 5. Deduplicate, Verify, Quality Gate & Score Online Income Opportunities
         scored_income_opps: List[ScoredOpportunity] = []
         instant_income_matches: List[ScoredOpportunity] = []
         digest_income_matches: List[ScoredOpportunity] = []
@@ -157,13 +164,19 @@ class JobPipeline:
         discarded_income: List[ScoredOpportunity] = []
         new_income: List[OnlineIncomeOpportunity] = []
         rejected_income: List[OnlineIncomeOpportunity] = []
+        income_quality_rejected = 0
+        income_ineligible = 0
 
         if include_income and raw_income:
             for opp in raw_income:
                 fp = opp.fingerprint
                 if self.income_state_manager.is_dismissed(fp):
+                    if opp.source in income_telemetry_map:
+                        income_telemetry_map[opp.source].duplicates_removed += 1
                     continue
                 if not force_all and self.income_state_manager.is_seen(fp):
+                    if opp.source in income_telemetry_map:
+                        income_telemetry_map[opp.source].duplicates_removed += 1
                     continue
                 new_income.append(opp)
 
@@ -179,6 +192,11 @@ class JobPipeline:
                 valid_income = []
 
             for rej in rejected_income:
+                if rej.source in income_telemetry_map:
+                    if rej.verification_status == "rejected":
+                        income_telemetry_map[rej.source].hard_rejected += 1
+                    else:
+                        income_telemetry_map[rej.source].verification_failed += 1
                 s_rej = self.income_scoring_engine.score_opportunity(rej)
                 scored_income_opps.append(s_rej)
                 discarded_income.append(s_rej)
@@ -186,25 +204,46 @@ class JobPipeline:
             for opp in valid_income:
                 s_opp = self.income_scoring_engine.score_opportunity(opp)
                 scored_income_opps.append(s_opp)
-                if s_opp.action == "discard":
+                telemetry = income_telemetry_map.get(opp.source)
+
+                if not s_opp.breakdown.passed_quality_gate:
+                    income_quality_rejected += 1
+                    if telemetry:
+                        telemetry.quality_rejected += 1
+                    discarded_income.append(s_opp)
+                elif s_opp.breakdown.eligibility_status == EligibilityStatus.INELIGIBLE.value:
+                    income_ineligible += 1
+                    if telemetry:
+                        telemetry.ineligible += 1
+                    discarded_income.append(s_opp)
+                elif s_opp.action == "discard":
                     discarded_income.append(s_opp)
                 elif s_opp.action == "low_match":
                     low_income_matches.append(s_opp)
+                    if telemetry:
+                        telemetry.verified += 1
                 elif s_opp.action == "digest":
                     digest_income_matches.append(s_opp)
+                    if telemetry:
+                        telemetry.verified += 1
+                        telemetry.high_quality += 1
                 elif s_opp.action == "instant":
                     instant_income_matches.append(s_opp)
+                    if telemetry:
+                        telemetry.verified += 1
+                        telemetry.high_quality += 1
 
-            digest_income_matches.sort(key=lambda x: x.score, reverse=True)
-            instant_income_matches.sort(key=lambda x: x.score, reverse=True)
+            digest_income_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
+            instant_income_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
 
-        all_alert_income = instant_income_matches + digest_income_matches
+        max_income_digest = self.config.online_income.max_digest_items or 5
+        all_alert_income = (instant_income_matches + digest_income_matches)[:max_income_digest]
         self.latest_income_opportunities = scored_income_opps
 
         print(f"📊 [SCORING RESULTS]")
         print(f"   ★ Career Instant Matches (9.0+):   {len(instant_matches)}")
         print(f"   ✦ Career Strong Matches (7.0-8.9):  {len(digest_matches)}")
-        print(f"   💰 Income Tracks Strong/Instant:     {len(all_alert_income)}")
+        print(f"   💰 Income Tracks Strong/Instant:     {len(all_alert_income)} (Quality Gated, Top {max_income_digest} Max)")
         print(f"   ✕ Total Discarded:                  {len(discarded) + len(discarded_income)}")
 
         # 6. Filter Unalerted Matches & Dispatch Notifications
@@ -214,10 +253,10 @@ class JobPipeline:
 
         unalerted_instant_income = [m for m in instant_income_matches if not self.income_state_manager.is_alerted(m.opportunity.fingerprint)]
         unalerted_digest_income = [m for m in digest_income_matches if not self.income_state_manager.is_alerted(m.opportunity.fingerprint)]
-        unalerted_alert_income = unalerted_instant_income + unalerted_digest_income
+        unalerted_alert_income = (unalerted_instant_income + unalerted_digest_income)[:max_income_digest]
 
         already_sent_jobs_count = len(all_alert_jobs) - len(unalerted_alert_jobs)
-        already_sent_income_count = len(all_alert_income) - len(unalerted_alert_income)
+        already_sent_income_count = len(instant_income_matches + digest_income_matches) - len(unalerted_instant_income + unalerted_digest_income)
         if already_sent_jobs_count > 0 or already_sent_income_count > 0:
             print(f"🛡️ [PREVIOUSLY SENT FILTER] Suppressed {already_sent_jobs_count} job(s) and {already_sent_income_count} income track(s) already emailed previously.")
 
@@ -244,6 +283,8 @@ class JobPipeline:
                     )
                     if success:
                         emails_dispatched += 1
+                        if match.opportunity.source in income_telemetry_map:
+                            income_telemetry_map[match.opportunity.source].alerted += 1
                         self.income_state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
 
             # Consolidated Daily Digest (New / Unalerted Only)
@@ -259,6 +300,8 @@ class JobPipeline:
                     for match in unalerted_alert_jobs:
                         self.state_manager.record_job(match.job, match.score, match.action, alerted=True)
                     for match in unalerted_alert_income:
+                        if match.opportunity.source in income_telemetry_map:
+                            income_telemetry_map[match.opportunity.source].alerted += 1
                         self.income_state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
             elif not immediate_only and send_email and not (unalerted_alert_jobs or unalerted_alert_income):
                 print("ℹ️ [NOTIFICATIONS] No new unalerted matches to dispatch. All matching opportunities were previously sent.")
@@ -277,13 +320,13 @@ class JobPipeline:
         # 7. Persist State
         if not dry_run:
             for s in scored_jobs:
-                alerted = s.action in ["instant", "digest"] and send_email
+                alerted = s in unalerted_alert_jobs and send_email
                 self.state_manager.record_job(s.job, s.score, s.action, alerted=alerted)
             self.state_manager.save()
 
             if scored_income_opps:
                 for s in scored_income_opps:
-                    alerted = s.action in ["instant", "digest"] and send_email
+                    alerted = s in unalerted_alert_income and send_email
                     self.income_state_manager.record_opportunity(s.opportunity, s.score, s.action, alerted=alerted)
                 self.income_state_manager.save()
 
@@ -314,15 +357,21 @@ class JobPipeline:
                 timestamp=datetime.now(timezone.utc),
                 total_fetched=len(raw_income),
                 unique_candidates=len(new_income),
+                hard_rejected=sum(t.hard_rejected for t in income_telemetry_map.values()),
+                quality_rejected=income_quality_rejected,
+                ineligible=income_ineligible,
+                verification_failed=sum(t.verification_failed for t in income_telemetry_map.values()),
+                expired_links_removed=len(rejected_income),
                 discarded=len(discarded_income),
                 low_matches=len(low_income_matches),
                 digest_matches=len(digest_income_matches),
                 instant_matches=len(instant_income_matches),
+                high_quality=len(instant_income_matches) + len(digest_income_matches),
                 emails_dispatched=emails_dispatched,
-                expired_links_removed=len(rejected_income),
                 risk_rejected=sum(1 for o in rejected_income if o.verification_status == "rejected"),
                 execution_time_seconds=elapsed_sec,
                 source_health=income_health,
+                source_telemetry=income_telemetry_map,
                 error_count=sum(1 for h in income_health if h.status == "error")
             )
             self._record_income_run_summary(income_summary)
@@ -375,4 +424,3 @@ def get_run_logs() -> List[dict]:
             return json.load(f)
     except Exception:
         return []
-

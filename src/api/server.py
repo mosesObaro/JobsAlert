@@ -376,14 +376,42 @@ async def trigger_income_run(req: IncomeRunRequest):
 
 
 @app.get("/api/income/opportunities")
-async def get_latest_income_opportunities(min_score: float = 0.0, category: Optional[str] = None, limit: int = 50):
-    """Returns the latest scored online income opportunities."""
+async def get_latest_income_opportunities(
+    min_score: float = 0.0,
+    min_quality: float = 0.0,
+    min_side_job_fit: float = 0.0,
+    category: Optional[str] = None,
+    source_trust_tier: Optional[str] = None,
+    include_rejected: bool = False,
+    limit: int = 50
+):
+    """Returns the latest scored online income opportunities with quality and side-job fit filtering."""
     global latest_scored_income_opps
-    filtered = [o for o in latest_scored_income_opps if o["score"] >= min_score]
-    if category and category.strip():
-        norm_c = category.strip().lower()
-        filtered = [o for o in filtered if norm_c in o["opportunity"]["category"].lower()]
-    filtered.sort(key=lambda x: x["score"], reverse=True)
+    filtered = []
+    for o in latest_scored_income_opps:
+        # Check action / rejection
+        if not include_rejected and (o.get("action") == "discard" and o.get("score", 0.0) == 0.0):
+            continue
+        if o.get("score", 0.0) < min_score:
+            continue
+        q_score = o.get("breakdown", {}).get("quality_score", 0.0) or o.get("opportunity", {}).get("quality_score", 0.0)
+        if q_score < min_quality:
+            continue
+        s_score = o.get("breakdown", {}).get("side_job_fit_score", 0.0) or o.get("opportunity", {}).get("side_job_fit_score", 0.0)
+        if s_score < min_side_job_fit:
+            continue
+        if category and category.strip():
+            norm_c = category.strip().lower()
+            if norm_c not in o["opportunity"]["category"].lower():
+                continue
+        if source_trust_tier and source_trust_tier.strip():
+            norm_t = source_trust_tier.strip().lower()
+            tier_val = str(o["opportunity"].get("source_trust_tier", "")).lower()
+            if norm_t not in tier_val:
+                continue
+        filtered.append(o)
+
+    filtered.sort(key=lambda x: (x.get("score", 0.0), x.get("breakdown", {}).get("quality_score", 0.0)), reverse=True)
     return {"total": len(filtered), "opportunities": filtered[:limit]}
 
 

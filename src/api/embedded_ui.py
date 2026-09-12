@@ -490,18 +490,57 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
         </div>
       </div>
 
+      <!-- Quality, Side-Job Fit & Trust Tier Filter Controls -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 font-semibold flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Quality:</span>
+            <select id="selIncomeMinQuality" onchange="loadIncomeOpportunities()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none">
+              <option value="7.0">Quality Gated (≥ 7.0)</option>
+              <option value="8.5">Top-Tier Only (≥ 8.5)</option>
+              <option value="0.0">All Quality Scores</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 font-semibold flex items-center gap-1"><i data-lucide="moon" class="w-3.5 h-3.5 text-indigo-400"></i> Side-Job Fit:</span>
+            <select id="selIncomeSideJobFit" onchange="loadIncomeOpportunities()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none">
+              <option value="0.0">All Schedules</option>
+              <option value="7.0">High Side-Job Fit (≥ 7.0)</option>
+              <option value="9.0">100% Asynchronous Only (≥ 9.0)</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 font-semibold flex items-center gap-1"><i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i> Trust Tier:</span>
+            <select id="selIncomeTrustTier" onchange="loadIncomeOpportunities()" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none">
+              <option value="">All Verified Tiers</option>
+              <option value="tier_1">Tier 1 Highest (Official Portals)</option>
+              <option value="tier_2">Tier 2 Good (Established Platforms)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-1.5 text-slate-400 cursor-pointer hover:text-slate-200 text-xs">
+            <input type="checkbox" id="chkShowRejectedIncome" onchange="loadIncomeOpportunities()" class="rounded bg-slate-950 border-slate-700 text-red-500 focus:ring-0">
+            <span>Show Gated / Discarded</span>
+          </label>
+        </div>
+      </div>
+
       <!-- Category Filter Pills -->
       <div id="incomeCategoryPills" class="flex flex-wrap gap-2 text-xs">
         <button onclick="filterIncomeCategory('')" class="income-cat-pill bg-emerald-950 border border-emerald-700 text-emerald-300 px-3 py-1 rounded-full font-semibold">All Categories</button>
         <button onclick="filterIncomeCategory('ai_evaluation')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">AI Evaluation & Training</button>
         <button onclick="filterIncomeCategory('data_annotation')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Data Annotation</button>
+        <button onclick="filterIncomeCategory('academic_editing')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Academic Editing</button>
+        <button onclick="filterIncomeCategory('research')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Research & Studies</button>
         <button onclick="filterIncomeCategory('user_testing')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">User Testing & UX</button>
-        <button onclick="filterIncomeCategory('survey_research')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Research & Studies</button>
-        <button onclick="filterIncomeCategory('academic_proofreading')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Academic Editing</button>
-        <button onclick="filterIncomeCategory('online_tutoring')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Online Tutoring</button>
+        <button onclick="filterIncomeCategory('tutoring')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Online Tutoring</button>
         <button onclick="filterIncomeCategory('transcription')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Transcription</button>
         <button onclick="filterIncomeCategory('virtual_assistant')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Virtual Assistant</button>
-        <button onclick="filterIncomeCategory('remote_support')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Remote Support</button>
+        <button onclick="filterIncomeCategory('customer_support')" class="income-cat-pill bg-slate-900 border border-slate-800 text-slate-400 hover:text-white px-3 py-1 rounded-full">Customer Support</button>
       </div>
 
       <!-- 1. Cards View -->
@@ -1261,11 +1300,24 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
 
     async function loadIncomeOpportunities(category) {
       const catParam = category !== undefined ? category : currentIncomeCategory;
-      const url = '/api/income/opportunities' + (catParam ? '?category=' + encodeURIComponent(catParam) : '');
+      const minQuality = document.getElementById('selIncomeMinQuality') ? document.getElementById('selIncomeMinQuality').value : '7.0';
+      const minSideJob = document.getElementById('selIncomeSideJobFit') ? document.getElementById('selIncomeSideJobFit').value : '0.0';
+      const trustTier = document.getElementById('selIncomeTrustTier') ? document.getElementById('selIncomeTrustTier').value : '';
+      const showRejected = document.getElementById('chkShowRejectedIncome') ? document.getElementById('chkShowRejectedIncome').checked : false;
+
+      let url = '/api/income/opportunities?min_quality=' + minQuality + '&min_side_job_fit=' + minSideJob;
+      if (catParam) url += '&category=' + encodeURIComponent(catParam);
+      if (trustTier) url += '&source_trust_tier=' + encodeURIComponent(trustTier);
+      if (showRejected) url += '&include_rejected=true';
+
       const res = await fetch(url);
       const data = await res.json();
       if (!data.opportunities || data.opportunities.length === 0) {
-        triggerIncomeRun(true);
+        if (!showRejected && minQuality === '7.0' && !catParam) {
+          triggerIncomeRun(true);
+        } else {
+          renderIncomeOpportunities([]);
+        }
       } else {
         renderIncomeOpportunities(data.opportunities);
       }
@@ -1283,42 +1335,69 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
     function renderIncomeOpportunities(opps) {
       const container = document.getElementById('incomeCardsView');
       if (!opps || opps.length === 0) {
-        container.innerHTML = '<div class="bg-slate-900 p-8 rounded-xl text-center text-slate-500 text-xs">No opportunities found for this filter. Click "Scan Online Income" to refresh.</div>';
+        container.innerHTML = '<div class="bg-slate-900 p-8 rounded-xl text-center text-slate-500 text-xs">No opportunities found for the selected quality/category criteria. Click "Scan Online Income" to run discovery.</div>';
         return;
       }
-      container.innerHTML = opps.map(item => `
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+      container.innerHTML = opps.map(item => {
+        const isDiscarded = item.action === 'discard' || item.score === 0;
+        const qScore = item.breakdown.quality_score || item.opportunity.quality_score || 0;
+        const sScore = item.breakdown.side_job_fit_score || item.opportunity.side_job_fit_score || 0;
+        const trustTier = (item.opportunity.source_trust_tier || 'tier_1_highest').replace('_', ' ').toUpperCase();
+        const rejections = item.breakdown.rejection_reasons || item.opportunity.rejection_reasons || [];
+
+        return `
+        <div class="bg-slate-900 border ${isDiscarded ? 'border-red-900/60 opacity-75' : 'border-slate-800'} p-4 rounded-xl">
           <div class="flex justify-between items-start mb-2">
             <div>
               <div class="flex items-center gap-2 mb-1">
                 <h3 class="text-sm font-bold text-white">${item.opportunity.title}</h3>
                 <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                  <i data-lucide="shield-check" class="w-3 h-3"></i> ${(item.opportunity.verification_status || 'verified').replace('_', ' ').toUpperCase()}
+                  <i data-lucide="award" class="w-3 h-3"></i> ${trustTier}
                 </span>
+                ${isDiscarded ? `<span class="bg-red-950 text-red-400 border border-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded">GATED OUT</span>` : ''}
               </div>
               <div class="text-xs text-emerald-400 font-semibold">${item.opportunity.organization} • <span class="text-slate-400">📍 ${item.opportunity.location_eligibility}</span></div>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-black px-2.5 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-                ★ ${item.score}/10 Match
-              </span>
-              <button onclick="dismissIncomeOpportunity('${item.opportunity.fingerprint}')" class="text-slate-500 hover:text-red-400 p-1" title="Dismiss opportunity">
-                <i data-lucide="x" class="w-3.5 h-3.5"></i>
-              </button>
+            <div class="flex flex-col items-end gap-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black px-2.5 py-1 rounded ${item.score >= 9 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-blue-950 text-blue-300 border border-blue-800'}">
+                  ★ ${item.score}/10 Overall
+                </span>
+                <button onclick="dismissIncomeOpportunity('${item.opportunity.fingerprint}')" class="text-slate-500 hover:text-red-400 p-1" title="Dismiss opportunity">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <div class="text-[11px] font-semibold text-slate-400">
+                Quality: <span class="text-emerald-400 font-bold">${qScore}/10</span> • Side-Job: <span class="text-indigo-400 font-bold">${sScore}/10</span>
+              </div>
             </div>
           </div>
+
+          <!-- Metadata Chips -->
           <div class="flex flex-wrap gap-1.5 my-2">
-            ${item.opportunity.pay_rate_display ? `<span class="bg-amber-950/80 border border-amber-800 text-amber-300 text-[11px] font-mono px-2 py-0.5 rounded font-bold">💵 ${item.opportunity.pay_rate_display}</span>` : ''}
+            ${item.opportunity.pay_rate_display ? `<span class="bg-amber-950/80 border border-amber-800 text-amber-300 text-[11px] font-mono px-2 py-0.5 rounded font-bold">💵 ${item.opportunity.pay_rate_display}</span>` : '<span class="bg-slate-950 border border-slate-800 text-slate-400 text-[11px] px-2 py-0.5 rounded">💵 Flexible / Task Pay</span>'}
             <span class="bg-slate-950 border border-slate-800 text-slate-300 text-[11px] px-2 py-0.5 rounded">📂 ${(item.opportunity.category || '').replace('_', ' ')}</span>
-            <span class="bg-slate-950 border border-slate-800 text-slate-300 text-[11px] px-2 py-0.5 rounded">⚡ ${item.opportunity.opportunity_type}</span>
+            <span class="bg-slate-950 border border-slate-800 text-indigo-300 text-[11px] px-2 py-0.5 rounded">🌙 ${item.opportunity.is_asynchronous ? '100% Asynchronous' : 'Flexible Hours'}</span>
           </div>
+
           <p class="text-xs text-slate-300 mb-2">${item.opportunity.description || ''}</p>
+
+          ${isDiscarded && rejections.length > 0 ? `
+          <div class="bg-red-950/40 p-2.5 rounded-lg border-l-2 border-red-500 text-xs text-red-200 my-2">
+            <div class="font-bold text-red-400 text-[11px] uppercase mb-1">Reason Blocked by Quality Gate:</div>
+            <ul class="list-disc pl-4 space-y-0.5">
+              ${rejections.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+
+          ${!isDiscarded ? `
           <div class="bg-slate-950 p-2.5 rounded-lg border-l-2 border-emerald-500 text-xs text-slate-300 my-2">
             <div class="font-bold text-emerald-400 text-[11px] uppercase mb-1">Why this is worth considering:</div>
             <ul class="list-disc pl-4 space-y-0.5">
               ${(item.breakdown.highlights || []).map(h => `<li>${h}</li>`).join('')}
             </ul>
-          </div>
+          </div>` : ''}
+
           <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
             <span class="text-slate-500">Source: ${(item.opportunity.source || '').replace('_', ' ')}</span>
             <a href="${item.opportunity.application_url || item.opportunity.url}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded text-xs flex items-center gap-1">
@@ -1326,7 +1405,7 @@ EMBEDDED_DASHBOARD_HTML = """<!DOCTYPE html>
             </a>
           </div>
         </div>
-      `).join('');
+      `}).join('');
       lucide.createIcons();
     }
 

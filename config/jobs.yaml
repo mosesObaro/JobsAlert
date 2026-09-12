@@ -165,36 +165,57 @@ online_income:
   - Africa
   preferred_categories:
   - ai_evaluation
+  - ai_training
   - data_annotation
-  - research_assistant
-  - academic_proofreading
-  - online_tutoring
-  - transcription
+  - research
+  - academic_editing
+  - proofreading
+  - tutoring
   - user_testing
+  - transcription
+  - customer_support
   - virtual_assistant
-  - remote_support
   - data_entry
   - bookkeeping
-  - survey_research
   - content_editorial
-  - general_flexible
+  - expert_research
+  - other_verified_remote_work
   excluded_categories:
+  - passive_income
+  - side_hustle
+  - online_business
+  - make_money_online
+  - entrepreneurship
+  - affiliate_marketing
+  - dropshipping
+  - ecommerce
+  - courses_coaching
+  - mlm
+  - pyramid_scheme
+  - trading
+  - crypto
+  - gambling
+  - betting
   - software_dev
   - tech_engineering
   - marketing
   - advertising
   - sales
   - social_media_promotion
-  - trading
-  - crypto
-  - gambling
-  - betting
-  - mlm
-  minimum_score: 7.0
+  minimum_quality_score: 7.0
+  minimum_side_job_fit_score: 6.0
+  minimum_final_score: 7.5
+  minimum_score: 7.5
   instant_alert_score: 9.0
+  max_digest_items: 5
+  min_source_trust_tier: tier_3_review
+  require_verified_source: true
+  reject_unknown_eligibility: false
+  reject_unknown_compensation: false
   minimum_hourly_rate_usd: 8.0
   preferred_flexibility: high
   maximum_hours_per_week: 25
+  allow_asynchronous_only: false
   preferred_payment_methods:
   - PayPal
   - Direct Deposit
@@ -209,8 +230,11 @@ online_income:
   - NGN
   require_link_verification: true
   scoring_weights:
-    country_eligibility: 25.0
-    compensation: 20.0
+    quality: 30.0
+    relevance: 25.0
+    side_job_fit: 20.0
+    country_eligibility: 15.0
+    compensation: 10.0
     legitimacy_verification: 20.0
     flexibility_time: 15.0
     category_alignment: 15.0
@@ -218,6 +242,7 @@ online_income:
   sources:
     ai_evaluation:
       enabled: true
+      trust_tier: tier_1_highest
       platforms:
       - dataannotation
       - outlier
@@ -229,6 +254,7 @@ online_income:
       limit_items: 30
     user_testing:
       enabled: true
+      trust_tier: tier_2_good
       platforms:
       - usertesting
       - testbirds
@@ -239,6 +265,7 @@ online_income:
       limit_items: 30
     academic_tutoring:
       enabled: true
+      trust_tier: tier_1_highest
       platforms:
       - cambridge_proofreading
       - scribbr
@@ -250,6 +277,7 @@ online_income:
       limit_items: 30
     transcription_support:
       enabled: true
+      trust_tier: tier_2_good
       platforms:
       - rev
       - gotranscript
@@ -262,6 +290,7 @@ online_income:
     rss_feeds: []
     custom:
       enabled: true
+      trust_tier: tier_2_good
       platforms: []
       categories: []
       tags: []

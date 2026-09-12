@@ -12,14 +12,21 @@ import httpx
 
 from src.income_opportunities.collectors.base import BaseIncomeCollector
 from src.income_opportunities.config import OnlineIncomeConfig
-from src.income_opportunities.models import OnlineIncomeOpportunity
+from src.income_opportunities.models import (
+    CompensationDetails,
+    CompensationType,
+    GeographicScope,
+    OnlineIncomeOpportunity,
+    OpportunityStatus,
+    SourceTrustTier,
+)
 
 
 class AIEvaluationCollector(BaseIncomeCollector):
     """Discovers AI training, prompt evaluation, and data annotation opportunities."""
 
     def __init__(self):
-        super().__init__(name="ai_evaluation")
+        super().__init__(name="ai_evaluation", trust_tier=SourceTrustTier.TIER_1_HIGHEST)
 
     async def collect(self, config: OnlineIncomeConfig) -> List[OnlineIncomeOpportunity]:
         sub_cfg = config.sources.ai_evaluation
@@ -34,6 +41,16 @@ class AIEvaluationCollector(BaseIncomeCollector):
         for track in standing_tracks:
             platform_id = track.get("platform_id", "")
             if any(p in platform_id for p in platforms) or not platforms:
+                comp_details = CompensationDetails(
+                    min_pay=track.get("estimated_pay_min"),
+                    max_pay=track.get("estimated_pay_max"),
+                    currency="USD",
+                    pay_period="hourly",
+                    pay_type=CompensationType.HOURLY if track.get("opportunity_type") == "hourly" else CompensationType.PER_TASK,
+                    compensation_verified=True,
+                    pay_rate_display=track.get("pay_rate_display"),
+                )
+
                 opp = OnlineIncomeOpportunity(
                     id=track["id"],
                     title=track["title"],
@@ -43,11 +60,18 @@ class AIEvaluationCollector(BaseIncomeCollector):
                     opportunity_type=track.get("opportunity_type", "hourly"),
                     url=track["url"],
                     application_url=track.get("application_url", track["url"]),
+                    source=self.name,
+                    source_type="official_portal",
+                    source_trust_tier=SourceTrustTier.TIER_1_HIGHEST,
+                    source_url=track["url"],
                     location_eligibility=track.get("location_eligibility", "Worldwide"),
+                    geographic_scope=GeographicScope.WORLDWIDE,
                     eligible_countries=track.get("eligible_countries", ["Worldwide", "Nigeria"]),
                     country_restrictions=track.get("country_restrictions", []),
                     is_remote=True,
                     is_flexible=True,
+                    is_asynchronous=True,
+                    compensation=comp_details,
                     estimated_pay_min=track.get("estimated_pay_min"),
                     estimated_pay_max=track.get("estimated_pay_max"),
                     pay_rate_display=track.get("pay_rate_display"),
@@ -56,19 +80,16 @@ class AIEvaluationCollector(BaseIncomeCollector):
                     experience_requirement=track.get("experience_requirement", "none"),
                     time_commitment="flexible",
                     flexibility="high",
-                    source=self.name,
-                    tags=track.get("tags", ["AI Evaluation", "Remote", "Flexible"]),
+                    status=OpportunityStatus.NEW,
+                    tags=track.get("tags", ["AI Evaluation", "Remote", "Flexible", "Asynchronous"]),
                     verification_status="verified_source",
+                    is_verified=True,
                     legitimacy_indicators=[
-                        f"Established AI data platform ({track['organization']})",
-                        "Direct application portal with onboarding assessment"
+                        f"Official Tier-1 AI data platform ({track['organization']})",
+                        "Direct onboarding portal with assessment"
                     ],
                 )
                 opportunities.append(opp)
-
-        # 2. Dynamic Career Endpoints for AI Openings
-        dynamic_opps = await self._fetch_dynamic_openings()
-        opportunities.extend(dynamic_opps)
 
         limit = sub_cfg.limit_items or 30
         return opportunities[:limit]
@@ -81,7 +102,7 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "platform_id": "dataannotation",
                 "title": "AI Evaluator & Content Annotator (Generalist)",
                 "organization": "DataAnnotation.tech",
-                "description": "Evaluate conversational AI model responses for factual accuracy, reasoning, grammar, and alignment. Self-paced, asynchronous work with continuous project streams.",
+                "description": "Evaluate conversational AI model responses for factual accuracy, reasoning, grammar, and alignment. 100% self-paced, asynchronous work with continuous project streams.",
                 "category": "ai_evaluation",
                 "opportunity_type": "hourly",
                 "url": "https://www.dataannotation.tech",
@@ -92,14 +113,14 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "estimated_pay_max": 25.0,
                 "pay_rate_display": "$20–$25/hr",
                 "experience_requirement": "none",
-                "tags": ["AI Trainer", "LLM Evaluation", "Flexible", "Weekly Pay"]
+                "tags": ["AI Trainer", "LLM Evaluation", "Flexible", "Weekly Pay", "Asynchronous"]
             },
             {
                 "id": "outlier-ai-trainer-01",
                 "platform_id": "outlier",
                 "title": "AI Trainer & Reasoning Evaluator (Domain Specialist / Generalist)",
                 "organization": "Outlier.ai",
-                "description": "Train state-of-the-art frontier AI models by providing detailed feedback, creative prompts, and fact-checking generated outputs across humanities, logic, writing, and STEM topics.",
+                "description": "Train frontier AI models by providing detailed feedback, creative prompts, and fact-checking generated outputs across humanities, logic, writing, and STEM topics.",
                 "category": "ai_evaluation",
                 "opportunity_type": "hourly",
                 "url": "https://outlier.ai",
@@ -110,14 +131,14 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "estimated_pay_max": 35.0,
                 "pay_rate_display": "$15–$35/hr",
                 "experience_requirement": "beginner",
-                "tags": ["AI Evaluation", "Fact Checking", "Direct Deposit", "PayPal"]
+                "tags": ["AI Evaluation", "Fact Checking", "Direct Deposit", "PayPal", "Asynchronous"]
             },
             {
                 "id": "oneforma-llm-annotator-01",
                 "platform_id": "oneforma",
                 "title": "Micro-Task Contributor & Multimodal AI Evaluator",
                 "organization": "OneForma / Centific",
-                "description": "Participate in global AI annotation projects, audio collection, prompt engineering, and linguistic quality evaluations. Pick and choose tasks based on interest.",
+                "description": "Participate in global AI annotation projects, audio collection, prompt engineering, and linguistic quality evaluations. Pick and choose tasks based on your free time.",
                 "category": "data_annotation",
                 "opportunity_type": "per_task",
                 "url": "https://www.oneforma.com",
@@ -128,7 +149,7 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "estimated_pay_max": 18.0,
                 "pay_rate_display": "$8–$18/hr equivalent (per-task)",
                 "experience_requirement": "none",
-                "tags": ["Data Annotation", "Multimodal AI", "Payoneer", "Global"]
+                "tags": ["Data Annotation", "Multimodal AI", "Payoneer", "Global", "Asynchronous"]
             },
             {
                 "id": "telus-ai-community-01",
@@ -146,7 +167,7 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "estimated_pay_max": 16.0,
                 "pay_rate_display": "$10–$16/hr",
                 "experience_requirement": "none",
-                "tags": ["Search Evaluator", "Part-Time", "Flexible Hours", "TELUS"]
+                "tags": ["Search Evaluator", "Part-Time", "Flexible Hours", "TELUS", "Asynchronous"]
             },
             {
                 "id": "appen-crowd-contributor-01",
@@ -160,15 +181,10 @@ class AIEvaluationCollector(BaseIncomeCollector):
                 "application_url": "https://appen.com/join-our-crowd/",
                 "location_eligibility": "Worldwide",
                 "eligible_countries": ["Worldwide", "Nigeria", "Kenya", "India", "Philippines", "Brazil"],
-                "estimated_pay_min": 7.0,
+                "estimated_pay_min": 8.0,
                 "estimated_pay_max": 15.0,
-                "pay_rate_display": "$7–$15/hr equivalent",
+                "pay_rate_display": "$8–$15/hr equivalent",
                 "experience_requirement": "none",
-                "tags": ["Data Annotation", "Search Rating", "Payoneer", "PayPal"]
+                "tags": ["Data Annotation", "Search Rating", "Payoneer", "PayPal", "Asynchronous"]
             }
         ]
-
-    async def _fetch_dynamic_openings(self) -> List[OnlineIncomeOpportunity]:
-        """Optionally queries public RSS/APIs for newly opened AI evaluation projects."""
-        # Future live feed integrations can append here
-        return []

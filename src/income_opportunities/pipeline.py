@@ -1,7 +1,8 @@
 """
 Online Income Opportunities Pipeline Orchestrator.
-Coordinates collection, state deduplication, safety verification, relevance scoring,
-email alert dispatch, and telemetry logging in data/income_run_logs.json.
+Coordinates collection, deduplication, hard rejection, quality gating,
+eligibility verification, side-job scoring, selective Top-5 ranking,
+email alert dispatch, and granular telemetry logging in data/income_run_logs.json.
 """
 
 from __future__ import annotations
@@ -16,11 +17,14 @@ from src.income_opportunities.collectors import run_all_income_collectors
 from src.income_opportunities.config import OnlineIncomeConfig
 from src.income_opportunities.deduplication import IncomeStateManager
 from src.income_opportunities.models import (
+    EligibilityStatus,
     IncomeCollectorHealth,
     IncomeMatchBreakdown,
     IncomeRunSummary,
     OnlineIncomeOpportunity,
+    OpportunityStatus,
     ScoredOpportunity,
+    SourceTelemetry,
 )
 from src.income_opportunities.scoring import IncomeScoringEngine
 from src.income_opportunities.verifier import IncomeOpportunityVerifier
@@ -55,7 +59,7 @@ class IncomeOpportunityPipeline:
         email_provider: str = "console",
         from_email: str = "alerts@jobsalert.dev",
     ) -> Tuple[IncomeRunSummary, List[ScoredOpportunity]]:
-        """Executes the full online income discovery, verification, and evaluation run."""
+        """Executes the quality-gated discovery, verification, and evaluation run."""
         start_time = time.perf_counter()
         run_id = f"income_run_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
 
@@ -63,7 +67,11 @@ class IncomeOpportunityPipeline:
 
         # 1. Collect from all enabled sources
         raw_opps, health_reports = await run_all_income_collectors(self.config)
-        print(f"📥 [COLLECTED] {len(raw_opps)} income tracks discovered across {len(health_reports)} source modules.")
+        print(f"📥 [COLLECTED] {len(raw_opps)} candidate tracks discovered across {len(health_reports)} source modules.")
+
+        source_telemetry_map: Dict[str, SourceTelemetry] = {}
+        for h in health_reports:
+            source_telemetry_map[h.source_name] = h.telemetry or SourceTelemetry(source_name=h.source_name, discovered=h.opportunities_found)
 
         # 2. Filter & Deduplicate
         new_opps: List[OnlineIncomeOpportunity] = []
@@ -74,36 +82,49 @@ class IncomeOpportunityPipeline:
             fp = opp.fingerprint
             if self.state_manager.is_dismissed(fp):
                 dismissed_count += 1
+                if opp.source in source_telemetry_map:
+                    source_telemetry_map[opp.source].duplicates_removed += 1
                 continue
             if not force_all and self.state_manager.is_seen(fp):
                 seen_count += 1
+                if opp.source in source_telemetry_map:
+                    source_telemetry_map[opp.source].duplicates_removed += 1
                 continue
             new_opps.append(opp)
 
-        print(f"🔍 [DEDUPLICATION] {seen_count} already processed, {dismissed_count} dismissed. {len(new_opps)} candidate tracks to verify & score.")
+        print(f"🔍 [DEDUPLICATION] {seen_count} already processed, {dismissed_count} dismissed. {len(new_opps)} unique tracks to verify & score.")
 
-        # 3. Verify Links & Scam Safety
+        # 3. Verify Links, Scam Screening & Hard Rejection
         valid_opps: List[OnlineIncomeOpportunity] = []
         rejected_opps: List[OnlineIncomeOpportunity] = []
 
         if new_opps:
-            print(f"🔗 [SAFETY & LINK VERIFICATION] Screening {len(new_opps)} opportunities...")
+            print(f"🔗 [SAFETY & QUALITY VERIFICATION] Screening {len(new_opps)} opportunities...")
             valid_opps, rejected_opps = await self.verifier.verify_opportunities_batch(
                 new_opps,
                 check_links=self.config.require_link_verification,
                 max_concurrency=15
             )
-            if rejected_opps:
-                print(f"⚠️ [SAFETY VERIFICATION] Filtered out {len(rejected_opps)} dead links or safety-flagged tracks.")
+            for rej in rejected_opps:
+                if rej.source in source_telemetry_map:
+                    if rej.verification_status == "rejected":
+                        source_telemetry_map[rej.source].hard_rejected += 1
+                    else:
+                        source_telemetry_map[rej.source].verification_failed += 1
 
-        # 4. Score each opportunity
+            if rejected_opps:
+                print(f"⚠️ [SAFETY VERIFICATION] Filtered out {len(rejected_opps)} dead links, non-work advice, or safety-flagged tracks.")
+
+        # 4. Score Opportunities (Quality Gate -> Geographic Eligibility -> Side-Job Fit -> Final Score)
         scored_opps: List[ScoredOpportunity] = []
         discarded: List[ScoredOpportunity] = []
         low_matches: List[ScoredOpportunity] = []
         digest_matches: List[ScoredOpportunity] = []
         instant_matches: List[ScoredOpportunity] = []
+        quality_rejected_count = 0
+        ineligible_count = 0
 
-        # Handle rejected/dead
+        # Handle pre-rejected / dead
         for rej in rejected_opps:
             scored_rej = self.scoring_engine.score_opportunity(rej)
             scored_opps.append(scored_rej)
@@ -114,32 +135,55 @@ class IncomeOpportunityPipeline:
             scored = self.scoring_engine.score_opportunity(opp)
             scored_opps.append(scored)
 
-            if scored.action == "discard":
+            src = opp.source
+            telemetry = source_telemetry_map.get(src)
+
+            if not scored.breakdown.passed_quality_gate:
+                quality_rejected_count += 1
+                if telemetry:
+                    telemetry.quality_rejected += 1
+                discarded.append(scored)
+            elif scored.breakdown.eligibility_status == EligibilityStatus.INELIGIBLE.value:
+                ineligible_count += 1
+                if telemetry:
+                    telemetry.ineligible += 1
+                discarded.append(scored)
+            elif scored.action == "discard":
                 discarded.append(scored)
             elif scored.action == "low_match":
                 low_matches.append(scored)
+                if telemetry:
+                    telemetry.verified += 1
             elif scored.action == "digest":
                 digest_matches.append(scored)
+                if telemetry:
+                    telemetry.verified += 1
+                    telemetry.high_quality += 1
             elif scored.action == "instant":
                 instant_matches.append(scored)
+                if telemetry:
+                    telemetry.verified += 1
+                    telemetry.high_quality += 1
 
-        # Sort matches by score descending
-        digest_matches.sort(key=lambda x: x.score, reverse=True)
-        instant_matches.sort(key=lambda x: x.score, reverse=True)
-        all_alert_opps = instant_matches + digest_matches
+        # 5. Rank & Cap Selective Digest (Top 5 Max)
+        digest_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
+        instant_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
 
-        print(f"📊 [INCOME SCORING RESULTS]")
-        print(f"   ★ Instant Matches (9.0+):  {len(instant_matches)}")
-        print(f"   ✦ Strong Matches (7.0-8.9): {len(digest_matches)}")
-        print(f"   · Low Matches (5.0-6.9):    {len(low_matches)} (saved for dashboard)")
-        print(f"   ✕ Discarded (0.0-4.9):      {len(discarded)}")
+        max_items = self.config.max_digest_items or 5
+        all_alert_opps = (instant_matches + digest_matches)[:max_items]
 
-        # 5. Filter Unalerted Matches & Dispatch Notifications
+        print(f"📊 [HIGH-PRECISION SCORING RESULTS]")
+        print(f"   ★ Instant Matches (9.0+):         {len(instant_matches)}")
+        print(f"   ✦ Quality Digest Matches (7.5+):  {len(digest_matches)} (Capped at Top {max_items})")
+        print(f"   · Low Matches (5.0-7.4):           {len(low_matches)} (saved for dashboard)")
+        print(f"   ✕ Quality Gated / Discarded:       {len(discarded)} (Quality Blocked: {quality_rejected_count}, Ineligible: {ineligible_count})")
+
+        # 6. Filter Unalerted Matches & Dispatch Notifications
         unalerted_instant = [m for m in instant_matches if not self.state_manager.is_alerted(m.opportunity.fingerprint)]
         unalerted_digest = [m for m in digest_matches if not self.state_manager.is_alerted(m.opportunity.fingerprint)]
-        unalerted_all_opps = unalerted_instant + unalerted_digest
+        unalerted_all_opps = (unalerted_instant + unalerted_digest)[:max_items]
 
-        already_sent_count = len(all_alert_opps) - len(unalerted_all_opps)
+        already_sent_count = len(instant_matches + digest_matches) - len(unalerted_instant + unalerted_digest)
         if already_sent_count > 0:
             print(f"🛡️ [PREVIOUSLY SENT FILTER] Suppressed {already_sent_count} income track(s) already emailed previously.")
 
@@ -158,6 +202,8 @@ class IncomeOpportunityPipeline:
                     )
                     if success:
                         emails_dispatched += 1
+                        if match.opportunity.source in source_telemetry_map:
+                            source_telemetry_map[match.opportunity.source].alerted += 1
                         self.state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
 
             # Scheduled Digest (New / Unalerted Only)
@@ -173,6 +219,8 @@ class IncomeOpportunityPipeline:
                 if success:
                     emails_dispatched += 1
                     for match in unalerted_all_opps:
+                        if match.opportunity.source in source_telemetry_map:
+                            source_telemetry_map[match.opportunity.source].alerted += 1
                         self.state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
             elif not immediate_only and send_email and not unalerted_all_opps:
                 print("ℹ️ [NOTIFICATIONS] No new unalerted income tracks to dispatch. All matching tracks were previously sent.")
@@ -186,30 +234,36 @@ class IncomeOpportunityPipeline:
                     recipient_email
                 )
 
-        # 6. Persist State
+        # 7. Persist State
         if not dry_run:
             for s in scored_opps:
-                alerted = s.action in ["instant", "digest"] and send_email
+                alerted = s in unalerted_all_opps and send_email
                 self.state_manager.record_opportunity(s.opportunity, s.score, s.action, alerted=alerted)
             self.state_manager.save()
 
         elapsed_sec = round(time.perf_counter() - start_time, 2)
 
-        # 7. Build and Record Run Summary
+        # 8. Build and Record Run Summary
         summary = IncomeRunSummary(
             run_id=run_id,
             timestamp=datetime.now(timezone.utc),
             total_fetched=len(raw_opps),
             unique_candidates=len(new_opps),
+            hard_rejected=sum(t.hard_rejected for t in source_telemetry_map.values()),
+            quality_rejected=quality_rejected_count,
+            ineligible=ineligible_count,
+            verification_failed=sum(t.verification_failed for t in source_telemetry_map.values()),
+            expired_links_removed=len(rejected_opps),
             discarded=len(discarded),
             low_matches=len(low_matches),
             digest_matches=len(digest_matches),
             instant_matches=len(instant_matches),
+            high_quality=len(instant_matches) + len(digest_matches),
             emails_dispatched=emails_dispatched,
-            expired_links_removed=len(rejected_opps),
             risk_rejected=sum(1 for o in rejected_opps if o.verification_status == "rejected"),
             execution_time_seconds=elapsed_sec,
             source_health=health_reports,
+            source_telemetry=source_telemetry_map,
             error_count=sum(1 for h in health_reports if h.status == "error")
         )
 
@@ -230,7 +284,6 @@ class IncomeOpportunityPipeline:
                 logs = []
 
         logs.insert(0, summary.model_dump(mode="json"))
-        # Keep last 50 runs
         logs = logs[:50]
 
         with open(INCOME_RUN_LOGS_FILE, "w", encoding="utf-8") as f:

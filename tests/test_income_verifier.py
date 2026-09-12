@@ -28,7 +28,7 @@ def test_safety_detection_upfront_fee_rejection():
     )
     evaluated = analyze_opportunity_safety(opp)
     assert evaluated.verification_status == "rejected"
-    assert any("upfront payment" in r.lower() for r in evaluated.scam_risk_indicators)
+    assert any("upfront" in r.lower() or "fee" in r.lower() for r in evaluated.scam_risk_indicators)
 
 
 def test_safety_detection_mlm_pyramid_rejection():

@@ -2,8 +2,8 @@ name: Automated Job Intelligence Scout & Alert
 
 on:
   schedule:
-    # Runs daily at 07:30 UTC (configurable in config/jobs.yaml)
-    - cron: '30 7 * * *'
+    # Runs twice daily at 07:30 UTC and 19:30 UTC (morning & evening intelligence alerts)
+    - cron: '30 7,19 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

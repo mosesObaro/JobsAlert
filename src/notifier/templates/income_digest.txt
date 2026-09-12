@@ -7,12 +7,13 @@ We discovered {{ opportunities|length }} verified flexible online income opportu
 
 {% for scored in opportunities %}
 --------------------------------------------------------------------------------
-[{{ scored.score }}/10 MATCH] {{ scored.opportunity.title }}
+[{{ scored.score }}/10 OVERALL MATCH] {{ scored.opportunity.title }}
 Platform / Organization: {{ scored.opportunity.organization }}
-Category: {{ scored.opportunity.category.replace('_', ' ').title() }}
-Location / Eligibility: {{ scored.opportunity.location_eligibility }}
-Compensation: {{ scored.opportunity.pay_rate_display or "Flexible / Task-based" }}
-Status: {{ scored.opportunity.verification_status.replace('_', ' ').title() }}
+Quality Score:           {{ scored.breakdown.quality_score or scored.opportunity.quality_score }}/10 (Quality Gated)
+Side-Job Fit:            {{ scored.breakdown.side_job_fit_score or scored.opportunity.side_job_fit_score }}/10
+Category:                {{ scored.opportunity.category.replace('_', ' ').title() }}
+Location / Eligibility:  {{ scored.opportunity.location_eligibility }}
+Compensation:            {{ scored.opportunity.pay_rate_display or "Project / Task-Based Pay" }}
 
 Why this is worth considering:
 {% for h in scored.breakdown.highlights %}
