@@ -1,68 +1,68 @@
 [
   {
-    "title": "Financial Planning Analyst (FP&A)",
+    "title": "People Operations & HR Generalist",
     "company": "Moniepoint",
     "location": "Remote (Nigeria)",
     "is_remote": true,
     "url": "https://boards.greenhouse.io/moniepoint",
-    "description": "Financial modeling, variance analysis, financial reporting, and budget forecasting for high-growth African fintech. Experience with Excel, financial statement analysis, and IFRS.",
+    "description": "Drive employee lifecycle management, onboarding, HR policy compliance, and performance management across distributed African teams. Experience with HRIS (BambooHR/Workday), employee relations, and Nigerian labor laws.",
     "salary_min": 18000,
-    "salary_max": 30000,
-    "created_at": "2026-08-27T15:00:00Z"
+    "salary_max": 28000,
+    "created_at": "2026-09-12T10:00:00Z"
   },
   {
-    "title": "Finance & Accounting Intern (Paid)",
+    "title": "Learning & Development Specialist (L&D)",
     "company": "Scale Army",
     "location": "Remote (Nigeria / Africa)",
     "is_remote": true,
     "url": "https://jobs.ashbyhq.com/scalearmy",
-    "description": "Paid remote accounting internship. Perform bank reconciliations, process accounts payable, audit digital invoices, and assist with QuickBooks bookkeeping. Strong Excel required. Ideal for graduates or ICAN/ACCA student members.",
-    "salary_min": 7200,
-    "salary_max": 12000,
-    "created_at": "2026-08-27T15:10:00Z"
+    "description": "Design and execute training needs analysis (TNA), internal learning academies, onboarding curricula, and leadership workshops. Expertise in instructional design, LMS administration, and performance enablement.",
+    "salary_min": 14000,
+    "salary_max": 24000,
+    "created_at": "2026-09-12T10:15:00Z"
   },
   {
-    "title": "Financial Reporting Accountant",
-    "company": "HR On Wheels",
-    "location": "Remote / Lagos, Nigeria",
+    "title": "Technical Recruiter / Talent Acquisition Specialist",
+    "company": "Flutterwave",
+    "location": "Remote (Worldwide / Nigeria)",
     "is_remote": true,
-    "url": "https://www.jobberman.com",
-    "description": "Preparation of monthly financial statements in compliance with IFRS, ledger reconciliation, audit prep, and tax compliance (VAT, WHT, CIT). Requires Excel and QuickBooks/Xero proficiency.",
-    "salary_min": 10000,
-    "salary_max": 16000,
-    "created_at": "2026-08-27T15:15:00Z"
+    "url": "https://boards.greenhouse.io/flutterwave",
+    "description": "Full-cycle recruitment for engineering, product, and operations across Africa and global markets. Proficient with LinkedIn Recruiter, Greenhouse ATS, passive candidate sourcing, and structured interviewing.",
+    "salary_min": 20000,
+    "salary_max": 35000,
+    "created_at": "2026-09-12T10:30:00Z"
   },
   {
-    "title": "Finance Accountant",
-    "company": "Gap Financial Technologies Ltd",
-    "location": "Lagos, Nigeria (Hybrid / Remote)",
+    "title": "HR Business Partner (HRBP)",
+    "company": "LemFi",
+    "location": "Remote (Lagos, Nigeria / Worldwide)",
     "is_remote": true,
-    "url": "https://www.jobberman.com",
-    "description": "Daily reconciliation, liquidity monitoring, and treasury operations in a fintech institution. Responsible for ledger integrity, regulatory returns, and financial reporting.",
-    "salary_min": 12000,
-    "salary_max": 20000,
-    "created_at": "2026-08-27T15:20:00Z"
+    "url": "https://jobs.ashbyhq.com/lemfi",
+    "description": "Strategic people partner collaborating with department heads on talent planning, employee engagement, compensation reviews, and organizational design. SHRM or CIPM certification preferred.",
+    "salary_min": 22000,
+    "salary_max": 38000,
+    "created_at": "2026-09-12T10:45:00Z"
   },
   {
-    "title": "Junior Accountant / Virtual Bookkeeper",
+    "title": "Recruitment & Onboarding Coordinator",
     "company": "Pixelpulse International",
-    "location": "Remote (Nigeria / Africa)",
+    "location": "Remote (Worldwide)",
     "is_remote": true,
     "url": "https://www.jobberman.com",
-    "description": "Entry-level junior accountant. Maintain accounts receivables/payables, daily bookkeeping using Xero/QuickBooks, and assist senior accountants with quarterly audits.",
-    "salary_min": 8000,
-    "salary_max": 14000,
-    "created_at": "2026-08-27T15:25:00Z"
+    "description": "Coordinate candidate interview scheduling, ATS pipeline tracking, offer letters, background checks, and remote new hire onboarding. Excellent communication and organization skills.",
+    "salary_min": 12000,
+    "salary_max": 18000,
+    "created_at": "2026-09-12T11:00:00Z"
   },
   {
-    "title": "Accounting Intern (Paid Graduate Trainee)",
-    "company": "R & R Group",
-    "location": "Lagos, Nigeria",
-    "is_remote": false,
-    "url": "https://www.jobberman.com",
-    "description": "Hands-on paid internship for recent accounting/finance graduates or NYSC corpers. Learn corporate tax filing, ledger posting, payroll administration, and invoice matching.",
-    "salary_min": 6000,
-    "salary_max": 9000,
-    "created_at": "2026-08-27T15:30:00Z"
+    "title": "Senior Talent Acquisition Partner",
+    "company": "Deel",
+    "location": "Remote (Worldwide / EMEA)",
+    "is_remote": true,
+    "url": "https://jobs.lever.co/deel",
+    "description": "Global remote hiring partner scaling Go-To-Market and corporate teams. Deep experience in international talent sourcing, ATS management (Lever/Greenhouse), and high-volume recruiting.",
+    "salary_min": 35000,
+    "salary_max": 55000,
+    "created_at": "2026-09-12T11:15:00Z"
   }
 ]

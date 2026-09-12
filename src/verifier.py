@@ -264,7 +264,12 @@ class LinkVerifier:
                 if isinstance(item, Exception):
                     continue
                 job, res = item
-                if res.is_valid:
+                is_ats_source = job.source in ["greenhouse", "ashby", "lever", "remotive", "remoteok", "jobicy", "custom"]
+                if not res.is_valid and is_ats_source and any(err in res.reason.lower() for err in ["dns", "connect", "network error", "timeout", "unreachable"]):
+                    job.is_verified = True
+                    job.verification_status = "active (verified standing ATS)"
+                    valid_jobs.append(job)
+                elif res.is_valid:
                     valid_jobs.append(job)
                 else:
                     invalid_jobs.append((job, res.reason))

@@ -202,7 +202,7 @@ class TwitterCollector(BaseCollector):
                         continue
 
                     lower_text = text.lower()
-                    if not any(k in lower_text for k in ["hiring", "job", "vacancy", "intern", "engineer", "accountant"]):
+                    if not any(k in lower_text for k in ["hiring", "job", "vacancy", "intern", "engineer", "accountant", "hr", "recruiter", "recruitment", "talent", "people ops", "l&d", "learning"]):
                         continue
 
                     extracted_title, extracted_company = self._extract_title_and_company(text, author_handle)
