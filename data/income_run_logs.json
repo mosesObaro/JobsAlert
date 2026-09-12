@@ -1,5 +1,70 @@
 [
   {
+    "run_id": "income_run_20260912_020938_992cc8",
+    "timestamp": "2026-09-12T02:09:42.955705Z",
+    "total_fetched": 18,
+    "unique_candidates": 0,
+    "discarded": 0,
+    "low_matches": 0,
+    "digest_matches": 0,
+    "instant_matches": 0,
+    "emails_dispatched": 1,
+    "expired_links_removed": 0,
+    "risk_rejected": 0,
+    "execution_time_seconds": 4.3,
+    "source_health": [
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.42,
+        "last_crawled": "2026-09-12T02:09:38.851440Z",
+        "error_message": null
+      },
+      {
+        "source_name": "user_testing",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.22,
+        "last_crawled": "2026-09-12T02:09:38.851888Z",
+        "error_message": null
+      },
+      {
+        "source_name": "academic_tutoring",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.23,
+        "last_crawled": "2026-09-12T02:09:38.852119Z",
+        "error_message": null
+      },
+      {
+        "source_name": "transcription_support",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.18,
+        "last_crawled": "2026-09-12T02:09:38.852362Z",
+        "error_message": null
+      },
+      {
+        "source_name": "income_rss",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.01,
+        "last_crawled": "2026-09-12T02:09:38.852548Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.08,
+        "last_crawled": "2026-09-12T02:09:38.852558Z",
+        "error_message": null
+      }
+    ],
+    "error_count": 0
+  },
+  {
     "run_id": "income_run_20260911_121737_67d503",
     "timestamp": "2026-09-11T12:17:41.325438Z",
     "total_fetched": 18,
@@ -2899,71 +2964,6 @@
         "opportunities_found": 0,
         "latency_ms": 0.05,
         "last_crawled": "2026-09-11T03:17:50.606807Z",
-        "error_message": null
-      }
-    ],
-    "error_count": 0
-  },
-  {
-    "run_id": "income_run_20260911_031706_4e3751",
-    "timestamp": "2026-09-11T03:17:06.824458Z",
-    "total_fetched": 18,
-    "unique_candidates": 18,
-    "discarded": 0,
-    "low_matches": 0,
-    "digest_matches": 0,
-    "instant_matches": 18,
-    "emails_dispatched": 0,
-    "expired_links_removed": 0,
-    "risk_rejected": 0,
-    "execution_time_seconds": 0.1,
-    "source_health": [
-      {
-        "source_name": "ai_evaluation",
-        "status": "healthy",
-        "opportunities_found": 5,
-        "latency_ms": 0.16,
-        "last_crawled": "2026-09-11T03:17:06.724404Z",
-        "error_message": null
-      },
-      {
-        "source_name": "user_testing",
-        "status": "healthy",
-        "opportunities_found": 4,
-        "latency_ms": 0.08,
-        "last_crawled": "2026-09-11T03:17:06.724573Z",
-        "error_message": null
-      },
-      {
-        "source_name": "academic_tutoring",
-        "status": "healthy",
-        "opportunities_found": 5,
-        "latency_ms": 0.09,
-        "last_crawled": "2026-09-11T03:17:06.724654Z",
-        "error_message": null
-      },
-      {
-        "source_name": "transcription_support",
-        "status": "healthy",
-        "opportunities_found": 4,
-        "latency_ms": 0.08,
-        "last_crawled": "2026-09-11T03:17:06.724750Z",
-        "error_message": null
-      },
-      {
-        "source_name": "income_rss",
-        "status": "healthy",
-        "opportunities_found": 0,
-        "latency_ms": 0.0,
-        "last_crawled": "2026-09-11T03:17:06.724828Z",
-        "error_message": null
-      },
-      {
-        "source_name": "custom",
-        "status": "healthy",
-        "opportunities_found": 0,
-        "latency_ms": 0.06,
-        "last_crawled": "2026-09-11T03:17:06.724833Z",
         "error_message": null
       }
     ],
