@@ -164,7 +164,7 @@ job_specs:
   - Worldwide
   - Nigeria
   - Anywhere
-  salary_floor_usd: 12000.0
+  salary_floor_usd: 1000.0
   excluded_terms:
   - US Citizen Only
   - Security Clearance Required
@@ -216,7 +216,7 @@ job_specs:
   - Worldwide
   - Nigeria
   - Anywhere
-  salary_floor_usd: 12000.0
+  salary_floor_usd: 1000.0
   excluded_terms:
   - US Citizen Only
   - Security Clearance Required
