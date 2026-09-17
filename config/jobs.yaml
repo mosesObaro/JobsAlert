@@ -291,6 +291,8 @@ sources:
     companies: []
     categories:
     - hr
+    - software-dev
+    - data
     tags: []
     category: null
     limit_stories: 1
@@ -304,6 +306,11 @@ sources:
     - people
     - recruiting
     - talent
+    - swift
+    - ios
+    - data-analyst
+    - sql
+    - python
     category: null
     limit_stories: 1
   arbeitnow:
@@ -318,7 +325,7 @@ sources:
     companies: []
     categories: []
     tags: []
-    category: hr
+    category: null
     limit_stories: 1
   hackernews:
     enabled: true
@@ -332,9 +339,12 @@ sources:
     search_queries:
     - remote hiring (HR OR recruiter OR "talent acquisition" OR "learning and development"
       OR L&D)
+    - remote hiring (iOS OR Swift OR SwiftUI OR "iOS Developer" OR "Swift Developer")
+    - remote hiring ("Data Analyst" OR "Data Analysis" OR SQL OR "BI Analyst")
     - '#hiring #HRjobs #remotejobs'
     - '#remotejobs recruiter Nigeria'
-    - (HR OR Recruiter) hiring Nigeria remote
+    - '#hiring #remotejobs #iOS #Swift'
+    - '#hiring #remotejobs #DataAnalyst #SQL'
     monitored_accounts:
     - TechJobsAfrica
     - JobbermanOnline

@@ -41,60 +41,65 @@ class RemotiveCollector(BaseCollector):
         if not config.sources.remotive.enabled:
             return []
 
-        category = config.sources.remotive.categories[0] if config.sources.remotive.categories else "software-dev"
-        url = f"https://remotive.com/api/remote-jobs?category={category}&limit=50"
+        categories = config.sources.remotive.categories or ["software-dev", "hr", "data"]
         all_jobs: List[JobPosting] = []
+        seen_job_ids = set()
 
         async with self.create_http_client(timeout=12.0) as client:
-            try:
-                resp = await client.get(url)
-                if resp.status_code != 200:
-                    return []
-                data = resp.json()
-                items = data.get("jobs", [])
+            for category in categories:
+                url = f"https://remotive.com/api/remote-jobs?category={category}&limit=50"
+                try:
+                    resp = await client.get(url)
+                    if resp.status_code != 200:
+                        continue
+                    data = resp.json()
+                    items = data.get("jobs", [])
 
-                for item in items:
-                    job_id = str(item.get("id", ""))
-                    title = item.get("title", "").strip()
-                    company = item.get("company_name", "").strip()
-                    location = item.get("candidate_required_location", "Worldwide") or "Worldwide"
-                    job_url = item.get("url", "")
-                    salary_str = item.get("salary", "")
-                    s_min, s_max = parse_salary_string(salary_str)
+                    for item in items:
+                        job_id = str(item.get("id", ""))
+                        if job_id in seen_job_ids:
+                            continue
+                        seen_job_ids.add(job_id)
+                        title = item.get("title", "").strip()
+                        company = item.get("company_name", "").strip()
+                        location = item.get("candidate_required_location", "Worldwide") or "Worldwide"
+                        job_url = item.get("url", "")
+                        salary_str = item.get("salary", "")
+                        s_min, s_max = parse_salary_string(salary_str)
 
-                    # Strip HTML from description
-                    raw_desc = item.get("description", "")
-                    clean_desc = re.sub(r"<[^>]+>", " ", raw_desc)
-                    clean_desc = " ".join(clean_desc.split())
+                        # Strip HTML from description
+                        raw_desc = item.get("description", "")
+                        clean_desc = re.sub(r"<[^>]+>", " ", raw_desc)
+                        clean_desc = " ".join(clean_desc.split())
 
-                    posted_at = None
-                    if item.get("publication_date"):
-                        try:
-                            posted_at = datetime.fromisoformat(item["publication_date"].replace("Z", "+00:00"))
-                        except Exception:
-                            pass
+                        posted_at = None
+                        if item.get("publication_date"):
+                            try:
+                                posted_at = datetime.fromisoformat(item["publication_date"].replace("Z", "+00:00"))
+                            except Exception:
+                                pass
 
-                    loc_lower = location.lower()
-                    remote_scope = "Worldwide" if ("worldwide" in loc_lower or "anywhere" in loc_lower) else location
+                        loc_lower = location.lower()
+                        remote_scope = "Worldwide" if ("worldwide" in loc_lower or "anywhere" in loc_lower) else location
 
-                    posting = JobPosting(
-                        id=f"remotive_{job_id}",
-                        title=title,
-                        company=company,
-                        location=f"Remote ({location})",
-                        is_remote=True,
-                        remote_scope=remote_scope,
-                        url=job_url,
-                        raw_url=job_url,
-                        description=clean_desc[:3000],
-                        salary_min=s_min,
-                        salary_max=s_max,
-                        source="remotive",
-                        posted_at=posted_at,
-                        tags=item.get("tags", [])
-                    )
-                    all_jobs.append(posting)
-            except Exception as e:
-                self.health.error_message = str(e)
+                        posting = JobPosting(
+                            id=f"remotive_{job_id}",
+                            title=title,
+                            company=company,
+                            location=f"Remote ({location})",
+                            is_remote=True,
+                            remote_scope=remote_scope,
+                            url=job_url,
+                            raw_url=job_url,
+                            description=clean_desc[:3000],
+                            salary_min=s_min,
+                            salary_max=s_max,
+                            source="remotive",
+                            posted_at=posted_at,
+                            tags=item.get("tags", [])
+                        )
+                        all_jobs.append(posting)
+                except Exception as e:
+                    self.health.error_message = str(e)
 
         return all_jobs
