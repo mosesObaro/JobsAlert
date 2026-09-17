@@ -1,5 +1,265 @@
 [
   {
+    "run_id": "run_20260917_083037_861c68",
+    "timestamp": "2026-09-17T08:30:42.965657Z",
+    "total_fetched": 915,
+    "unique_candidates": 10,
+    "discarded": 6,
+    "low_matches": 9,
+    "digest_matches": 3,
+    "instant_matches": 0,
+    "emails_dispatched": 1,
+    "expired_links_removed": 6,
+    "execution_time_seconds": 5.96,
+    "source_health": [
+      {
+        "source_name": "greenhouse",
+        "status": "healthy",
+        "jobs_found": 504,
+        "latency_ms": 770.87,
+        "last_crawled": "2026-09-17T08:30:37.010664Z",
+        "error_message": null
+      },
+      {
+        "source_name": "lever",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 507.59,
+        "last_crawled": "2026-09-17T08:30:37.069099Z",
+        "error_message": null
+      },
+      {
+        "source_name": "ashby",
+        "status": "healthy",
+        "jobs_found": 200,
+        "latency_ms": 489.44,
+        "last_crawled": "2026-09-17T08:30:37.086431Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remotive",
+        "status": "healthy",
+        "jobs_found": 13,
+        "latency_ms": 300.55,
+        "last_crawled": "2026-09-17T08:30:37.103641Z",
+        "error_message": null
+      },
+      {
+        "source_name": "remoteok",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 2597.71,
+        "last_crawled": "2026-09-17T08:30:37.121230Z",
+        "error_message": null
+      },
+      {
+        "source_name": "arbeitnow",
+        "status": "healthy",
+        "jobs_found": 50,
+        "latency_ms": 283.09,
+        "last_crawled": "2026-09-17T08:30:37.140011Z",
+        "error_message": null
+      },
+      {
+        "source_name": "jobicy",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 146.25,
+        "last_crawled": "2026-09-17T08:30:37.158196Z",
+        "error_message": null
+      },
+      {
+        "source_name": "hackernews",
+        "status": "healthy",
+        "jobs_found": 60,
+        "latency_ms": 616.44,
+        "last_crawled": "2026-09-17T08:30:37.175948Z",
+        "error_message": null
+      },
+      {
+        "source_name": "rss",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 0.01,
+        "last_crawled": "2026-09-17T08:30:37.193752Z",
+        "error_message": null
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "jobs_found": 10,
+        "latency_ms": 0.76,
+        "last_crawled": "2026-09-17T08:30:37.193800Z",
+        "error_message": null
+      },
+      {
+        "source_name": "twitter",
+        "status": "healthy",
+        "jobs_found": 0,
+        "latency_ms": 656.84,
+        "last_crawled": "2026-09-17T08:30:37.194568Z",
+        "error_message": null
+      },
+      {
+        "source_name": "ai_evaluation",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.49,
+        "last_crawled": "2026-09-17T08:30:37.212070Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "ai_evaluation",
+          "trust_tier": "tier_1_highest",
+          "status": "healthy",
+          "discovered": 5,
+          "duplicates_removed": 5,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.49,
+          "last_crawled": "2026-09-17T08:30:37.212070Z",
+          "error_message": null
+        }
+      },
+      {
+        "source_name": "user_testing",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.24,
+        "last_crawled": "2026-09-17T08:30:37.212626Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "user_testing",
+          "trust_tier": "tier_2_good",
+          "status": "healthy",
+          "discovered": 4,
+          "duplicates_removed": 4,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.24,
+          "last_crawled": "2026-09-17T08:30:37.212626Z",
+          "error_message": null
+        }
+      },
+      {
+        "source_name": "academic_tutoring",
+        "status": "healthy",
+        "opportunities_found": 5,
+        "latency_ms": 0.28,
+        "last_crawled": "2026-09-17T08:30:37.212877Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "academic_tutoring",
+          "trust_tier": "tier_1_highest",
+          "status": "healthy",
+          "discovered": 5,
+          "duplicates_removed": 5,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.28,
+          "last_crawled": "2026-09-17T08:30:37.212877Z",
+          "error_message": null
+        }
+      },
+      {
+        "source_name": "transcription_support",
+        "status": "healthy",
+        "opportunities_found": 4,
+        "latency_ms": 0.22,
+        "last_crawled": "2026-09-17T08:30:37.213173Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "transcription_support",
+          "trust_tier": "tier_2_good",
+          "status": "healthy",
+          "discovered": 4,
+          "duplicates_removed": 4,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.22,
+          "last_crawled": "2026-09-17T08:30:37.213173Z",
+          "error_message": null
+        }
+      },
+      {
+        "source_name": "income_rss",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.0,
+        "last_crawled": "2026-09-17T08:30:37.213402Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "income_rss",
+          "trust_tier": "tier_3_review",
+          "status": "healthy",
+          "discovered": 0,
+          "duplicates_removed": 0,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.0,
+          "last_crawled": "2026-09-17T08:30:37.213402Z",
+          "error_message": null
+        }
+      },
+      {
+        "source_name": "custom",
+        "status": "healthy",
+        "opportunities_found": 0,
+        "latency_ms": 0.08,
+        "last_crawled": "2026-09-17T08:30:37.213415Z",
+        "error_message": null,
+        "telemetry": {
+          "source_name": "custom",
+          "trust_tier": "tier_2_good",
+          "status": "healthy",
+          "discovered": 0,
+          "duplicates_removed": 0,
+          "hard_rejected": 0,
+          "quality_rejected": 0,
+          "ineligible": 0,
+          "verification_failed": 0,
+          "expired": 0,
+          "verified": 0,
+          "high_quality": 0,
+          "alerted": 0,
+          "latency_ms": 0.08,
+          "last_crawled": "2026-09-17T08:30:37.213415Z",
+          "error_message": null
+        }
+      }
+    ],
+    "error_count": 0
+  },
+  {
     "run_id": "run_20260917_081732_720c61",
     "timestamp": "2026-09-17T08:17:35.805204Z",
     "total_fetched": 915,
