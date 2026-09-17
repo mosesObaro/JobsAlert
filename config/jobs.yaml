@@ -1,5 +1,5 @@
 profile:
-  candidate_name: HR Professional
+  candidate_name: Multi-Track Candidate
   target_roles:
   - Human Resources Generalist
   - HR Generalist
@@ -62,6 +62,169 @@ filters:
   - On-Site Only
   excluded_companies:
   - Generic Staffing Corp
+job_specs:
+- name: HR Remote Roles
+  keywords:
+  - HR
+  - Human Resources
+  - People Operations
+  - Recruiter
+  - Talent Acquisition
+  - Learning and Development
+  - L&D
+  target_roles:
+  - Human Resources Generalist
+  - HR Generalist
+  - Recruiter
+  - Technical Recruiter
+  - Talent Acquisition Specialist
+  - Learning and Development Specialist
+  - L&D Specialist
+  - People Operations Specialist
+  - HR Business Partner
+  - HRBP
+  seniority: null
+  experience_years: 2
+  technologies: []
+  must_have_skills:
+  - Human Resources
+  - Recruitment
+  - Talent Acquisition
+  - People Operations
+  nice_to_have_skills:
+  - BambooHR
+  - Workday
+  - Greenhouse
+  - Ashby
+  - Lever
+  - HRIS
+  - Performance Management
+  - Employee Relations
+  - CIPM
+  - SHRM
+  employment_type: null
+  remote: true
+  preferred_locations:
+  - Remote
+  - Worldwide
+  - Nigeria
+  - Lagos, Nigeria
+  - Africa
+  - Anywhere
+  salary_floor_usd: 10000.0
+  excluded_terms:
+  - US Citizen Only
+  - Security Clearance Required
+  - W2 Only
+  - 10+ years required
+  - On-Site Only
+  excluded_companies:
+  - Generic Staffing Corp
+  scoring_weights: null
+- name: "Junior Swift/iOS Developer \u2014 Remote Contract"
+  keywords:
+  - Swift
+  - iOS
+  - UIKit
+  - SwiftUI
+  - Xcode
+  - Mobile Developer
+  - iOS Developer
+  target_roles:
+  - Junior Swift Developer
+  - Junior iOS Developer
+  - iOS Developer
+  - Swift Developer
+  - Mobile Engineer (iOS)
+  - Junior Mobile Developer
+  seniority: junior
+  experience_years: 1
+  technologies:
+  - Swift
+  - SwiftUI
+  - UIKit
+  - Xcode
+  - CoreData
+  - Combine
+  - REST APIs
+  must_have_skills:
+  - Swift
+  - iOS
+  nice_to_have_skills:
+  - SwiftUI
+  - UIKit
+  - Git
+  - CI/CD
+  - App Store Deployment
+  - TestFlight
+  employment_type: contract
+  remote: true
+  preferred_locations:
+  - Remote
+  - Worldwide
+  - Nigeria
+  - Anywhere
+  salary_floor_usd: 12000.0
+  excluded_terms:
+  - US Citizen Only
+  - Security Clearance Required
+  - Senior Only
+  - Lead Developer Only
+  - 5+ years required
+  - On-Site Only
+  excluded_companies: []
+  scoring_weights: null
+- name: "Junior Data Analyst \u2014 Remote Contract"
+  keywords:
+  - Data Analyst
+  - Junior Data Analyst
+  - SQL
+  - Excel
+  - Python
+  - Tableau
+  - Power BI
+  target_roles:
+  - Junior Data Analyst
+  - Data Analyst
+  - Junior BI Analyst
+  - Business Intelligence Analyst
+  - Analytics Specialist
+  seniority: junior
+  experience_years: 1
+  technologies:
+  - SQL
+  - Python
+  - Excel
+  - Tableau
+  - Power BI
+  - PostgreSQL
+  - Pandas
+  must_have_skills:
+  - SQL
+  - Data Analysis
+  nice_to_have_skills:
+  - Python
+  - Power BI
+  - Tableau
+  - Excel
+  - Data Visualization
+  - ETL
+  employment_type: contract
+  remote: true
+  preferred_locations:
+  - Remote
+  - Worldwide
+  - Nigeria
+  - Anywhere
+  salary_floor_usd: 12000.0
+  excluded_terms:
+  - US Citizen Only
+  - Security Clearance Required
+  - Senior Only
+  - 5+ years required
+  - On-Site Only
+  excluded_companies: []
+  scoring_weights: null
 scoring_weights:
   title_and_stack: 40.0
   location_remote: 25.0

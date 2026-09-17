@@ -30,7 +30,7 @@ from src.income_opportunities.models import (
 )
 from src.income_opportunities.scoring import IncomeScoringEngine
 from src.income_opportunities.verifier import IncomeOpportunityVerifier
-from src.models import CrawlerHealth, JobPosting, MatchBreakdown, RunSummary, ScoredJob
+from src.models import CrawlerHealth, JobPosting, MatchBreakdown, RunSummary, ScoredJob, SpecMatchGroup
 from src.notifier.email_service import EmailNotifier
 from src.scoring import ScoringEngine
 from src.verifier import LinkVerifier
@@ -114,12 +114,14 @@ class JobPipeline:
         else:
             valid_jobs = new_jobs
 
-        # 4. Score Conventional Jobs
+        # 4. Score Conventional Jobs across all active Job Specifications
+        specs = self.config.get_effective_job_specs()
         scored_jobs: List[ScoredJob] = []
         discarded: List[ScoredJob] = []
         low_matches: List[ScoredJob] = []
         digest_matches: List[ScoredJob] = []
         instant_matches: List[ScoredJob] = []
+        spec_groups: List[SpecMatchGroup] = []
 
         for inv_job, reason in invalid_jobs:
             inv_job.is_verified = False
@@ -138,19 +140,34 @@ class JobPipeline:
             scored_jobs.append(s_job)
             discarded.append(s_job)
 
-        for job in valid_jobs:
-            scored = self.scoring_engine.score_job(job)
-            scored.breakdown.is_verified = True
-            scored_jobs.append(scored)
+        for spec in specs:
+            spec_matches: List[ScoredJob] = []
+            for job in valid_jobs:
+                scored = self.scoring_engine.score_job(job, spec=spec)
+                scored.breakdown.is_verified = True
+                scored_jobs.append(scored)
 
-            if scored.action == "discard":
-                discarded.append(scored)
-            elif scored.action == "low_match":
-                low_matches.append(scored)
-            elif scored.action == "digest":
-                digest_matches.append(scored)
-            elif scored.action == "instant":
-                instant_matches.append(scored)
+                if scored.action == "discard":
+                    discarded.append(scored)
+                elif scored.action == "low_match":
+                    low_matches.append(scored)
+                elif scored.action == "digest":
+                    digest_matches.append(scored)
+                    spec_matches.append(scored)
+                elif scored.action == "instant":
+                    instant_matches.append(scored)
+                    spec_matches.append(scored)
+
+            spec_matches.sort(key=lambda x: x.score, reverse=True)
+            unalerted_spec_matches = [m for m in spec_matches if not self.state_manager.is_alerted(m.job.fingerprint)]
+            spec_groups.append(
+                SpecMatchGroup(
+                    spec_name=spec.name,
+                    jobs=spec_matches,
+                    unalerted_jobs=unalerted_spec_matches,
+                    total_matches=len(spec_matches),
+                )
+            )
 
         digest_matches.sort(key=lambda x: x.score, reverse=True)
         instant_matches.sort(key=lambda x: x.score, reverse=True)
@@ -241,8 +258,8 @@ class JobPipeline:
         self.latest_income_opportunities = scored_income_opps
 
         print(f"📊 [SCORING RESULTS]")
-        print(f"   ★ Career Instant Matches (9.0+):   {len(instant_matches)}")
-        print(f"   ✦ Career Strong Matches (7.0-8.9):  {len(digest_matches)}")
+        for group in spec_groups:
+            print(f"   📋 Spec '{group.spec_name}': {len(group.jobs)} match(es) ({len(group.unalerted_jobs)} new)")
         print(f"   💰 Income Tracks Strong/Instant:     {len(all_alert_income)} (Quality Gated, Top {max_income_digest} Max)")
         print(f"   ✕ Total Discarded:                  {len(discarded) + len(discarded_income)}")
 
@@ -289,10 +306,21 @@ class JobPipeline:
 
             # Consolidated Daily Digest (New / Unalerted Only)
             if not immediate_only and self.config.delivery.send_daily_digest and (unalerted_alert_jobs or unalerted_alert_income):
+                unalerted_spec_groups = [
+                    SpecMatchGroup(
+                        spec_name=g.spec_name,
+                        jobs=g.unalerted_jobs,
+                        unalerted_jobs=g.unalerted_jobs,
+                        total_matches=len(g.unalerted_jobs),
+                    )
+                    for g in spec_groups
+                ] if spec_groups else None
+
                 success = await self.notifier.send_digest(
                     jobs=unalerted_alert_jobs,
                     config=self.config,
                     income_opportunities=unalerted_alert_income,
+                    spec_groups=unalerted_spec_groups,
                     dry_run=False
                 )
                 if success:
@@ -309,11 +337,12 @@ class JobPipeline:
             # Render and save preview for dry-run
             preview_jobs = unalerted_alert_jobs if unalerted_alert_jobs else (all_alert_jobs or low_matches[:5] or scored_jobs[:5])
             preview_income = unalerted_alert_income if unalerted_alert_income else (all_alert_income or low_income_matches[:5] or scored_income_opps[:5])
-            if preview_jobs or preview_income:
+            if preview_jobs or preview_income or spec_groups:
                 _, html_preview, _ = self.notifier.render_digest(
                     jobs=preview_jobs,
                     config=self.config,
-                    income_opportunities=preview_income
+                    income_opportunities=preview_income,
+                    spec_groups=spec_groups,
                 )
                 self.notifier.save_preview(html_preview)
 

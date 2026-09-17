@@ -315,12 +315,13 @@
 
       <!-- Stats Bar -->
       <div class="stats-bar">
-        {% if jobs and income_opportunities %}
-        <span>⚡ {{ jobs|length }} Career Roles</span>
+        {% set total_career_jobs = (spec_groups | map(attribute='jobs') | map('length') | sum) if spec_groups else (jobs|length if jobs else 0) %}
+        {% if total_career_jobs > 0 and income_opportunities %}
+        <span>⚡ {{ total_career_jobs }} Career Roles</span>
         <span>💰 {{ income_opportunities|length }} Online Income Tracks</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
-        {% elif jobs %}
-        <span>⚡ {{ jobs|length }} Verified Career Matches</span>
+        {% elif total_career_jobs > 0 %}
+        <span>⚡ {{ total_career_jobs }} Verified Career Matches</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
         <span>🌐 Remote & Verified ATS</span>
         {% elif income_opportunities %}
@@ -338,7 +339,95 @@
       <div class="content">
 
         <!-- SECTION 1: TARGET CAREER ROLES -->
-        {% if jobs %}
+        {% if spec_groups %}
+        <div class="section-header">
+          <h3 class="section-title">🎯 Target Career & Employment Opportunities</h3>
+          {% set total_spec_jobs = spec_groups | map(attribute='jobs') | map('length') | sum %}
+          <span class="section-badge badge-jobs">{{ total_spec_jobs }} {% if total_spec_jobs == 1 %}Role{% else %}Roles{% endif %}</span>
+        </div>
+
+        {% for group in spec_groups %}
+        <div class="spec-group-container" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px;">
+            <span style="font-size: 15px; font-weight: 700; color: #1e293b;">
+              📋 {{ group.spec_name }}
+            </span>
+            <span class="chip" style="font-weight: 700; background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; margin: 0;">
+              {{ group.jobs|length }} {% if group.jobs|length == 1 %}match{% else %}matches{% endif %}
+            </span>
+          </div>
+
+          {% if group.jobs %}
+            {% for scored in group.jobs %}
+            <div class="job-card">
+              <div class="card-top">
+                <div>
+                  <h2 class="job-title">{{ scored.job.title }}</h2>
+                  <div class="company-name">{{ scored.job.company }}</div>
+                </div>
+                <div>
+                  {% if scored.score >= 9.0 %}
+                  <div class="score-badge score-high">
+                    ★ {{ scored.score }}/10 Match
+                  </div>
+                  {% else %}
+                  <div class="score-badge score-strong">
+                    ✦ {{ scored.score }}/10 Match
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Metadata Chips -->
+              <div class="chips-row">
+                <span class="chip chip-remote">
+                  📍 {{ scored.job.location }} ({{ scored.job.remote_scope }})
+                </span>
+                {% if scored.job.salary_min or scored.job.salary_max %}
+                <span class="chip chip-salary">
+                  💰 ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+                </span>
+                {% else %}
+                <span class="chip">
+                  💰 Comp Unlisted
+                </span>
+                {% endif %}
+                <span class="chip">
+                  👔 {{ scored.job.employment_type.replace('_', ' ').capitalize() }}
+                </span>
+                <span class="chip">
+                  🔗 {{ scored.job.source.capitalize() }}
+                </span>
+              </div>
+
+              <!-- Why You Match Section -->
+              <div class="why-match-box">
+                <div class="why-match-title">Why You Match:</div>
+                <ul class="why-match-list">
+                  {% for highlight in scored.breakdown.highlights %}
+                  <li>{{ highlight }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- Card Footer & Direct Apply Button -->
+              <div class="card-footer">
+                <span class="source-tag">Source: Verified {{ scored.job.source }}</span>
+                <a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                  Apply Directly →
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-spec-notice" style="padding: 16px 20px; background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; color: #64748b; font-size: 13px; font-style: italic; text-align: center; margin-bottom: 16px;">
+              No new matching jobs found for this specification today.
+            </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        {% elif jobs %}
         <div class="section-header">
           <h3 class="section-title">🎯 Target Career & Employment Opportunities</h3>
           <span class="section-badge badge-jobs">{{ jobs|length }} Roles</span>
@@ -409,7 +498,7 @@
 
         <!-- SECTION 2: ONLINE INCOME & FLEXIBLE REMOTE TRACKS -->
         {% if income_opportunities %}
-        <div class="section-header" style="{% if jobs %}margin-top: 36px;{% endif %}">
+        <div class="section-header" style="{% if (spec_groups and spec_groups|length > 0) or jobs %}margin-top: 36px;{% endif %}">
           <h3 class="section-title">Verified Online Income & Flexible Remote Tracks</h3>
           <span class="section-badge badge-income">Top {{ income_opportunities|length }} Selected</span>
         </div>

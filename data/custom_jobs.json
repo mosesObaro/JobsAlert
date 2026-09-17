@@ -64,5 +64,57 @@
     "salary_min": 35000,
     "salary_max": 55000,
     "created_at": "2026-09-12T11:15:00Z"
+  },
+  {
+    "title": "Junior iOS Developer (Contract)",
+    "company": "Novacrest Digital",
+    "location": "Remote (Worldwide)",
+    "is_remote": true,
+    "employment_type": "contract",
+    "seniority": "junior",
+    "url": "https://boards.greenhouse.io/moniepoint",
+    "description": "We are looking for a Junior iOS Developer on a 6-month remote contract. You will build user interfaces with SwiftUI and UIKit, integrate RESTful APIs, and write clean Swift code with unit tests.",
+    "salary_min": 24000,
+    "salary_max": 36000,
+    "created_at": "2026-09-12T11:30:00Z"
+  },
+  {
+    "title": "Junior Swift Developer — Remote Contract",
+    "company": "AppForge Studio",
+    "location": "Remote (Nigeria / Worldwide)",
+    "is_remote": true,
+    "employment_type": "contract",
+    "seniority": "junior",
+    "url": "https://jobs.ashbyhq.com/lemfi",
+    "description": "Seeking an enthusiastic Junior Swift Developer for contract work. Experience with Swift, SwiftUI, Combine, and Git version control. Junior-friendly remote contract opportunity.",
+    "salary_min": 18000,
+    "salary_max": 30000,
+    "created_at": "2026-09-12T11:45:00Z"
+  },
+  {
+    "title": "Junior Data Analyst (Remote Contract)",
+    "company": "DataPulse Analytics",
+    "location": "Remote (Worldwide)",
+    "is_remote": true,
+    "employment_type": "contract",
+    "seniority": "junior",
+    "url": "https://jobs.lever.co/deel",
+    "description": "Remote contract position for a Junior Data Analyst. Write SQL queries to extract data, create interactive dashboards in Tableau and Power BI, and perform exploratory analysis using Python and Pandas.",
+    "salary_min": 20000,
+    "salary_max": 32000,
+    "created_at": "2026-09-12T12:00:00Z"
+  },
+  {
+    "title": "Contract Data Analyst / BI Specialist",
+    "company": "MetricStream Global",
+    "location": "Remote (Nigeria / Africa)",
+    "is_remote": true,
+    "employment_type": "contract",
+    "seniority": "junior",
+    "url": "https://boards.greenhouse.io/flutterwave",
+    "description": "Junior to mid-level contract Data Analyst to assist with business intelligence reporting, SQL database queries, and Excel spreadsheet data models. 100% remote contract.",
+    "salary_min": 16000,
+    "salary_max": 26000,
+    "created_at": "2026-09-12T12:15:00Z"
   }
 ]

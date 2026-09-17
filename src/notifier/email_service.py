@@ -15,7 +15,7 @@ import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from src.config import AppConfig
-from src.models import ScoredJob
+from src.models import ScoredJob, SpecMatchGroup
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 PREVIEW_FILE = Path(__file__).resolve().parent.parent.parent / "data" / "latest_email_preview.html"
@@ -39,11 +39,15 @@ class EmailNotifier:
     def format_digest_subject(
         self,
         jobs: Optional[List[ScoredJob]] = None,
-        income_opportunities: Optional[list] = None
+        income_opportunities: Optional[list] = None,
+        spec_groups: Optional[List[SpecMatchGroup]] = None,
     ) -> str:
         """Formats standard subject dynamically for jobs, income tracks, or unified alerts."""
         date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
-        job_count = len(jobs) if jobs else 0
+        if spec_groups is not None:
+            job_count = sum(len(g.jobs) for g in spec_groups)
+        else:
+            job_count = len(jobs) if jobs else 0
         income_count = len(income_opportunities) if income_opportunities else 0
 
         if job_count > 0 and income_count > 0:
@@ -70,15 +74,21 @@ class EmailNotifier:
         self,
         jobs: Optional[List[ScoredJob]] = None,
         config: Optional[AppConfig] = None,
-        income_opportunities: Optional[list] = None
+        income_opportunities: Optional[list] = None,
+        spec_groups: Optional[List[SpecMatchGroup]] = None,
     ) -> tuple[str, str, str]:
         """Renders HTML and plaintext versions of the digest email, supporting combined jobs & income tracks."""
         date_str = datetime.now(timezone.utc).strftime("%A, %d %B %Y")
         jobs_list = jobs or []
         income_list = income_opportunities or []
-        subject = self.format_digest_subject(jobs_list, income_list)
+        subject = self.format_digest_subject(jobs_list, income_list, spec_groups=spec_groups)
 
         all_scores = [j.score for j in jobs_list]
+        if spec_groups:
+            for g in spec_groups:
+                for j in g.jobs:
+                    all_scores.append(j.score)
+
         for opp in income_list:
             if isinstance(opp, dict):
                 all_scores.append(opp.get("score", 0.0))
@@ -87,10 +97,12 @@ class EmailNotifier:
 
         min_score = min(all_scores) if all_scores else 7.0
 
-        if jobs_list and income_list:
-            header_title = f"{len(jobs_list)} Target Roles & {len(income_list)} Online Income Tracks"
-        elif jobs_list:
-            header_title = f"{len(jobs_list)} High-Match Opportunities Found"
+        total_jobs_count = sum(len(g.jobs) for g in spec_groups) if spec_groups is not None else len(jobs_list)
+
+        if total_jobs_count > 0 and income_list:
+            header_title = f"{total_jobs_count} Target Roles & {len(income_list)} Online Income Tracks"
+        elif total_jobs_count > 0:
+            header_title = f"{total_jobs_count} High-Match Opportunities Found"
         elif income_list:
             header_title = f"{len(income_list)} Verified Online Income Tracks"
         else:
@@ -106,6 +118,7 @@ class EmailNotifier:
             "candidate_name": candidate_name,
             "recipient_email": recipient_email,
             "jobs": jobs_list,
+            "spec_groups": spec_groups,
             "income_opportunities": income_list,
             "min_score": min_score,
         }
@@ -137,15 +150,23 @@ class EmailNotifier:
         jobs: Optional[List[ScoredJob]] = None,
         config: Optional[AppConfig] = None,
         income_opportunities: Optional[list] = None,
+        spec_groups: Optional[List[SpecMatchGroup]] = None,
         dry_run: bool = False
     ) -> bool:
         """Sends the digest email or outputs preview in dry-run mode, supporting combined opportunities."""
         jobs_list = jobs or []
         income_list = income_opportunities or []
-        if not jobs_list and not income_list:
+        total_spec_jobs = sum(len(g.jobs) for g in spec_groups) if spec_groups else 0
+
+        if not jobs_list and not income_list and total_spec_jobs == 0 and not spec_groups:
             return True
 
-        subject, html_body, text_body = self.render_digest(jobs_list, config, income_opportunities=income_list)
+        subject, html_body, text_body = self.render_digest(
+            jobs=jobs_list,
+            config=config,
+            income_opportunities=income_list,
+            spec_groups=spec_groups,
+        )
         self.save_preview(html_body)
 
         to_email = config.delivery.recipient_email if config else "candidate@example.com"

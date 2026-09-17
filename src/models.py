@@ -57,7 +57,16 @@ class ScoredJob(BaseModel):
     score: float = 0.0  # 0.0 to 10.0 scale
     action: str = "discard"  # "discard" (0-4), "low_match" (5-6), "digest" (7-8), "instant" (9-10)
     breakdown: MatchBreakdown = Field(default_factory=MatchBreakdown)
+    spec_name: Optional[str] = None
     scored_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class SpecMatchGroup(BaseModel):
+    """Grouped scoring results for a specific job specification."""
+    spec_name: str
+    jobs: List[ScoredJob] = Field(default_factory=list)
+    unalerted_jobs: List[ScoredJob] = Field(default_factory=list)
+    total_matches: int = 0
 
 
 class CrawlerHealth(BaseModel):

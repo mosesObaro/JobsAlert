@@ -35,6 +35,39 @@ class FiltersConfig(BaseModel):
     excluded_companies: List[str] = Field(default_factory=list)
 
 
+class JobSpecConfig(BaseModel):
+    """Specification criteria for an individual job search track."""
+    name: str = "Target Roles"
+    keywords: List[str] = Field(default_factory=list)
+    target_roles: List[str] = Field(default_factory=list)
+    seniority: Optional[str] = None  # "junior", "mid", "senior", "lead", "all"
+    experience_years: Optional[int] = None
+    technologies: List[str] = Field(default_factory=list)
+    must_have_skills: List[str] = Field(default_factory=list)
+    nice_to_have_skills: List[str] = Field(default_factory=list)
+    employment_type: Optional[str] = None  # "contract", "full_time", "part_time", "internship", "any"
+    remote: Optional[bool] = None  # True / False / None
+    preferred_locations: List[str] = Field(default_factory=list)
+    salary_floor_usd: Optional[float] = None
+    excluded_terms: List[str] = Field(default_factory=list)
+    excluded_companies: List[str] = Field(default_factory=list)
+    scoring_weights: Optional[ScoringWeightsConfig] = None
+
+    def get_all_roles(self) -> List[str]:
+        roles = []
+        for r in self.target_roles + self.keywords:
+            if r and r not in roles:
+                roles.append(r)
+        return roles or ["General Specialist"]
+
+    def get_must_have_skills(self) -> List[str]:
+        skills = []
+        for s in self.must_have_skills + self.technologies:
+            if s and s not in skills:
+                skills.append(s)
+        return skills
+
+
 class ScoringWeightsConfig(BaseModel):
     title_and_stack: float = 40.0
     location_remote: float = 20.0
@@ -130,6 +163,7 @@ class DeliveryConfig(BaseModel):
 class AppConfig(BaseModel):
     profile: ProfileConfig = Field(default_factory=ProfileConfig)
     filters: FiltersConfig = Field(default_factory=FiltersConfig)
+    job_specs: List[JobSpecConfig] = Field(default_factory=list)
     scoring_weights: ScoringWeightsConfig = Field(default_factory=ScoringWeightsConfig)
     company_watchlist: List[WatchlistCompany] = Field(default_factory=list)
     sources: SourcesConfig = Field(default_factory=SourcesConfig)
@@ -137,6 +171,25 @@ class AppConfig(BaseModel):
     schedule: ScheduleConfig = Field(default_factory=ScheduleConfig)
     delivery: DeliveryConfig = Field(default_factory=DeliveryConfig)
     online_income: OnlineIncomeConfig = Field(default_factory=OnlineIncomeConfig)
+
+    def get_effective_job_specs(self) -> List[JobSpecConfig]:
+        """Returns configured job specifications, or synthesizes one from profile/filters for backward compatibility."""
+        if self.job_specs:
+            return self.job_specs
+        return [
+            JobSpecConfig(
+                name=self.profile.candidate_name if self.profile.candidate_name not in ["Candidate", "Finance Candidate", "HR Professional"] else "Target Career Roles",
+                target_roles=self.profile.target_roles,
+                experience_years=self.profile.experience_years,
+                preferred_locations=self.profile.preferred_locations,
+                salary_floor_usd=self.profile.salary_floor_usd,
+                must_have_skills=self.filters.must_have_skills,
+                nice_to_have_skills=self.filters.nice_to_have_skills,
+                excluded_terms=self.filters.excluded_terms,
+                excluded_companies=self.filters.excluded_companies,
+                scoring_weights=self.scoring_weights,
+            )
+        ]
 
 
 

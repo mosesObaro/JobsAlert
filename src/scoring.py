@@ -8,7 +8,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple
 
-from src.config import AppConfig
+from src.config import AppConfig, JobSpecConfig
 from src.models import JobPosting, MatchBreakdown, ScoredJob
 
 
@@ -42,10 +42,34 @@ class ScoringEngine:
     def __init__(self, config: AppConfig):
         self.config = config
 
-    def score_job(self, job: JobPosting) -> ScoredJob:
+    def score_job(self, job: JobPosting, spec: Optional[JobSpecConfig] = None) -> ScoredJob:
         """
-        Calculates a 0.0 to 10.0 score with granular weights and generates 'Why You Match' highlights.
+        Calculates a 0.0 to 10.0 score with granular weights and generates 'Why You Match' highlights
+        against a specific JobSpecConfig or the default global profile.
         """
+        spec_name = spec.name if spec else None
+        target_roles = spec.get_all_roles() if spec else self.config.profile.target_roles
+        must_have = spec.get_must_have_skills() if spec else self.config.filters.must_have_skills
+        nice_to_have = spec.nice_to_have_skills if spec else self.config.filters.nice_to_have_skills
+
+        excluded_companies = (spec.excluded_companies if spec else []) + self.config.filters.excluded_companies
+        excluded_terms = (spec.excluded_terms if spec else []) + self.config.filters.excluded_terms
+
+        scoring_weights = (spec.scoring_weights if spec and spec.scoring_weights else self.config.scoring_weights)
+        salary_floor = (spec.salary_floor_usd if spec and spec.salary_floor_usd is not None else self.config.profile.salary_floor_usd)
+
+        if spec and spec.preferred_locations:
+            preferred_locs = [loc.lower() for loc in spec.preferred_locations]
+        else:
+            preferred_locs = [loc.lower() for loc in self.config.profile.preferred_locations]
+
+        if spec and spec.remote is True:
+            if not any("remote" in p or "worldwide" in p for p in preferred_locs):
+                preferred_locs.extend(["remote", "worldwide"])
+
+        candidate_years = spec.experience_years if (spec and spec.experience_years is not None) else self.config.profile.experience_years
+        spec_seniority = (spec.seniority.lower().strip() if (spec and spec.seniority) else "")
+
         breakdown = MatchBreakdown()
         full_text = f"{job.title} {job.location} {job.description} {' '.join(job.tags)}".lower()
         title_lower = job.title.lower()
@@ -55,41 +79,43 @@ class ScoringEngine:
         # 1. HARD EXCLUSIONS (Immediate score 0.0 -> Discard)
         # -------------------------------------------------------------
         # Excluded companies (staffing agencies, recruiters, blacklists)
-        for exc_co in self.config.filters.excluded_companies:
+        for exc_co in excluded_companies:
             if exc_co and exc_co.lower() in company_lower:
                 breakdown.penalties_applied.append(f"Blacklisted company: {exc_co}")
-                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown)
+                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown, spec_name=spec_name)
 
         # Excluded terms (negative keywords like PHP, WordPress, No C2C, Security Clearance)
-        for exc_term in self.config.filters.excluded_terms:
+        for exc_term in excluded_terms:
             if not exc_term:
                 continue
             term_lower = exc_term.lower()
             # If in title, immediate hard exclusion
             if re.search(r"\b" + re.escape(term_lower) + r"\b", title_lower):
                 breakdown.penalties_applied.append(f"Excluded term in title: {exc_term}")
-                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown)
+                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown, spec_name=spec_name)
             # If in description
             if re.search(r"\b" + re.escape(term_lower) + r"\b", full_text):
                 breakdown.penalties_applied.append(f"Excluded term in description: {exc_term}")
-                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown)
+                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown, spec_name=spec_name)
 
-        # Seniority mismatch penalty: if user seeks Senior/Staff but posting is Junior/Intern
-        candidate_years = self.config.profile.experience_years
-        if candidate_years >= 5:
+        # Seniority mismatch check
+        is_junior_spec = spec_seniority in ["junior", "entry", "intern", "internship"] or candidate_years <= 2
+        is_senior_spec = spec_seniority in ["senior", "lead", "staff", "principal", "director"] or candidate_years >= 5
+
+        if is_senior_spec:
             if any(j in title_lower for j in ["intern", "internship", "junior", "graduate"]):
                 breakdown.penalties_applied.append("Junior/Intern role mismatch for experienced candidate")
-                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown)
+                return ScoredJob(job=job, score=0.0, action="discard", breakdown=breakdown, spec_name=spec_name)
 
         # -------------------------------------------------------------
         # 2. TITLE & CORE STACK (Weight default: 40%)
         # -------------------------------------------------------------
-        max_title_stack_weight = self.config.scoring_weights.title_and_stack
+        max_title_stack_weight = scoring_weights.title_and_stack
 
         # Title match (0 to 1.0)
         title_match_ratio = 0.0
         best_role_match = ""
-        for role in self.config.profile.target_roles:
+        for role in target_roles:
             role_clean = role.lower()
             # Exact title or substring match
             if role_clean in title_lower:
@@ -106,7 +132,6 @@ class ScoringEngine:
                     best_role_match = role
 
         # Must-have skills matching
-        must_have = self.config.filters.must_have_skills
         matched_must = []
         missing_must = []
         for skill in must_have:
@@ -122,7 +147,6 @@ class ScoringEngine:
         must_have_ratio = len(matched_must) / max(len(must_have), 1) if must_have else 1.0
 
         # Nice-to-have skills matching
-        nice_to_have = self.config.filters.nice_to_have_skills
         matched_nice = []
         for skill in nice_to_have:
             pattern = r"\b" + re.escape(skill.lower()) + r"\b"
@@ -133,7 +157,7 @@ class ScoringEngine:
         nice_ratio = min(len(matched_nice) / max(len(nice_to_have), 1), 1.0) if nice_to_have else 0.5
 
         # Combined Title & Stack score
-        # Title (40%), Must-Have (45%), Nice-to-Have (15%)
+        # Title (45%), Must-Have (40%), Nice-to-Have (15%)
         title_stack_fraction = (title_match_ratio * 0.45) + (must_have_ratio * 0.40) + (nice_ratio * 0.15)
         raw_title_score = title_stack_fraction * max_title_stack_weight
         breakdown.title_score = round(title_match_ratio * (max_title_stack_weight * 0.45), 2)
@@ -142,12 +166,11 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 3. REMOTE POLICY & LOCATION (Weight default: 20%)
         # -------------------------------------------------------------
-        max_location_weight = self.config.scoring_weights.location_remote
+        max_location_weight = scoring_weights.location_remote
         location_score_fraction = 0.5  # Neutral default
         loc_str = f"{job.location} {job.remote_scope}".lower()
 
-        preferred_locs = [loc.lower() for loc in self.config.profile.preferred_locations]
-        user_wants_remote = any("remote" in p or "worldwide" in p for p in preferred_locs)
+        user_wants_remote = any("remote" in p or "worldwide" in p or "anywhere" in p for p in preferred_locs)
 
         is_job_remote = job.is_remote or "remote" in loc_str or "anywhere" in loc_str or "worldwide" in loc_str
 
@@ -155,7 +178,7 @@ class ScoringEngine:
             if any(w in loc_str for w in ["worldwide", "anywhere", "global", "work from anywhere"]):
                 location_score_fraction = 1.0
                 breakdown.highlights.append("Worldwide remote: zero geo-restrictions")
-            elif any(pref in loc_str for pref in preferred_locs if pref not in ["remote", "worldwide"]):
+            elif any(pref in loc_str for pref in preferred_locs if pref not in ["remote", "worldwide", "anywhere"]):
                 location_score_fraction = 1.0
                 breakdown.highlights.append(f"Remote aligned with preferred region: {job.location}")
             elif user_wants_remote and ("us-only" in loc_str or "us only" in loc_str):
@@ -171,7 +194,7 @@ class ScoringEngine:
                 breakdown.highlights.append(f"Remote position: {job.location}")
         else:
             # Onsite or Hybrid
-            matched_pref_onsite = any(pref in loc_str for pref in preferred_locs if pref not in ["remote", "worldwide"])
+            matched_pref_onsite = any(pref in loc_str for pref in preferred_locs if pref not in ["remote", "worldwide", "anywhere"])
             if matched_pref_onsite:
                 location_score_fraction = 0.95
                 breakdown.highlights.append(f"Matches preferred on-site / hybrid location: {job.location}")
@@ -188,8 +211,7 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 4. COMPENSATION FIT (Weight default: 15%)
         # -------------------------------------------------------------
-        max_comp_weight = self.config.scoring_weights.compensation
-        salary_floor = self.config.profile.salary_floor_usd
+        max_comp_weight = scoring_weights.compensation
         comp_score_fraction = 0.7  # Neutral default when undisclosed
 
         if job.salary_max or job.salary_min:
@@ -226,7 +248,7 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 5. COMPANY PRIORITY & WATCHLIST (Weight default: 15%)
         # -------------------------------------------------------------
-        max_company_weight = self.config.scoring_weights.company_priority
+        max_company_weight = scoring_weights.company_priority
         company_score_fraction = 0.5  # Standard base company score
 
         watchlist_match = False
@@ -249,13 +271,12 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 6. RECENCY & URGENCY (Weight default: 10%)
         # -------------------------------------------------------------
-        max_recency_weight = self.config.scoring_weights.recency_urgency
+        max_recency_weight = scoring_weights.recency_urgency
         recency_score_fraction = 0.6  # Default if posted date not parsed
 
         if job.posted_at:
             now = datetime.now(timezone.utc) if job.posted_at.tzinfo else datetime.now(timezone.utc).replace(tzinfo=None)
             age_hours = (now - job.posted_at).total_seconds() / 3600.0
-
 
             if age_hours <= 24:
                 recency_score_fraction = 1.0
@@ -273,7 +294,33 @@ class ScoringEngine:
         breakdown.recency_score = round(raw_recency_score, 2)
 
         # -------------------------------------------------------------
-        # 7. TOTAL SCORE COMPILATION & TRIAGE ACTION
+        # 7. EMPLOYMENT TYPE & JUNIOR SPECIFIC SIGNALS
+        # -------------------------------------------------------------
+        if spec and spec.employment_type:
+            spec_emp = spec.employment_type.lower().strip()
+            job_emp = (job.employment_type or "").lower().strip()
+            if spec_emp in ["contract", "freelance", "c2c"]:
+                is_contract = (
+                    job_emp == "contract"
+                    or any(w in full_text or w in title_lower for w in ["contract", "contractor", "freelance", "c2c", "fixed-term", "fixed term", "project-based"])
+                )
+                if is_contract:
+                    breakdown.highlights.append("Contract / Freelance role match")
+                elif "full_time" in job_emp and "contract" not in full_text:
+                    breakdown.penalties_applied.append("Permanent full-time role (contract preferred)")
+            elif spec_emp in ["internship", "intern"]:
+                if job_emp == "internship" or "intern" in title_lower:
+                    breakdown.highlights.append("Internship opportunity match")
+            elif spec_emp in ["part_time", "part-time"]:
+                if "part_time" in job_emp or "part-time" in full_text:
+                    breakdown.highlights.append("Part-time role match")
+
+        if is_junior_spec:
+            if any(w in title_lower or w in full_text for w in ["junior", "entry", "associate", "graduate", "early career", "0-2 years", "1-2 years", "no experience required"]):
+                breakdown.highlights.append("Junior-friendly opportunity")
+
+        # -------------------------------------------------------------
+        # 8. TOTAL SCORE COMPILATION & TRIAGE ACTION
         # -------------------------------------------------------------
         total_points = raw_title_score + raw_location_score + raw_comp_score + raw_company_score + raw_recency_score
         max_possible_points = (
@@ -308,6 +355,7 @@ class ScoringEngine:
             score=final_score,
             action=action,
             breakdown=breakdown,
+            spec_name=spec_name,
             scored_at=datetime.now(timezone.utc)
         )
 

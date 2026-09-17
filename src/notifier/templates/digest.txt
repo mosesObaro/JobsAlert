@@ -4,7 +4,46 @@ JOBSALERT AUTONOMOUS CAREER & INCOME INTELLIGENCE
 Scored against candidate profile for {{ candidate_name }}
 ================================================================================
 
-{% if jobs %}
+{% if spec_groups %}
+TARGET CAREER & EMPLOYMENT OPPORTUNITIES ({{ spec_groups | map(attribute='jobs') | map('length') | sum }} Found)
+--------------------------------------------------------------------------------
+
+{% for group in spec_groups %}
+================================================================================
+SPECIFICATION: {{ group.spec_name|upper }} ({{ group.jobs|length }} Matches)
+================================================================================
+
+{% if group.jobs %}
+{% for scored in group.jobs %}
+[{{ scored.score }}/10 MATCH] {{ scored.job.title }}
+Company:     {{ scored.job.company }}
+Location:    {{ scored.job.location }} ({{ scored.job.remote_scope }})
+{% if scored.job.salary_min or scored.job.salary_max %}
+Salary:      ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+{% else %}
+Salary:      Unlisted / Competitive
+{% endif %}
+Seniority:   {{ scored.job.seniority or 'Unspecified' }}
+Source:      {{ scored.job.source.capitalize() }}
+
+Why You Match:
+{% for highlight in scored.breakdown.highlights %}
+  * {{ highlight }}
+{% endfor %}
+
+Apply Directly:
+{{ scored.job.url }}
+
+--------------------------------------------------------------------------------
+{% endfor %}
+{% else %}
+No new matching jobs found for this specification today.
+
+--------------------------------------------------------------------------------
+{% endif %}
+{% endfor %}
+
+{% elif jobs %}
 TARGET CAREER & EMPLOYMENT OPPORTUNITIES ({{ jobs|length }} Found)
 --------------------------------------------------------------------------------
 {% for scored in jobs %}

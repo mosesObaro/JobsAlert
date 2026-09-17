@@ -4,14 +4,14 @@
     "is_valid": true,
     "status_code": 200,
     "reason": "mock_valid",
-    "verified_at": "2026-09-12T23:56:30.826783+00:00"
+    "verified_at": "2026-09-17T07:58:37.443978+00:00"
   },
   "https://real-site.com/closed-job": {
     "url": "https://real-site.com/closed-job",
     "is_valid": false,
     "status_code": 200,
     "reason": "Position closed ('this job is no longer available')",
-    "verified_at": "2026-09-12T23:56:30.826907+00:00"
+    "verified_at": "2026-09-17T07:58:37.444143+00:00"
   },
   "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943306101": {
     "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4943306101",
