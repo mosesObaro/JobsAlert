@@ -5,7 +5,7 @@ source trust tiers, quality gates, and multi-factor scoring weights.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional
+from typing import List
 from pydantic import BaseModel, Field
 
 
@@ -68,12 +68,6 @@ class IncomeScoringWeightsConfig(BaseModel):
     country_eligibility: float = 15.0
     compensation: float = 10.0
 
-    # Backward compatibility aliases
-    legitimacy_verification: float = 20.0
-    flexibility_time: float = 15.0
-    category_alignment: float = 15.0
-    ease_and_recurring: float = 5.0
-
 
 class OnlineIncomeConfig(BaseModel):
     """Complete configuration settings for high-precision Online Income Opportunities scout."""
@@ -134,28 +128,24 @@ class OnlineIncomeConfig(BaseModel):
     )
 
     # Quality Gate & Scoring Thresholds
-    minimum_quality_score: float = 7.0
-    minimum_side_job_fit_score: float = 6.0
-    minimum_final_score: float = 7.5
-    minimum_score: float = 7.5  # backward-compatibility
+    minimum_quality_score: float = 7.0       # below this an opportunity is discarded
+    minimum_side_job_fit_score: float = 6.0  # below this it can't reach the digest (kept as a low match)
+    minimum_final_score: float = 7.5         # digest threshold
     instant_alert_score: float = 9.0
-    max_digest_items: int = 5  # Precision cap: never flood digest with mediocre opportunities
-    
+    max_digest_items: int = 5  # per digest; further qualifying items wait for the next digest
+
     # Source Trust & Eligibility Requirements
-    min_source_trust_tier: str = "tier_3_review"  # tier_1, tier_2, tier_3 accepted; tier_4 rejected
-    require_verified_source: bool = True
-    reject_unknown_eligibility: bool = False
-    reject_unknown_compensation: bool = False
-    
+    min_source_trust_tier: str = "tier_3_review"  # items from lower tiers are discarded (tier_4 is never accepted)
+    require_verified_source: bool = True  # only known platforms (tier 1-2) and your own entries can be alerted
+    reject_unknown_eligibility: bool = False  # discard items that don't say where they're open
+    reject_unknown_compensation: bool = False  # discard items that don't state pay
+    catalog_stale_after_days: int = 180  # catalogue entries not reviewed for longer are flagged
+
     # Financial & Scheduling Preferences
     minimum_hourly_rate_usd: float = 8.0
     preferred_flexibility: str = "high"  # "high", "medium", "any"
-    maximum_hours_per_week: int = 25
-    allow_asynchronous_only: bool = False
-    
-    preferred_payment_methods: List[str] = Field(
-        default_factory=lambda: ["PayPal", "Direct Deposit", "Payoneer", "Wise", "Bank Transfer", "Stripe"]
-    )
+    maximum_hours_per_week: int = 25  # discard work that needs more weekly hours than this
+    allow_asynchronous_only: bool = False  # discard anything with fixed shifts or live sessions
     preferred_currencies: List[str] = Field(
         default_factory=lambda: ["USD", "EUR", "GBP", "NGN"]
     )

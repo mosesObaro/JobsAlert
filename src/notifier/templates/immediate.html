@@ -36,9 +36,9 @@
         </ul>
       </div>
 
-      <a href="{{ scored.job.url }}" class="btn" target="_blank" rel="noopener noreferrer">
+      {% if scored.job.url %}<a href="{{ scored.job.url }}" class="btn" target="_blank" rel="noopener noreferrer">
         Inspect & Apply Now →
-      </a>
+      </a>{% endif %}
     </div>
   </div>
 </body>

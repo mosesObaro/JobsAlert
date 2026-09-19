@@ -1,0 +1,657 @@
+# Curated catalogue of flexible online income platforms.
+#
+# These entries are maintained by hand; they are not fetched live. Pay ranges, eligibility
+# and application links can change: re-check an entry on the platform's site and update
+# `last_reviewed` (YYYY-MM-DD). Entries older than `online_income.catalog_stale_after_days`
+# are flagged for review in the dashboard and emails.
+#
+# `collector` groups entries under a source you can switch on or off in the income settings;
+# `platform_id` is matched against that source's `platforms` list.
+
+platforms:
+- id: dat-core-eval-01
+  collector: ai_evaluation
+  platform_id: dataannotation
+  title: AI Evaluator & Content Annotator (Generalist)
+  organization: DataAnnotation.tech
+  category: ai_evaluation
+  opportunity_type: hourly
+  description: Evaluate conversational AI model responses for factual accuracy, reasoning, grammar, and alignment.
+    100% self-paced, asynchronous work with continuous project streams.
+  url: https://www.dataannotation.tech
+  application_url: https://www.dataannotation.tech/workers
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide / Global
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - United States
+  - United Kingdom
+  - Canada
+  - Australia
+  country_restrictions: []
+  pay_min: 20.0
+  pay_max: 25.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $20–$25/hr
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - AI Trainer
+  - LLM Evaluation
+  - Flexible
+  - Weekly Pay
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: outlier-ai-trainer-01
+  collector: ai_evaluation
+  platform_id: outlier
+  title: AI Trainer & Reasoning Evaluator (Domain Specialist / Generalist)
+  organization: Outlier.ai
+  category: ai_evaluation
+  opportunity_type: hourly
+  description: Train frontier AI models by providing detailed feedback, creative prompts, and fact-checking generated
+    outputs across humanities, logic, writing, and STEM topics.
+  url: https://outlier.ai
+  application_url: https://outlier.ai/experts
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide (Global Candidates Accepted)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Kenya
+  - South Africa
+  - United States
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 15.0
+  pay_max: 35.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $15–$35/hr
+  experience_requirement: beginner
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - AI Evaluation
+  - Fact Checking
+  - Direct Deposit
+  - PayPal
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: oneforma-llm-annotator-01
+  collector: ai_evaluation
+  platform_id: oneforma
+  title: Micro-Task Contributor & Multimodal AI Evaluator
+  organization: OneForma / Centific
+  category: data_annotation
+  opportunity_type: per_task
+  description: Participate in global AI annotation projects, audio collection, prompt engineering, and linguistic
+    quality evaluations. Pick and choose tasks based on your free time.
+  url: https://www.oneforma.com
+  application_url: https://www.oneforma.com/job-opportunities/
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide / Over 150 Countries
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Ghana
+  - Kenya
+  - Egypt
+  - India
+  country_restrictions: []
+  pay_min: 8.0
+  pay_max: 18.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $8–$18/hr equivalent (per-task)
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Data Annotation
+  - Multimodal AI
+  - Payoneer
+  - Global
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: telus-ai-community-01
+  collector: ai_evaluation
+  platform_id: telus
+  title: AI Community Evaluator & Personalized Internet Assessor
+  organization: TELUS International AI
+  category: ai_evaluation
+  opportunity_type: hourly
+  description: Review and rate search results, social media relevance, and AI queries to improve search algorithms
+    and AI assistants worldwide. Fully flexible part-time hours.
+  url: https://www.telusinternational.com/solutions/ai-data-solutions
+  application_url: https://www.telusinternational.ai/community
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide / Regional Community Opportunities
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United Kingdom
+  - Germany
+  country_restrictions: []
+  pay_min: 10.0
+  pay_max: 16.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $10–$16/hr
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Search Evaluator
+  - Part-Time
+  - Flexible Hours
+  - TELUS
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: appen-crowd-contributor-01
+  collector: ai_evaluation
+  platform_id: appen
+  title: Crowdsourced Data Annotator & Search Relevance Rater
+  organization: Appen
+  category: data_annotation
+  opportunity_type: per_task
+  description: Help world-leading technology companies evaluate datasets, transcribe audio, annotate computer vision
+    assets, and test AI voice assistants.
+  url: https://appen.com
+  application_url: https://appen.com/join-our-crowd/
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Kenya
+  - India
+  - Philippines
+  - Brazil
+  country_restrictions: []
+  pay_min: 8.0
+  pay_max: 15.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $8–$15/hr equivalent
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Data Annotation
+  - Search Rating
+  - Payoneer
+  - PayPal
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: ut-tester-01
+  collector: user_testing
+  platform_id: usertesting
+  title: Website & Mobile App Usability Tester
+  organization: UserTesting
+  category: user_testing
+  opportunity_type: per_task
+  description: Share your perspective on new websites, applications, and digital prototypes by completing recorded
+    15–20 minute walkthroughs and speaking your thoughts aloud.
+  url: https://www.usertesting.com
+  application_url: https://www.usertesting.com/get-paid-to-test
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United Kingdom
+  - United States
+  - Canada
+  country_restrictions: []
+  pay_min: 10.0
+  pay_max: 60.0
+  pay_currency: USD
+  pay_period: per_task
+  pay_rate_display: $10–$60 per test session
+  experience_requirement: none
+  time_commitment: ad_hoc
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Usability Testing
+  - PayPal Payout
+  - No Experience Required
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: testbirds-nest-01
+  collector: user_testing
+  platform_id: testbirds
+  title: Crowdtester & UX/Bug Bounty Contributor
+  organization: Testbirds
+  category: user_testing
+  opportunity_type: per_task
+  description: Test apps, software, and e-commerce platforms on your own smartphone or PC. Earn fixed payouts per
+    completed test run plus additional bounties for discovered bugs.
+  url: https://www.testbirds.com
+  application_url: https://nest.testbirds.com
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide (Global Crowd)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Kenya
+  - Ghana
+  - Germany
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 15.0
+  pay_max: 45.0
+  pay_currency: USD
+  pay_period: per_task
+  pay_rate_display: €15–€50 per test + Bug Bounties
+  experience_requirement: none
+  time_commitment: ad_hoc
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - UX Testing
+  - Bug Bounty
+  - Bank Transfer
+  - PayPal
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: respondent-research-01
+  collector: user_testing
+  platform_id: respondent
+  title: Paid Research Study & Professional Interview Participant
+  organization: Respondent.io
+  category: research
+  opportunity_type: study
+  description: Participate in targeted market research studies, 1-on-1 video interviews, and focus groups. Great
+    for finance practitioners, business professionals, and consumers.
+  url: https://www.respondent.io
+  application_url: https://www.respondent.io/respondents
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide / Global Participants
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - United States
+  - United Kingdom
+  - Canada
+  country_restrictions: []
+  pay_min: 50.0
+  pay_max: 150.0
+  pay_currency: USD
+  pay_period: per_task
+  pay_rate_display: $50–$150/hr per study
+  experience_requirement: none
+  time_commitment: ad_hoc
+  flexibility: high
+  is_asynchronous: false
+  tags:
+  - Research Studies
+  - High Payout
+  - Video Interviews
+  - PayPal
+  last_reviewed: '2026-09-12'
+- id: prolific-academic-01
+  collector: user_testing
+  platform_id: prolific
+  title: Academic Research & Behavioral Study Participant
+  organization: Prolific
+  category: research
+  opportunity_type: study
+  description: Take part in university and behavioral science studies conducted by researchers at Stanford, Oxford,
+    and Harvard. Guaranteed ethical pay minimums.
+  url: https://www.prolific.com
+  application_url: https://www.prolific.com/participants
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide / Available in 38+ countries
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United Kingdom
+  - United States
+  - Australia
+  country_restrictions: []
+  pay_min: 8.0
+  pay_max: 16.0
+  pay_currency: USD
+  pay_period: per_task
+  pay_rate_display: £8–£15/hr ($10–$20/hr equivalent)
+  experience_requirement: none
+  time_commitment: ad_hoc
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Academic Research
+  - Instant PayPal
+  - Ethical Pay Floor
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: cp-proofreader-01
+  collector: academic_tutoring
+  platform_id: cambridge_proofreading
+  title: Remote Academic Proofreader & Editor
+  organization: Cambridge Proofreading LLC
+  category: academic_editing
+  opportunity_type: hourly
+  description: Edit academic manuscripts, theses, journal papers, and research proposals for international scholars.
+    100% self-paced asynchronous manuscript editing.
+  url: https://proofreading.org
+  application_url: https://proofreading.org/careers/
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide (Native or Near-Native English)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United Kingdom
+  - United States
+  - Canada
+  country_restrictions: []
+  pay_min: 20.0
+  pay_max: 30.0
+  pay_currency: USD
+  pay_period: biweekly
+  pay_rate_display: $20–$30/hr equivalent
+  experience_requirement: intermediate
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Academic Proofreading
+  - Manuscript Editing
+  - Flexible Schedule
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: scribbr-editor-01
+  collector: academic_tutoring
+  platform_id: scribbr
+  title: Academic Essay & Thesis Editor
+  organization: Scribbr / Enago
+  category: academic_editing
+  opportunity_type: per_task
+  description: Proofread and polish university dissertations, essays, and academic publications. Flexible volume
+    with self-paced order pickup during academic semesters.
+  url: https://www.scribbr.com
+  application_url: https://www.scribbr.com/jobs/freelance-editor/
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Kenya
+  - South Africa
+  - Netherlands
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 18.0
+  pay_max: 28.0
+  pay_currency: USD
+  pay_period: monthly
+  pay_rate_display: €20–€30/hr equivalent
+  experience_requirement: intermediate
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Academic Editing
+  - Dissertation Support
+  - Global
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: preply-tutor-01
+  collector: academic_tutoring
+  platform_id: preply
+  title: Online Subject / Language Tutor (Finance, Accounting, English)
+  organization: Preply
+  category: tutoring
+  opportunity_type: hourly
+  description: Teach students worldwide in subjects of your expertise, such as Business English, Accounting principles,
+    Economics, or Languages. Set your own pricing and lesson availability.
+  url: https://preply.com
+  application_url: https://preply.com/en/teach
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide (Global Tutors Welcomed)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Ghana
+  - Kenya
+  - United States
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 15.0
+  pay_max: 40.0
+  pay_currency: USD
+  pay_period: hourly
+  pay_rate_display: $15–$40/hr (set your own rate)
+  experience_requirement: beginner
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: false
+  tags:
+  - Online Tutoring
+  - Custom Rates
+  - Payoneer
+  - PayPal
+  - Wise
+  last_reviewed: '2026-09-12'
+- id: cambly-tutor-01
+  collector: academic_tutoring
+  platform_id: cambly
+  title: Conversational English Tutor (No Degree or Lesson Prep Needed)
+  organization: Cambly
+  category: tutoring
+  opportunity_type: hourly
+  description: Help adult and young learners practice conversational English on a flexible drop-in basis. Log in
+    whenever you are free with zero lesson planning required.
+  url: https://www.cambly.com
+  application_url: https://www.cambly.com/en/tutors
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United States
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 10.2
+  pay_max: 12.0
+  pay_currency: USD
+  pay_period: weekly
+  pay_rate_display: $10.20–$12.00/hr ($0.17–$0.20/min)
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: false
+  tags:
+  - English Tutoring
+  - Weekly PayPal
+  - Zero Prep Required
+  last_reviewed: '2026-09-12'
+- id: academic-research-asst-01
+  collector: academic_tutoring
+  platform_id: academic_positions
+  title: Remote Academic Research Assistant & Literature Synthesizer
+  organization: Academic Positions Network
+  category: research
+  opportunity_type: hourly
+  description: Support academic faculty and research labs with literature searches, data synthesis, citation formatting
+    (APA/Harvard), and bibliography management.
+  url: https://academicpositions.com
+  application_url: https://academicpositions.com/jobs
+  trust_tier: tier_1_highest
+  location_eligibility: Worldwide / Remote
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Europe
+  - United States
+  country_restrictions: []
+  pay_min: 16.0
+  pay_max: 26.0
+  pay_currency: USD
+  pay_period: monthly
+  pay_rate_display: $16–$26/hr
+  experience_requirement: intermediate
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Research Assistant
+  - Literature Review
+  - Remote Academic
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: rev-transcriptionist-01
+  collector: transcription_support
+  platform_id: rev
+  title: Freelance Audio Transcriptionist & Captioner
+  organization: Rev.com
+  category: transcription
+  opportunity_type: per_task
+  description: Listen to audio files and transcribe speech accurately with flexible weekly payouts via PayPal. 100%
+    self-paced asynchronous audio transcription.
+  url: https://www.rev.com
+  application_url: https://www.rev.com/freelancers/transcription
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide (Select Countries Accepted)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - South Africa
+  - United States
+  - United Kingdom
+  - Canada
+  country_restrictions: []
+  pay_min: 12.0
+  pay_max: 22.0
+  pay_currency: USD
+  pay_period: weekly
+  pay_rate_display: $0.30–$1.10 per audio/video minute ($12–$22/hr)
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Audio Transcription
+  - Weekly PayPal
+  - Flexible Hours
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: gotranscript-transcriber-01
+  collector: transcription_support
+  platform_id: gotranscript
+  title: Audio/Video Transcriber & Text Editor
+  organization: GoTranscript
+  category: transcription
+  opportunity_type: per_task
+  description: Transcribe audio recordings across medical, legal, and general disciplines. 100% remote with international
+    contributor onboarding.
+  url: https://gotranscript.com
+  application_url: https://gotranscript.com/transcription-jobs
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - Kenya
+  - Ghana
+  - India
+  - United Kingdom
+  country_restrictions: []
+  pay_min: 8.0
+  pay_max: 18.0
+  pay_currency: USD
+  pay_period: weekly
+  pay_rate_display: Up to $0.60 per audio minute ($10–$18/hr avg)
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: true
+  tags:
+  - Transcription
+  - PayPal
+  - Payoneer
+  - Global
+  - Asynchronous
+  last_reviewed: '2026-09-12'
+- id: modsquad-mod-01
+  collector: transcription_support
+  platform_id: modsquad
+  title: Remote Community Moderator & Customer Support Specialist (Mod)
+  organization: ModSquad
+  category: customer_support
+  opportunity_type: hourly
+  description: Provide forum moderation, social media support, and ticketing customer service for top global gaming,
+    entertainment, and e-commerce brands.
+  url: https://modsquad.com
+  application_url: https://modsquad.com/join-the-mods/
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide (Mod Network)
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - United States
+  - United Kingdom
+  - Germany
+  - Brazil
+  country_restrictions: []
+  pay_min: 12.0
+  pay_max: 20.0
+  pay_currency: USD
+  pay_period: monthly
+  pay_rate_display: $12–$20/hr
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: false
+  tags:
+  - Customer Support
+  - Community Moderation
+  - Flexible Shift Booking
+  last_reviewed: '2026-09-12'
+- id: timeetc-va-01
+  collector: transcription_support
+  platform_id: time_etc
+  title: Virtual Assistant (Executive Admin, Bookkeeping & Organization)
+  organization: Time Etc
+  category: virtual_assistant
+  opportunity_type: hourly
+  description: Support entrepreneurs and busy executives with calendar scheduling, bookkeeping data entry, inbox
+    triage, and travel planning.
+  url: https://web.timeetc.com
+  application_url: https://web.timeetc.com/be-a-virtual-assistant
+  trust_tier: tier_2_good
+  location_eligibility: Worldwide / Remote
+  eligible_countries:
+  - Worldwide
+  - Nigeria
+  - United Kingdom
+  - United States
+  country_restrictions: []
+  pay_min: 14.0
+  pay_max: 24.0
+  pay_currency: USD
+  pay_period: monthly
+  pay_rate_display: $14–$24/hr
+  experience_requirement: none
+  time_commitment: flexible
+  flexibility: high
+  is_asynchronous: false
+  tags:
+  - Virtual Assistant
+  - Bookkeeping Support
+  - Flexible Part-Time
+  last_reviewed: '2026-09-12'

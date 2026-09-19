@@ -1,42 +1,54 @@
 """
-JobsAlert Main Pipeline Orchestrator.
-Coordinates collection, deduplication, scoring, triage, notification, and state persistence
-for both Target Career Roles and Online Income Opportunities.
+JobsAlert Main Pipeline.
+Collect -> deduplicate -> score against every job spec -> verify the links of alert
+candidates -> deliver -> persist, for career roles plus (optionally) the online
+income stage, which is delegated to IncomeOpportunityPipeline.
+
+A posting is recorded as alerted only after its email was accepted by the provider.
+Alert-worthy postings that could not be delivered stay unseen, so the next live run
+retries them.
 """
 
 from __future__ import annotations
 import asyncio
-import json
 import time
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
+from src import paths
 from src.collectors import run_all_collectors
 from src.config import AppConfig
 from src.deduplication import StateManager
-from src.income_opportunities.collectors import run_all_income_collectors
 from src.income_opportunities.deduplication import IncomeStateManager
-from src.income_opportunities.models import (
-    EligibilityStatus,
-    IncomeCollectorHealth,
-    IncomeMatchBreakdown,
-    IncomeRunSummary,
-    OnlineIncomeOpportunity,
-    OpportunityStatus,
-    ScoredOpportunity,
-    SourceTelemetry,
-)
-from src.income_opportunities.scoring import IncomeScoringEngine
-from src.income_opportunities.verifier import IncomeOpportunityVerifier
-from src.models import CrawlerHealth, JobPosting, MatchBreakdown, RunSummary, ScoredJob, SpecMatchGroup
+from src.income_opportunities.models import IncomeRunSummary, ScoredOpportunity
+from src.income_opportunities.pipeline import IncomeEvaluation, IncomeOpportunityPipeline
+from src.models import MatchBreakdown, RunSummary, ScoredJob, SpecMatchGroup
 from src.notifier.email_service import EmailNotifier
 from src.scoring import ScoringEngine
+from src.telemetry import append_run_log, read_run_logs
 from src.verifier import LinkVerifier
 
-RUN_LOGS_FILE = Path(__file__).resolve().parent.parent / "data" / "run_logs.json"
-INCOME_RUN_LOGS_FILE = Path(__file__).resolve().parent.parent / "data" / "income_run_logs.json"
+ALERT_ACTIONS = ("instant", "digest")
+# Discussion permalinks never close, so checking them only burns requests.
+UNVERIFIABLE_SOURCES = {"hackernews"}
+
+
+def run_logs_file():
+    return paths.data_file(paths.RUN_LOGS)
+
+
+def _by_score(items: List[ScoredJob]) -> List[ScoredJob]:
+    return sorted(items, key=lambda x: x.score, reverse=True)
+
+
+def _dead_link(result: ScoredJob, reason: str) -> ScoredJob:
+    breakdown = MatchBreakdown(
+        penalties_applied=[f"Link inactive or posting closed ({reason})"],
+        highlights=[f"Discarded: the link is dead or the position is closed ({reason})"],
+        is_verified=False,
+    )
+    return ScoredJob(job=result.job, score=0.0, action="discard", breakdown=breakdown, spec_name=result.spec_name)
 
 
 class JobPipeline:
@@ -47,14 +59,24 @@ class JobPipeline:
         income_state_manager: Optional[IncomeStateManager] = None,
     ):
         self.config = config
-        self.state_manager = state_manager or StateManager()
-        self.income_state_manager = income_state_manager or IncomeStateManager()
+        self.state_manager = state_manager if state_manager is not None else StateManager()
         self.scoring_engine = ScoringEngine(config)
-        self.income_scoring_engine = IncomeScoringEngine(config.online_income)
         self.notifier = EmailNotifier()
         self.link_verifier = LinkVerifier()
-        self.income_verifier = IncomeOpportunityVerifier()
+        self.income_pipeline = IncomeOpportunityPipeline(
+            config.online_income,
+            state_manager=income_state_manager,
+            notifier=self.notifier,
+            fx_rates=config.fx_rates_to_usd,
+            link_config=config.link_verification,
+            retention_days=config.state.retention_days,
+        )
         self.latest_income_opportunities: List[ScoredOpportunity] = []
+        self.latest_income_summary: Optional[IncomeRunSummary] = None
+
+    @property
+    def income_state_manager(self) -> IncomeStateManager:
+        return self.income_pipeline.state_manager
 
     async def execute(
         self,
@@ -62,394 +84,227 @@ class JobPipeline:
         send_email: bool = False,
         force_all: bool = False,
         immediate_only: bool = False,
+        trigger: str = "manual",
     ) -> Tuple[RunSummary, List[ScoredJob]]:
-        """
-        Executes the unified job intelligence and online income pipeline.
-        """
-        start_time = time.perf_counter()
+        """Runs one full pass. Returns the run summary and every (job, spec) score."""
+        started = time.perf_counter()
         run_id = f"run_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        mode = "dry_run" if dry_run else "live"
+        config, state, delivery = self.config, self.state_manager, self.config.delivery
+        include_income = config.online_income.enabled and config.online_income.include_in_daily_digest
+        print(f"\n🚀 [PIPELINE START] Run ID: {run_id} | Mode: {mode.upper()} | Profile: {config.profile.candidate_name}")
 
-        include_income = (
-            self.config.online_income.enabled
-            and self.config.online_income.include_in_daily_digest
-        )
-
-        print(f"\n🚀 [PIPELINE START] Run ID: {run_id} | Mode: {'DRY RUN' if dry_run else 'LIVE'} | Profile: {self.config.profile.candidate_name}")
-
-        # 1. Collect from enabled job & income sources concurrently
+        # 1. COLLECT (jobs and income concurrently) ---------------------------
+        income_ev: Optional[IncomeEvaluation] = None
         if include_income:
-            (raw_jobs, health_reports), (raw_income, income_health) = await asyncio.gather(
-                run_all_collectors(self.config),
-                run_all_income_collectors(self.config.online_income),
+            (raw_jobs, health), income_ev = await asyncio.gather(
+                run_all_collectors(config), self.income_pipeline.evaluate(force_all=force_all)
             )
-            print(f"📥 [COLLECTED] {len(raw_jobs)} career postings & {len(raw_income)} online income tracks.")
         else:
-            raw_jobs, health_reports = await run_all_collectors(self.config)
-            raw_income, income_health = [], []
-            print(f"📥 [COLLECTED] {len(raw_jobs)} total job postings across {len(health_reports)} source connectors.")
+            raw_jobs, health = await run_all_collectors(config)
+        print(f"📥 [COLLECTED] {len(raw_jobs)} career postings" + (f" & {len(income_ev.raw)} income tracks." if income_ev else "."))
+        self._print_health(health + (income_ev.health if income_ev else []))
 
-        income_telemetry_map: Dict[str, SourceTelemetry] = {}
-        for h in income_health:
-            income_telemetry_map[h.source_name] = h.telemetry or SourceTelemetry(source_name=h.source_name, discovered=h.opportunities_found)
-
-        # 2. Filter & Deduplicate Conventional Jobs
-        new_jobs: List[JobPosting] = []
-        seen_count = 0
+        # 2. DEDUPLICATE -------------------------------------------------------
+        new_jobs = []
+        batch: Set[str] = set()
         for job in raw_jobs:
-            if not force_all and self.state_manager.is_seen(job.fingerprint):
-                seen_count += 1
+            fp = job.fingerprint
+            if fp in batch:
                 continue
+            batch.add(fp)
+            if not state.is_seen(fp):
+                alias = state.find_equivalent(job)
+                if alias:
+                    state.adopt(job, alias)  # same posting recorded under an older fingerprint
+            if state.is_seen(fp):
+                state.touch(fp)
+                if not force_all:
+                    continue
             new_jobs.append(job)
+        print(f"🔍 [DEDUPLICATION] {len(new_jobs)} postings to score ({len(batch) - len(new_jobs)} already processed).")
 
-        print(f"🔍 [DEDUPLICATION - JOBS] {seen_count} previously processed jobs filtered out. {len(new_jobs)} unique candidates to verify & score.")
+        # 3. SCORE against every spec -----------------------------------------
+        specs = config.get_effective_job_specs()
+        per_job: Dict[str, List[ScoredJob]] = {
+            job.fingerprint: [self.scoring_engine.score_job(job, spec=spec) for spec in specs] for job in new_jobs
+        }
 
-        # 3. Verify Job Links
-        valid_jobs: List[JobPosting] = []
-        invalid_jobs: List[Tuple[JobPosting, str]] = []
-        if self.config.link_verification.enabled and new_jobs:
-            print(f"🔗 [LINK VERIFICATION - JOBS] Verifying {len(new_jobs)} candidate URLs...")
-            valid_jobs, invalid_jobs = await self.link_verifier.verify_jobs_batch(new_jobs, self.config.link_verification)
-            if invalid_jobs:
-                print(f"⚠️ [LINK VERIFICATION - JOBS] Excluded {len(invalid_jobs)} expired or closed job posting(s).")
-        else:
-            valid_jobs = new_jobs
+        # 4. VERIFY LINKS of alert candidates only ------------------------------
+        links_checked = dead_links = unverified_links = 0
+        candidates = [job for job in new_jobs if any(r.action in ALERT_ACTIONS for r in per_job[job.fingerprint])]
+        if config.link_verification.enabled and candidates:
+            urls = {job.fingerprint: (job.raw_url or job.url) for job in candidates if job.source not in UNVERIFIABLE_SOURCES}
+            results = await self.link_verifier.verify_many(urls.values(), config.link_verification)
+            for job in candidates:
+                result = results.get(urls.get(job.fingerprint, ""))
+                if result is None:
+                    job.verification_status = "not checked"
+                    continue
+                links_checked += 1
+                job.verification_status = result.status
+                if result.is_dead:
+                    dead_links += 1
+                    job.is_verified = False
+                    per_job[job.fingerprint] = [_dead_link(r, result.reason) for r in per_job[job.fingerprint]]
+                elif result.status == "unknown":
+                    unverified_links += 1
+                    for r in per_job[job.fingerprint]:
+                        r.breakdown.penalties_applied.append(f"Link could not be checked: {result.reason}")
+            print(f"🔗 [LINKS] Checked {links_checked}: {dead_links} dead, {unverified_links} unverifiable (kept).")
 
-        # 4. Score Conventional Jobs across all active Job Specifications
-        specs = self.config.get_effective_job_specs()
-        scored_jobs: List[ScoredJob] = []
-        discarded: List[ScoredJob] = []
-        low_matches: List[ScoredJob] = []
-        digest_matches: List[ScoredJob] = []
-        instant_matches: List[ScoredJob] = []
+        scored_jobs = [r for results in per_job.values() for r in results]
+        best = {fp: max(results, key=lambda r: r.score) for fp, results in per_job.items()}
+
         spec_groups: List[SpecMatchGroup] = []
-
-        for inv_job, reason in invalid_jobs:
-            inv_job.is_verified = False
-            inv_job.verification_status = reason
-            breakdown = MatchBreakdown(
-                penalties_applied=[f"Link Inactive/Expired ({reason})"],
-                highlights=[f"Discarded: Link is dead or position is closed ({reason})"],
-                is_verified=False
-            )
-            s_job = ScoredJob(
-                job=inv_job,
-                score=0.0,
-                action="discard",
-                breakdown=breakdown,
-            )
-            scored_jobs.append(s_job)
-            discarded.append(s_job)
-
         for spec in specs:
-            spec_matches: List[ScoredJob] = []
-            for job in valid_jobs:
-                scored = self.scoring_engine.score_job(job, spec=spec)
-                scored.breakdown.is_verified = True
-                scored_jobs.append(scored)
+            matches = _by_score([r for r in scored_jobs if r.spec_name == spec.name and r.action in ALERT_ACTIONS])
+            unalerted = [m for m in matches if not state.is_alerted(m.job.fingerprint)]
+            spec_groups.append(SpecMatchGroup(spec_name=spec.name, jobs=matches, unalerted_jobs=unalerted, total_matches=len(matches)))
 
-                if scored.action == "discard":
-                    discarded.append(scored)
-                elif scored.action == "low_match":
-                    low_matches.append(scored)
-                elif scored.action == "digest":
-                    digest_matches.append(scored)
-                    spec_matches.append(scored)
-                elif scored.action == "instant":
-                    instant_matches.append(scored)
-                    spec_matches.append(scored)
+        alert_jobs = _by_score([b for fp, b in best.items() if b.action in ALERT_ACTIONS and not state.is_alerted(fp)])
+        instant_jobs = [b for b in alert_jobs if b.action == "instant"]
+        income_instant = self.income_pipeline.unalerted(income_ev.instant) if income_ev else []
+        income_digest = self.income_pipeline.select_for_digest(income_ev) if income_ev else []
 
-            spec_matches.sort(key=lambda x: x.score, reverse=True)
-            unalerted_spec_matches = [m for m in spec_matches if not self.state_manager.is_alerted(m.job.fingerprint)]
-            spec_groups.append(
-                SpecMatchGroup(
-                    spec_name=spec.name,
-                    jobs=spec_matches,
-                    unalerted_jobs=unalerted_spec_matches,
-                    total_matches=len(spec_matches),
-                )
-            )
-
-        digest_matches.sort(key=lambda x: x.score, reverse=True)
-        instant_matches.sort(key=lambda x: x.score, reverse=True)
-        all_alert_jobs = instant_matches + digest_matches
-
-        # 5. Deduplicate, Verify, Quality Gate & Score Online Income Opportunities
-        scored_income_opps: List[ScoredOpportunity] = []
-        instant_income_matches: List[ScoredOpportunity] = []
-        digest_income_matches: List[ScoredOpportunity] = []
-        low_income_matches: List[ScoredOpportunity] = []
-        discarded_income: List[ScoredOpportunity] = []
-        new_income: List[OnlineIncomeOpportunity] = []
-        rejected_income: List[OnlineIncomeOpportunity] = []
-        income_quality_rejected = 0
-        income_ineligible = 0
-
-        if include_income and raw_income:
-            for opp in raw_income:
-                fp = opp.fingerprint
-                if self.income_state_manager.is_dismissed(fp):
-                    if opp.source in income_telemetry_map:
-                        income_telemetry_map[opp.source].duplicates_removed += 1
-                    continue
-                if not force_all and self.income_state_manager.is_seen(fp):
-                    if opp.source in income_telemetry_map:
-                        income_telemetry_map[opp.source].duplicates_removed += 1
-                    continue
-                new_income.append(opp)
-
-            print(f"🔍 [DEDUPLICATION - INCOME] {len(new_income)} unique income tracks to screen & score.")
-
-            if new_income:
-                valid_income, rejected_income = await self.income_verifier.verify_opportunities_batch(
-                    new_income,
-                    check_links=self.config.online_income.require_link_verification,
-                    max_concurrency=15,
-                )
-            else:
-                valid_income = []
-
-            for rej in rejected_income:
-                if rej.source in income_telemetry_map:
-                    if rej.verification_status == "rejected":
-                        income_telemetry_map[rej.source].hard_rejected += 1
-                    else:
-                        income_telemetry_map[rej.source].verification_failed += 1
-                s_rej = self.income_scoring_engine.score_opportunity(rej)
-                scored_income_opps.append(s_rej)
-                discarded_income.append(s_rej)
-
-            for opp in valid_income:
-                s_opp = self.income_scoring_engine.score_opportunity(opp)
-                scored_income_opps.append(s_opp)
-                telemetry = income_telemetry_map.get(opp.source)
-
-                if not s_opp.breakdown.passed_quality_gate:
-                    income_quality_rejected += 1
-                    if telemetry:
-                        telemetry.quality_rejected += 1
-                    discarded_income.append(s_opp)
-                elif s_opp.breakdown.eligibility_status == EligibilityStatus.INELIGIBLE.value:
-                    income_ineligible += 1
-                    if telemetry:
-                        telemetry.ineligible += 1
-                    discarded_income.append(s_opp)
-                elif s_opp.action == "discard":
-                    discarded_income.append(s_opp)
-                elif s_opp.action == "low_match":
-                    low_income_matches.append(s_opp)
-                    if telemetry:
-                        telemetry.verified += 1
-                elif s_opp.action == "digest":
-                    digest_income_matches.append(s_opp)
-                    if telemetry:
-                        telemetry.verified += 1
-                        telemetry.high_quality += 1
-                elif s_opp.action == "instant":
-                    instant_income_matches.append(s_opp)
-                    if telemetry:
-                        telemetry.verified += 1
-                        telemetry.high_quality += 1
-
-            digest_income_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
-            instant_income_matches.sort(key=lambda x: (x.score, x.breakdown.quality_score, x.breakdown.side_job_fit_score), reverse=True)
-
-        max_income_digest = self.config.online_income.max_digest_items or 5
-        all_alert_income = (instant_income_matches + digest_income_matches)[:max_income_digest]
-        self.latest_income_opportunities = scored_income_opps
-
-        print(f"📊 [SCORING RESULTS]")
-        for group in spec_groups:
-            print(f"   📋 Spec '{group.spec_name}': {len(group.jobs)} match(es) ({len(group.unalerted_jobs)} new)")
-        print(f"   💰 Income Tracks Strong/Instant:     {len(all_alert_income)} (Quality Gated, Top {max_income_digest} Max)")
-        print(f"   ✕ Total Discarded:                  {len(discarded) + len(discarded_income)}")
-
-        # 6. Filter Unalerted Matches & Dispatch Notifications
-        unalerted_instant_matches = [m for m in instant_matches if not self.state_manager.is_alerted(m.job.fingerprint)]
-        unalerted_digest_matches = [m for m in digest_matches if not self.state_manager.is_alerted(m.job.fingerprint)]
-        unalerted_alert_jobs = unalerted_instant_matches + unalerted_digest_matches
-
-        unalerted_instant_income = [m for m in instant_income_matches if not self.income_state_manager.is_alerted(m.opportunity.fingerprint)]
-        unalerted_digest_income = [m for m in digest_income_matches if not self.income_state_manager.is_alerted(m.opportunity.fingerprint)]
-        unalerted_alert_income = (unalerted_instant_income + unalerted_digest_income)[:max_income_digest]
-
-        already_sent_jobs_count = len(all_alert_jobs) - len(unalerted_alert_jobs)
-        already_sent_income_count = len(instant_income_matches + digest_income_matches) - len(unalerted_instant_income + unalerted_digest_income)
-        if already_sent_jobs_count > 0 or already_sent_income_count > 0:
-            print(f"🛡️ [PREVIOUSLY SENT FILTER] Suppressed {already_sent_jobs_count} job(s) and {already_sent_income_count} income track(s) already emailed previously.")
-
-        emails_dispatched = 0
+        # 5. DELIVER -----------------------------------------------------------
+        delivered_jobs: Set[str] = set()
+        delivered_income: Set[str] = set()
+        errors: List[str] = []
+        emails = income_emails = 0
         if not dry_run and send_email:
-            # Immediate Job Alerts (New / Unalerted Only)
-            if self.config.delivery.send_instant_alerts and unalerted_instant_matches:
-                for match in unalerted_instant_matches:
-                    success = await self.notifier.send_immediate(match, self.config, dry_run=False)
-                    if success:
-                        emails_dispatched += 1
-                        self.state_manager.record_job(match.job, match.score, match.action, alerted=True)
-
-            # Immediate Income Alerts (New / Unalerted Only)
-            if self.config.delivery.send_instant_alerts and unalerted_instant_income:
-                for match in unalerted_instant_income:
-                    success = await self.notifier.send_income_immediate(
+            if delivery.send_instant_alerts:
+                for match in instant_jobs:
+                    result = await self.notifier.send_immediate(match, config, dry_run=False)
+                    if result:
+                        emails += 1
+                        delivered_jobs.add(match.job.fingerprint)
+                    else:
+                        errors.append(f"Instant alert '{match.job.title}': {getattr(result, 'error', 'failed')}")
+                for match in income_instant:
+                    result = await self.notifier.send_income_immediate(
                         scored=match,
-                        candidate_name=self.config.online_income.candidate_name,
-                        recipient_email=self.config.delivery.recipient_email,
-                        email_provider=self.config.delivery.email_provider,
-                        from_email=self.config.delivery.from_email,
-                        dry_run=False
+                        candidate_name=config.online_income.candidate_name,
+                        recipient_email=delivery.recipient_email,
+                        email_provider=delivery.email_provider,
+                        from_email=delivery.from_email,
+                        dry_run=False,
                     )
-                    if success:
-                        emails_dispatched += 1
-                        if match.opportunity.source in income_telemetry_map:
-                            income_telemetry_map[match.opportunity.source].alerted += 1
-                        self.income_state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
+                    if result:
+                        emails += 1
+                        income_emails += 1
+                        delivered_income.add(match.opportunity.fingerprint)
+                    else:
+                        errors.append(f"Instant income alert '{match.opportunity.title}': {getattr(result, 'error', 'failed')}")
 
-            # Consolidated Daily Digest (New / Unalerted Only)
-            if not immediate_only and self.config.delivery.send_daily_digest and (unalerted_alert_jobs or unalerted_alert_income):
-                unalerted_spec_groups = [
-                    SpecMatchGroup(
-                        spec_name=g.spec_name,
-                        jobs=g.unalerted_jobs,
-                        unalerted_jobs=g.unalerted_jobs,
-                        total_matches=len(g.unalerted_jobs),
-                    )
+            if not immediate_only and delivery.send_daily_digest and (alert_jobs or income_digest):
+                digest_groups = [
+                    SpecMatchGroup(spec_name=g.spec_name, jobs=g.unalerted_jobs, unalerted_jobs=g.unalerted_jobs, total_matches=len(g.unalerted_jobs))
                     for g in spec_groups
-                ] if spec_groups else None
-
-                success = await self.notifier.send_digest(
-                    jobs=unalerted_alert_jobs,
-                    config=self.config,
-                    income_opportunities=unalerted_alert_income,
-                    spec_groups=unalerted_spec_groups,
-                    dry_run=False
+                ]
+                result = await self.notifier.send_digest(
+                    jobs=alert_jobs, config=config, income_opportunities=income_digest, spec_groups=digest_groups, dry_run=False
                 )
-                if success:
-                    emails_dispatched += 1
-                    for match in unalerted_alert_jobs:
-                        self.state_manager.record_job(match.job, match.score, match.action, alerted=True)
-                    for match in unalerted_alert_income:
-                        if match.opportunity.source in income_telemetry_map:
-                            income_telemetry_map[match.opportunity.source].alerted += 1
-                        self.income_state_manager.record_opportunity(match.opportunity, match.score, match.action, alerted=True)
-            elif not immediate_only and send_email and not (unalerted_alert_jobs or unalerted_alert_income):
-                print("ℹ️ [NOTIFICATIONS] No new unalerted matches to dispatch. All matching opportunities were previously sent.")
+                if result:
+                    emails += 1
+                    income_emails += 1 if income_digest else 0
+                    delivered_jobs.update(m.job.fingerprint for m in alert_jobs)
+                    delivered_income.update(m.opportunity.fingerprint for m in income_digest)
+                else:
+                    errors.append(f"Daily digest: {getattr(result, 'error', 'failed')}")
+            elif not immediate_only and not (alert_jobs or income_digest):
+                print("ℹ️ [NOTIFICATIONS] Nothing new to send.")
         else:
-            # Render and save preview for dry-run
-            preview_jobs = unalerted_alert_jobs if unalerted_alert_jobs else (all_alert_jobs or low_matches[:5] or scored_jobs[:5])
-            preview_income = unalerted_alert_income if unalerted_alert_income else (all_alert_income or low_income_matches[:5] or scored_income_opps[:5])
+            preview_jobs = alert_jobs or _by_score(list(best.values()))[:5]
+            preview_income = income_digest or ((income_ev.candidates or income_ev.low)[:5] if income_ev else [])
             if preview_jobs or preview_income or spec_groups:
-                _, html_preview, _ = self.notifier.render_digest(
-                    jobs=preview_jobs,
-                    config=self.config,
-                    income_opportunities=preview_income,
-                    spec_groups=spec_groups,
+                _subject, html, _text = self.notifier.render_digest(
+                    jobs=preview_jobs, config=config, income_opportunities=preview_income, spec_groups=spec_groups
                 )
-                self.notifier.save_preview(html_preview)
+                self.notifier.save_preview(html)
 
-        # 7. Persist State
+        # 6. PERSIST -----------------------------------------------------------
+        pending = income_pending = 0
         if not dry_run:
-            for s in scored_jobs:
-                alerted = s in unalerted_alert_jobs and send_email
-                self.state_manager.record_job(s.job, s.score, s.action, alerted=alerted)
-            self.state_manager.save()
+            digest_off = not delivery.send_daily_digest
+            instant_off = digest_off and not delivery.send_instant_alerts
+            for fp, b in best.items():
+                if b.action in ALERT_ACTIONS and not state.is_alerted(fp) and fp not in delivered_jobs:
+                    skipped_on_purpose = (b.action == "digest" and digest_off) or (b.action == "instant" and instant_off)
+                    if not skipped_on_purpose:
+                        pending += 1  # retried on the next live run
+                        continue
+                state.record_job(b.job, b.score, b.action, alerted=fp in delivered_jobs, spec=b.spec_name)
+            state.prune(config.state.retention_days)
+            state.save()
 
-            if scored_income_opps:
-                for s in scored_income_opps:
-                    alerted = s in unalerted_alert_income and send_email
-                    self.income_state_manager.record_opportunity(s.opportunity, s.score, s.action, alerted=alerted)
-                self.income_state_manager.save()
+            if income_ev:
+                skipped_income = {
+                    s.opportunity.fingerprint for s in income_ev.candidates
+                    if (s.action == "digest" and digest_off) or (s.action == "instant" and instant_off)
+                }
+                income_pending = self.income_pipeline.persist(income_ev, delivered_income, skipped_income)
+                pending += income_pending
 
-        elapsed_sec = round(time.perf_counter() - start_time, 2)
-
-        # 8. Build and record summary
+        # 7. SUMMARY -----------------------------------------------------------
+        actions = [b.action for b in best.values()]
+        income_counts = (len(income_ev.discarded), len(income_ev.low), len(income_ev.digest), len(income_ev.instant)) if income_ev else (0, 0, 0, 0)
+        spec_counts = {
+            g.spec_name: {a: sum(1 for r in scored_jobs if r.spec_name == g.spec_name and r.action == a) for a in ("instant", "digest", "low_match")}
+            for g in spec_groups
+        }
+        all_health = health + (income_ev.health if income_ev else [])
         summary = RunSummary(
             run_id=run_id,
             timestamp=datetime.now(timezone.utc),
-            total_fetched=len(raw_jobs) + len(raw_income),
-            unique_candidates=len(new_jobs) + len(new_income),
-            discarded=len(discarded) + len(discarded_income),
-            low_matches=len(low_matches) + len(low_income_matches),
-            digest_matches=len(digest_matches) + len(digest_income_matches),
-            instant_matches=len(instant_matches) + len(instant_income_matches),
-            emails_dispatched=emails_dispatched,
-            expired_links_removed=len(invalid_jobs) + len(rejected_income),
-            execution_time_seconds=elapsed_sec,
-            source_health=health_reports + income_health,
-            error_count=sum(1 for h in (health_reports + income_health) if h.status == "error")
+            mode=mode,
+            trigger=trigger,
+            total_fetched=len(raw_jobs) + (len(income_ev.raw) if income_ev else 0),
+            unique_candidates=len(new_jobs) + (len(income_ev.new) if income_ev else 0),
+            discarded=actions.count("discard") + income_counts[0],
+            low_matches=actions.count("low_match") + income_counts[1],
+            digest_matches=actions.count("digest") + income_counts[2],
+            instant_matches=actions.count("instant") + income_counts[3],
+            spec_counts=spec_counts,
+            emails_dispatched=emails,
+            delivery_errors=errors,
+            pending_alerts=pending,
+            links_checked=links_checked,
+            expired_links_removed=dead_links + (income_ev.dead_links if income_ev else 0),
+            unverified_links=unverified_links + (income_ev.unverified_links if income_ev else 0),
+            execution_time_seconds=round(time.perf_counter() - started, 2),
+            source_health=all_health,
+            error_count=sum(1 for h in all_health if h.status == "error"),
+            degraded_count=sum(1 for h in all_health if h.status == "degraded"),
         )
+        append_run_log(run_logs_file(), summary.model_dump(mode="json"))
 
-        self._record_run_summary(summary)
-
-        if include_income and (raw_income or scored_income_opps):
-            income_summary = IncomeRunSummary(
-                run_id=f"income_{run_id}",
-                timestamp=datetime.now(timezone.utc),
-                total_fetched=len(raw_income),
-                unique_candidates=len(new_income),
-                hard_rejected=sum(t.hard_rejected for t in income_telemetry_map.values()),
-                quality_rejected=income_quality_rejected,
-                ineligible=income_ineligible,
-                verification_failed=sum(t.verification_failed for t in income_telemetry_map.values()),
-                expired_links_removed=len(rejected_income),
-                discarded=len(discarded_income),
-                low_matches=len(low_income_matches),
-                digest_matches=len(digest_income_matches),
-                instant_matches=len(instant_income_matches),
-                high_quality=len(instant_income_matches) + len(digest_income_matches),
-                emails_dispatched=emails_dispatched,
-                risk_rejected=sum(1 for o in rejected_income if o.verification_status == "rejected"),
-                execution_time_seconds=elapsed_sec,
-                source_health=income_health,
-                source_telemetry=income_telemetry_map,
-                error_count=sum(1 for h in income_health if h.status == "error")
+        self.latest_income_opportunities = income_ev.scored if income_ev else []
+        if income_ev:
+            self.latest_income_summary = self.income_pipeline.build_summary(
+                income_ev, mode=mode, trigger=trigger, emails=income_emails,
+                errors=[e for e in errors if "income" in e.lower() or e.startswith("Daily digest")],
+                pending=income_pending, run_id=f"income_{run_id}",
             )
-            self._record_income_run_summary(income_summary)
+            self.income_pipeline.record_summary(self.latest_income_summary)
 
-        print(f"🏁 [PIPELINE FINISHED] Completed in {elapsed_sec}s | Emails Dispatched: {emails_dispatched}\n")
-
+        for group in spec_groups:
+            print(f"   📋 Spec '{group.spec_name}': {len(group.jobs)} match(es), {len(group.unalerted_jobs)} new")
+        status = f"Emails: {emails}" + (f" | Pending: {pending}" if pending else "") + (f" | Delivery errors: {len(errors)}" if errors else "")
+        print(f"🏁 [PIPELINE FINISHED] {summary.execution_time_seconds}s | {status}\n")
         return summary, scored_jobs
 
-    def _record_run_summary(self, summary: RunSummary) -> None:
-        """Appends run summary to data/run_logs.json for UI telemetry."""
-        RUN_LOGS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        logs = []
-        if RUN_LOGS_FILE.exists():
-            try:
-                with open(RUN_LOGS_FILE, "r", encoding="utf-8") as f:
-                    logs = json.load(f)
-            except Exception:
-                logs = []
-
-        logs.insert(0, summary.model_dump(mode="json"))
-        logs = logs[:50]
-
-        with open(RUN_LOGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(logs, f, indent=2)
-
-    def _record_income_run_summary(self, summary: IncomeRunSummary) -> None:
-        """Appends income run summary to data/income_run_logs.json for UI telemetry."""
-        INCOME_RUN_LOGS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        logs = []
-        if INCOME_RUN_LOGS_FILE.exists():
-            try:
-                with open(INCOME_RUN_LOGS_FILE, "r", encoding="utf-8") as f:
-                    logs = json.load(f)
-            except Exception:
-                logs = []
-
-        logs.insert(0, summary.model_dump(mode="json"))
-        logs = logs[:50]
-
-        with open(INCOME_RUN_LOGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(logs, f, indent=2)
+    @staticmethod
+    def _print_health(health: list) -> None:
+        for h in health:
+            if h.status != "healthy":
+                found = getattr(h, "jobs_found", None)
+                if found is None:
+                    found = getattr(h, "opportunities_found", 0)
+                detail = f" — {h.error_message}" if h.error_message else ""
+                print(f"   ⚠️ Source {h.source_name}: {h.status.upper()} ({found} items){detail}")
 
 
 def get_run_logs() -> List[dict]:
-    """Reads run logs for the dashboard."""
-    if not RUN_LOGS_FILE.exists():
-        return []
-    try:
-        with open(RUN_LOGS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return []
+    """Run logs for the dashboard."""
+    return read_run_logs(run_logs_file())

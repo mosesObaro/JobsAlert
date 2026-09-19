@@ -4,7 +4,7 @@ JobsAlert Collectors Registry & Concurrent Dispatcher.
 
 from __future__ import annotations
 import asyncio
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 from src.collectors.base import BaseCollector
 from src.collectors.greenhouse import GreenhouseCollector
 from src.collectors.lever import LeverCollector

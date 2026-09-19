@@ -9,8 +9,7 @@ import pytest
 from src.config import AppConfig, JobSpecConfig
 from src.deduplication import StateManager
 from src.income_opportunities.deduplication import IncomeStateManager
-from src.income_opportunities.models import IncomeCollectorHealth
-from src.models import CrawlerHealth, JobPosting, MatchBreakdown, ScoredJob, SpecMatchGroup
+from src.models import CrawlerHealth, JobPosting, SpecMatchGroup
 from src.notifier.email_service import EmailNotifier
 from src.pipeline import JobPipeline
 from src.scoring import ScoringEngine
@@ -275,8 +274,8 @@ async def test_multi_spec_pipeline_run(multi_spec_config, hr_job, swift_contract
     state_file = tmp_path / "test_multi_spec_state.json"
     income_state_file = tmp_path / "test_multi_spec_income_state.json"
 
-    state_mgr = StateManager(filepath=state_file)
-    income_state_mgr = IncomeStateManager(filepath=income_state_file)
+    state_mgr = StateManager(state_file)
+    income_state_mgr = IncomeStateManager(income_state_file)
 
     multi_spec_config.link_verification.enabled = False
     multi_spec_config.online_income.include_in_daily_digest = False
@@ -292,7 +291,7 @@ async def test_multi_spec_pipeline_run(multi_spec_config, hr_job, swift_contract
     mock_health = [CrawlerHealth(source_name="custom", status="healthy", jobs_found=3, latency_ms=10.0)]
 
     with patch("src.pipeline.run_all_collectors", new_callable=AsyncMock) as mock_rc, \
-         patch("src.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
+         patch("src.income_opportunities.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
          patch.object(pipeline.notifier, "send_digest", new_callable=AsyncMock) as mock_send_digest:
 
         mock_rc.return_value = (mock_jobs, mock_health)

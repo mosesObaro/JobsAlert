@@ -8,7 +8,7 @@ user testing, transcription, virtual assistance, and flexible online work.
 from __future__ import annotations
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -152,6 +152,10 @@ class OnlineIncomeOpportunity(BaseModel):
     scam_risk_indicators: List[str] = Field(default_factory=list)
     rejection_reasons: List[str] = Field(default_factory=list)
 
+    # Catalogue entries (hand-maintained, not fetched live)
+    last_reviewed: Optional[str] = None  # YYYY-MM-DD
+    review_overdue: bool = False
+
     # Metadata & Tags
     highlights: List[str] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
@@ -195,7 +199,7 @@ class SourceTelemetry(BaseModel):
     """Granular health, conversion, and rejection breakdown per source connector."""
     source_name: str
     trust_tier: str = "tier_1_highest"
-    status: str = "healthy"  # "healthy", "degraded", "error"
+    status: str = "healthy"  # "healthy", "degraded", "error", "disabled"
     discovered: int = 0
     duplicates_removed: int = 0
     hard_rejected: int = 0
@@ -212,9 +216,9 @@ class SourceTelemetry(BaseModel):
 
 
 class IncomeCollectorHealth(BaseModel):
-    """Backward-compatible health report for collector runners."""
+    """Health report for one income collector."""
     source_name: str
-    status: str = "healthy"
+    status: str = "healthy"  # "healthy", "degraded", "error", "disabled"
     opportunities_found: int = 0
     latency_ms: float = 0.0
     last_crawled: Optional[datetime] = None
@@ -226,6 +230,8 @@ class IncomeRunSummary(BaseModel):
     """Summary of an online income opportunities discovery, quality gating, and evaluation run."""
     run_id: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    mode: str = "dry_run"  # "live" or "dry_run"
+    trigger: str = "manual"
 
     total_fetched: int = 0
     unique_candidates: int = 0
@@ -240,6 +246,8 @@ class IncomeRunSummary(BaseModel):
     instant_matches: int = 0
     high_quality: int = 0
     emails_dispatched: int = 0
+    delivery_errors: List[str] = Field(default_factory=list)
+    pending_alerts: int = 0  # qualifying items not yet sent (failed delivery or beyond the digest cap)
     risk_rejected: int = 0
     execution_time_seconds: float = 0.0
     source_health: List[IncomeCollectorHealth] = Field(default_factory=list)

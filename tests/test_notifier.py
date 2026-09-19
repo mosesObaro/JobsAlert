@@ -65,6 +65,7 @@ def test_console_preview_dispatch(sample_scored_jobs):
     config.delivery.email_provider = "console"
     notifier = EmailNotifier()
 
-    success = asyncio.run(notifier.send_digest(sample_scored_jobs, config, dry_run=True))
-    assert success is True
+    result = asyncio.run(notifier.send_digest(sample_scored_jobs, config, dry_run=True))
+    assert result.ok
+    assert result.provider == "console"
 

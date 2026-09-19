@@ -1,71 +1,77 @@
 import pytest
 from fastapi.testclient import TestClient
+
+from src.api import server
 from src.api.server import app
 
-client = TestClient(app)
+AUTH = {"X-JobsAlert-Token": server.API_TOKEN}
 
 
-def test_get_income_config():
+@pytest.fixture
+def client():
+    server._latest.update({"jobs": None, "income": None})
+    server.RUN_GUARD.finish()
+    return TestClient(app, base_url="http://localhost")
+
+
+def test_get_income_config(client):
     response = client.get("/api/income/config")
     assert response.status_code == 200
-    data = response.json()
-    assert "eligible_countries" in data
-    assert "preferred_categories" in data
-    assert data["enabled"] is True
+    assert response.json()["enabled"] is True
 
 
-def test_post_income_config_update():
-    cfg_res = client.get("/api/income/config")
-    cfg = cfg_res.json()
-    cfg["minimum_hourly_rate_usd"] = 8.0
-
-    post_res = client.post("/api/income/config", json=cfg)
-    assert post_res.status_code == 200
-    assert post_res.json()["status"] == "success"
-
-    verify_res = client.get("/api/income/config")
-    assert verify_res.json()["minimum_hourly_rate_usd"] == 8.0
+def test_partial_income_config_update(client):
+    before = client.get("/api/income/config").json()
+    response = client.post("/api/income/config", json={"minimum_hourly_rate_usd": 12.0}, headers=AUTH)
+    assert response.status_code == 200
+    after = client.get("/api/income/config").json()
+    assert after["minimum_hourly_rate_usd"] == 12.0
+    assert after["sources"] == before["sources"]  # untouched sections keep their platform lists
 
 
-def test_trigger_income_run_and_get_opportunities():
-    run_res = client.post("/api/income/run", json={"dry_run": True, "force_all": True})
+def test_trigger_income_run_and_get_opportunities(client):
+    run_res = client.post("/api/income/run", json={"dry_run": True, "force_all": True}, headers=AUTH)
     assert run_res.status_code == 200
-    data = run_res.json()
-    assert data["status"] == "completed"
-    assert data["opportunities_count"] > 0
+    assert run_res.json()["opportunities_count"] > 0
 
-    opps_res = client.get("/api/income/opportunities")
-    assert opps_res.status_code == 200
-    opps_data = opps_res.json()
-    assert opps_data["total"] > 0
+    opps = client.get("/api/income/opportunities").json()
+    assert opps["total"] > 0
 
 
-def test_custom_income_opportunity_crud():
-    # 1. Create
-    create_res = client.post("/api/income/custom", json={
+def test_unified_run_updates_income_results(client):
+    client.post("/api/run", json={"dry_run": True, "force_all": True}, headers=AUTH)
+    assert client.get("/api/income/opportunities", params={"include_rejected": True}).json()["total"] > 0
+
+
+def test_custom_income_opportunity_crud(client):
+    created = client.post("/api/income/custom", json={
         "title": "Ad Hoc Video Study Participant",
         "organization": "University Lab",
         "category": "survey_research",
         "pay_rate_display": "$50/session",
         "url": "https://example.com/lab-study",
-    })
-    assert create_res.status_code == 200
-    assert create_res.json()["status"] == "success"
+    }, headers=AUTH)
+    assert created.status_code == 200
+    entry_id = created.json()["opportunity"]["id"]
 
-    # 2. List
-    list_res = client.get("/api/income/custom")
-    assert list_res.status_code == 200
-    items = list_res.json()["custom_opportunities"]
-    assert len(items) > 0
-    assert any("Ad Hoc Video Study Participant" in i["title"] for i in items)
+    items = client.get("/api/income/custom").json()["custom_opportunities"]
+    assert [i["id"] for i in items] == [entry_id]
 
-    # 3. Delete
-    del_res = client.delete("/api/income/custom/0")
-    assert del_res.status_code == 200
-    assert del_res.json()["status"] == "success"
+    assert client.delete(f"/api/income/custom/{entry_id}", headers=AUTH).status_code == 200
+    assert client.delete(f"/api/income/custom/{entry_id}", headers=AUTH).status_code == 404
 
 
-def test_preview_income_email():
+def test_income_preview_never_starts_a_scan(client, monkeypatch):
+    async def fail(*args, **kwargs):
+        raise AssertionError("the preview must not run the pipeline")
+
+    monkeypatch.setattr(server.IncomeOpportunityPipeline, "execute", fail)
+    monkeypatch.setattr(server.IncomeOpportunityPipeline, "evaluate", fail)
     res = client.get("/api/income/preview-email")
     assert res.status_code == 200
     assert "Online Income" in res.text
+
+
+def test_dismiss_requires_token(client):
+    assert client.post("/api/income/dismiss", json={"fingerprint": "abc"}).status_code == 401
+    assert client.post("/api/income/dismiss", json={"fingerprint": "abc"}, headers=AUTH).status_code == 200
