@@ -1,28 +1,28 @@
-name: Automated Job Intelligence Scout & Alert
+name: Scheduled Job & Income Alerts
 
 on:
   schedule:
-    # Runs twice daily at 07:30 UTC and 19:30 UTC (morning & evening intelligence alerts)
+    # 07:30 and 19:30 UTC every day
     - cron: '30 7,19 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run only (do not send real emails or commit state)'
+        description: 'Dry run (no email, no state saved)'
         required: false
         type: boolean
         default: false
       profile:
-        description: 'Profile preset to execute (leave blank for active config)'
+        description: 'Profile preset to run (leave blank for config/jobs.yaml)'
         required: false
         type: string
         default: ''
       force_all:
-        description: 'Force evaluate all jobs ignoring seen cache'
+        description: 'Re-score postings that were already processed'
         required: false
         type: boolean
         default: false
       immediate_only:
-        description: 'Only send immediate alerts for 9.0+ score matches'
+        description: 'Send only instant alerts (digest matches wait for the next full run)'
         required: false
         type: boolean
         default: false
@@ -31,17 +31,23 @@ concurrency:
   group: job-alert-run
   cancel-in-progress: false
 
+env:
+  # Generated state lives on this branch as a single commit, not in main's history.
+  STATE_BRANCH: jobsalert-state
+  STATE_FILES: seen_jobs.json seen_income_opportunities.json run_logs.json income_run_logs.json verified_links_cache.json latest_email_preview.html
+
 jobs:
   scout_and_alert:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
-      contents: write # Needed to commit updated seen_jobs.json and run_logs.json
+      contents: write # pushes the state branch
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -54,7 +60,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute Autonomous Intelligence Scout & Alert (Career & Online Income)
+      - name: Restore state
+        run: |
+          set -euo pipefail
+          mkdir -p data
+          set +e
+          git ls-remote --exit-code --heads origin "$STATE_BRANCH" > /dev/null
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            # The branch exists: failing to fetch it must stop the run, or every alert would be re-sent.
+            git fetch --depth=1 origin "$STATE_BRANCH"
+            for f in $STATE_FILES; do
+              if git cat-file -e "FETCH_HEAD:$f" 2>/dev/null; then git show "FETCH_HEAD:$f" > "data/$f"; fi
+            done
+            echo "Restored state from $STATE_BRANCH."
+          elif [ "$status" -eq 2 ]; then
+            echo "No $STATE_BRANCH branch yet: using the state files committed on main (first run after migration)."
+          else
+            echo "Could not reach the remote to restore state (git exit $status)." >&2
+            exit 1
+          fi
+
+      - name: Run JobsAlert
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
@@ -65,33 +93,64 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           CANDIDATE_EMAIL: ${{ secrets.CANDIDATE_EMAIL }}
           ALERTS_FROM_EMAIL: ${{ secrets.ALERTS_FROM_EMAIL }}
+          # Inputs are passed as environment variables, never interpolated into the script.
+          DRY_RUN: ${{ inputs.dry_run }}
+          PROFILE: ${{ inputs.profile }}
+          FORCE_ALL: ${{ inputs.force_all }}
+          IMMEDIATE_ONLY: ${{ inputs.immediate_only }}
+          TRIGGER: ${{ github.event_name }}
         run: |
-          FLAGS="--send-email"
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            FLAGS="--dry-run"
-          fi
-          if [ -n "${{ inputs.profile }}" ]; then
-            FLAGS="$FLAGS --profile ${{ inputs.profile }}"
-          fi
-          if [ "${{ inputs.force_all }}" = "true" ]; then
-            FLAGS="$FLAGS --force-all"
-          fi
-          if [ "${{ inputs.immediate_only }}" = "true" ]; then
-            FLAGS="$FLAGS --immediate-only"
-          fi
+          set -euo pipefail
+          args=(--trigger "$TRIGGER")
+          if [ "${DRY_RUN:-false}" = "true" ]; then args+=(--dry-run); else args+=(--send-email); fi
+          if [ -n "${PROFILE:-}" ]; then args+=(--profile "$PROFILE"); fi
+          if [ "${FORCE_ALL:-false}" = "true" ]; then args+=(--force-all); fi
+          if [ "${IMMEDIATE_ONLY:-false}" = "true" ]; then args+=(--immediate-only); fi
+          python run.py "${args[@]}"
 
-          echo "Running: python run.py $FLAGS"
-          python run.py $FLAGS
-
-      - name: Persist State & Logs
-        if: inputs.dry_run != true
+      # Runs even when the previous step failed (e.g. an email provider outage): delivered
+      # alerts must be recorded, and undelivered ones stay queued for the next run.
+      - name: Save state
+        if: ${{ !cancelled() && inputs.dry_run != true }}
+        env:
+          GIT_AUTHOR_NAME: JobsAlert Automation Bot
+          GIT_AUTHOR_EMAIL: bot@jobsalert.internal
+          GIT_COMMITTER_NAME: JobsAlert Automation Bot
+          GIT_COMMITTER_EMAIL: bot@jobsalert.internal
         run: |
-          git config user.name "JobsAlert Automation Bot"
-          git config user.email "bot@jobsalert.internal"
-          git add data/seen_jobs.json data/run_logs.json data/seen_income_opportunities.json data/income_run_logs.json data/custom_income_opportunities.json config/jobs.yaml || true
-          if git diff --staged --quiet; then
-            echo "No state changes to commit."
-          else
-            git commit -m "chore(state): update seen jobs, income opportunities, and crawler telemetry [skip ci]"
-            git push origin HEAD
+          set -euo pipefail
+          export GIT_INDEX_FILE="$RUNNER_TEMP/state.index"
+          rm -f "$GIT_INDEX_FILE"
+          for f in $STATE_FILES; do
+            if [ -f "data/$f" ]; then
+              git update-index --add --cacheinfo "100644,$(git hash-object -w "data/$f"),$f"
+            fi
+          done
+          tree=$(git write-tree)
+          commit=$(git commit-tree "$tree" -m "State after run $GITHUB_RUN_ID ($GITHUB_EVENT_NAME)")
+          git push --force origin "$commit:refs/heads/$STATE_BRANCH"
+          echo "Saved state to $STATE_BRANCH."
+
+      # One-time migration: stop tracking generated state on main once it lives on the state branch.
+      - name: Stop tracking state files on main
+        if: ${{ !cancelled() && inputs.dry_run != true }}
+        env:
+          GIT_AUTHOR_NAME: JobsAlert Automation Bot
+          GIT_AUTHOR_EMAIL: bot@jobsalert.internal
+          GIT_COMMITTER_NAME: JobsAlert Automation Bot
+          GIT_COMMITTER_EMAIL: bot@jobsalert.internal
+        run: |
+          set -euo pipefail
+          tracked=$(for f in $STATE_FILES; do git ls-files -- "data/$f"; done)
+          if [ -z "$tracked" ]; then
+            echo "State files are not tracked on main."
+            exit 0
           fi
+          git rm --cached --quiet $tracked
+          git commit --quiet -m "chore(state): move generated state to the $STATE_BRANCH branch [skip ci]"
+          git fetch --depth=20 origin main
+          for attempt in 1 2 3; do
+            if git pull --rebase --quiet origin main && git push origin HEAD:main; then exit 0; fi
+            sleep $((attempt * 5))
+          done
+          echo "Could not push the migration commit; it will be retried on the next run." >&2
