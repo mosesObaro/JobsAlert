@@ -1,380 +1,196 @@
-import React from 'react';
-import { AppConfig } from '../types';
-import { Globe, Layers, Check, X, Rss, Terminal, Cpu } from 'lucide-react';
+import React, { useState } from 'react';
+import { Globe, Layers, Plus, Rss, Terminal, Trash2 } from 'lucide-react';
+import { AppConfig, SourceSubConfig } from '../types';
+import { safeUrl } from '../format';
+import { Section, TagInput, Toggle, inputClass, labelClass } from './ui';
 
 interface Props {
   config: AppConfig;
   onChange: (newConfig: AppConfig) => void;
 }
 
+type AtsKey = 'greenhouse' | 'lever' | 'ashby';
+type BoardKey = 'remotive' | 'remoteok' | 'arbeitnow' | 'jobicy';
+
+const ATS: { key: AtsKey; name: string; host: string; example: string }[] = [
+  { key: 'greenhouse', name: 'Greenhouse', host: 'boards-api.greenhouse.io', example: 'cloudflare, datadog' },
+  { key: 'lever', name: 'Lever', host: 'api.lever.co', example: 'netflix, palantir' },
+  { key: 'ashby', name: 'Ashby', host: 'api.ashbyhq.com', example: 'linear, ramp' },
+];
+
+const BOARDS: { key: BoardKey; name: string; description: string }[] = [
+  { key: 'remotive', name: 'Remotive', description: 'Curated remote roles by category' },
+  { key: 'remoteok', name: 'RemoteOK', description: 'Remote roles across tech and operations' },
+  { key: 'arbeitnow', name: 'Arbeitnow', description: 'European and global remote roles' },
+  { key: 'jobicy', name: 'Jobicy', description: 'Remote roles with salary and level data' },
+];
+
 export const SourcesTab: React.FC<Props> = ({ config, onChange }) => {
-  const updateGreenhouseCompanies = (val: string) => {
-    const slugs = val.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-    onChange({
-      ...config,
-      sources: {
-        ...config.sources,
-        greenhouse: { ...config.sources.greenhouse, companies: slugs },
-      },
-    });
-  };
+  const [feedName, setFeedName] = useState('');
+  const [feedUrl, setFeedUrl] = useState('');
+  const sources = config.sources;
 
-  const updateLeverCompanies = (val: string) => {
-    const slugs = val.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-    onChange({
-      ...config,
-      sources: {
-        ...config.sources,
-        lever: { ...config.sources.lever, companies: slugs },
-      },
-    });
-  };
+  const setSource = <K extends keyof AppConfig['sources']>(key: K, value: AppConfig['sources'][K]) =>
+    onChange({ ...config, sources: { ...sources, [key]: value } });
+  const patchSub = (key: AtsKey | BoardKey | 'hackernews', patch: Partial<SourceSubConfig>) =>
+    setSource(key, { ...sources[key], ...patch });
 
-  const updateAshbyCompanies = (val: string) => {
-    const slugs = val.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-    onChange({
-      ...config,
-      sources: {
-        ...config.sources,
-        ashby: { ...config.sources.ashby, companies: slugs },
-      },
-    });
+  const addFeed = () => {
+    const url = safeUrl(feedUrl.trim());
+    if (!feedName.trim() || !url) return;
+    setSource('rss_feeds', [...sources.rss_feeds, { name: feedName.trim(), url, enabled: true }]);
+    setFeedName('');
+    setFeedUrl('');
   };
 
   return (
-    <div className="space-y-8">
-      {/* Direct ATS Connectors */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-2">
-          <Layers className="w-5 h-5 text-emerald-400" />
-          <h2 className="text-lg font-bold text-white">Direct ATS Endpoints (100% Free & Verified)</h2>
-        </div>
-        <p className="text-sm text-slate-400 mb-6">
-          Query official public ATS boards directly. These jobs have zero recruiter middleman markup and include direct application URLs.
-        </p>
-
-        <div className="space-y-6">
-          {/* Greenhouse */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span className="font-bold text-white">Greenhouse Boards API</span>
-                <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  boards-api.greenhouse.io
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={config.sources.greenhouse.enabled}
-                  onChange={(e) =>
-                    onChange({
-                      ...config,
-                      sources: {
-                        ...config.sources,
-                        greenhouse: { ...config.sources.greenhouse, enabled: e.target.checked },
-                      },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-              </label>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Target Company Slugs (comma separated)
-              </label>
-              <input
-                type="text"
-                value={(config.sources.greenhouse.companies || []).join(', ')}
-                onChange={(e) => updateGreenhouseCompanies(e.target.value)}
-                placeholder="cloudflare, datadog, figma, elastic"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+    <div className="space-y-6">
+      <Section
+        icon={<Layers className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
+        title="Company job boards (ATS)"
+        description="Public job boards of specific companies. Use each company's board slug, e.g. boards.greenhouse.io/<slug>. A slug that doesn't exist shows up as degraded in Logs & Health."
+      >
+        {ATS.map((ats) => (
+          <div key={ats.key} className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Toggle
+                id={`source-${ats.key}`}
+                label={`${ats.name} (${ats.host})`}
+                checked={sources[ats.key].enabled}
+                onChange={(enabled) => patchSub(ats.key, { enabled })}
               />
             </div>
-          </div>
-
-          {/* Lever */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
-                <span className="font-bold text-white">Lever Postings API</span>
-                <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  api.lever.co/v0
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={config.sources.lever.enabled}
-                  onChange={(e) =>
-                    onChange({
-                      ...config,
-                      sources: {
-                        ...config.sources,
-                        lever: { ...config.sources.lever, enabled: e.target.checked },
-                      },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Target Company Slugs (comma separated)
-              </label>
+              <label htmlFor={`source-${ats.key}-companies`} className={labelClass}>Company slugs (comma separated)</label>
               <input
+                id={`source-${ats.key}-companies`}
                 type="text"
-                value={(config.sources.lever.companies || []).join(', ')}
-                onChange={(e) => updateLeverCompanies(e.target.value)}
-                placeholder="netflix, atlassian, palantir"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
-              />
-            </div>
-          </div>
-
-          {/* Ashby */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
-                <span className="font-bold text-white">Ashby Posting API</span>
-                <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
-                  api.ashbyhq.com
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={config.sources.ashby.enabled}
-                  onChange={(e) =>
-                    onChange({
-                      ...config,
-                      sources: {
-                        ...config.sources,
-                        ashby: { ...config.sources.ashby, enabled: e.target.checked },
-                      },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-              </label>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Target Company Slugs (comma separated)
-              </label>
-              <input
-                type="text"
-                value={(config.sources.ashby.companies || []).join(', ')}
-                onChange={(e) => updateAshbyCompanies(e.target.value)}
-                placeholder="linear, ramp, retool, openai"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Aggregators & Feeds */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-2">
-          <Globe className="w-5 h-5 text-cyan-400" />
-          <h2 className="text-lg font-bold text-white">Aggregators, Remote Boards & Startup Feeds</h2>
-        </div>
-        <p className="text-sm text-slate-400 mb-6">
-          High-volume verified remote feeds with transparent compensation and tech tags.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Remotive */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="font-bold text-white">Remotive API</div>
-              <div className="text-xs text-slate-400">Curated global tech remote roles</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={config.sources.remotive.enabled}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  sources: { ...config.sources, remotive: { ...config.sources.remotive, enabled: e.target.checked } },
-                })
-              }
-              className="w-5 h-5 accent-cyan-500 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* RemoteOK */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="font-bold text-white">RemoteOK API</div>
-              <div className="text-xs text-slate-400">Software engineering & high-comp tags</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={config.sources.remoteok.enabled}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  sources: { ...config.sources, remoteok: { ...config.sources.remoteok, enabled: e.target.checked } },
-                })
-              }
-              className="w-5 h-5 accent-cyan-500 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Arbeitnow */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="font-bold text-white">Arbeitnow API</div>
-              <div className="text-xs text-slate-400">European tech jobs & global remote</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={config.sources.arbeitnow.enabled}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  sources: { ...config.sources, arbeitnow: { ...config.sources.arbeitnow, enabled: e.target.checked } },
-                })
-              }
-              className="w-5 h-5 accent-cyan-500 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Jobicy */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
-            <div>
-              <div className="font-bold text-white">Jobicy API</div>
-              <div className="text-xs text-slate-400">Remote tech listings with level tags</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={config.sources.jobicy.enabled}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  sources: { ...config.sources, jobicy: { ...config.sources.jobicy, enabled: e.target.checked } },
-                })
-              }
-              className="w-5 h-5 accent-cyan-500 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Hacker News */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between md:col-span-2">
-            <div>
-              <div className="font-bold text-orange-400 flex items-center gap-1.5">
-                <Terminal className="w-4 h-4" /> Hacker News "Who is Hiring?" (Algolia API)
-              </div>
-              <div className="text-xs text-slate-400">
-                Parses the monthly Y Combinator & high-growth startup hiring thread. Unlocks unlisted early-stage roles.
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              checked={config.sources.hackernews.enabled}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  sources: { ...config.sources, hackernews: { ...config.sources.hackernews, enabled: e.target.checked } },
-                })
-              }
-              className="w-5 h-5 accent-orange-500 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Twitter / X */}
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 md:col-span-2 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-bold text-sky-400 flex items-center gap-1.5">
-                  <Globe className="w-4 h-4" /> Twitter / X Job Scout
-                </div>
-                <div className="text-xs text-slate-400">
-                  Scouts hiring tweets, recruitment hashtags, and target company accounts with automated link resolution.
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={config.sources.twitter?.enabled ?? true}
+                value={sources[ats.key].companies.join(', ')}
                 onChange={(e) =>
-                  onChange({
-                    ...config,
-                    sources: {
-                      ...config.sources,
-                      twitter: {
-                        ...(config.sources.twitter || { search_queries: [], monitored_accounts: [], max_tweets: 30 }),
-                        enabled: e.target.checked,
-                      },
-                    },
-                  })
+                  patchSub(ats.key, { companies: e.target.value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean) })
                 }
-                className="w-5 h-5 accent-sky-500 rounded cursor-pointer"
+                placeholder={ats.example}
+                className={`${inputClass} font-mono text-xs`}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
-                  Search Queries / Hashtags (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={(config.sources.twitter?.search_queries || []).join(', ')}
-                  onChange={(e) => {
-                    const queries = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
-                    onChange({
-                      ...config,
-                      sources: {
-                        ...config.sources,
-                        twitter: {
-                          ...(config.sources.twitter || { enabled: true, monitored_accounts: [], max_tweets: 30 }),
-                          search_queries: queries,
-                        },
-                      },
-                    });
-                  }}
-                  placeholder="#hiring #remotejobs, remote hiring"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
-                  Monitored Handles (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={(config.sources.twitter?.monitored_accounts || []).join(', ')}
-                  onChange={(e) => {
-                    const accounts = e.target.value.split(',').map((s) => s.trim().replace('@', '')).filter(Boolean);
-                    onChange({
-                      ...config,
-                      sources: {
-                        ...config.sources,
-                        twitter: {
-                          ...(config.sources.twitter || { enabled: true, search_queries: [], max_tweets: 30 }),
-                          monitored_accounts: accounts,
-                        },
-                      },
-                    });
-                  }}
-                  placeholder="TechJobsAfrica, RemoteJobs, JobbermanOnline"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500"
-                />
-              </div>
+          </div>
+        ))}
+      </Section>
+
+      <Section
+        icon={<Globe className="w-5 h-5 text-cyan-400" aria-hidden="true" />}
+        title="Remote job boards & community sources"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {BOARDS.map((board) => (
+            <div key={board.key} className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <Toggle
+                id={`source-${board.key}`}
+                label={board.name}
+                description={board.description}
+                checked={sources[board.key].enabled}
+                onChange={(enabled) => patchSub(board.key, { enabled })}
+              />
+            </div>
+          ))}
+
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 md:col-span-2 space-y-3">
+            <div className="flex items-center gap-2 text-orange-400 font-bold text-sm">
+              <Terminal className="w-4 h-4" aria-hidden="true" /> Hacker News “Who is hiring?”
+            </div>
+            <Toggle
+              id="source-hackernews"
+              label="Read the monthly hiring threads"
+              description="Top-level comments from the latest threads posted by the whoishiring account."
+              checked={sources.hackernews.enabled}
+              onChange={(enabled) => patchSub('hackernews', { enabled })}
+            />
+            <div className="max-w-xs">
+              <label htmlFor="source-hackernews-threads" className={labelClass}>Monthly threads to read</label>
+              <input
+                id="source-hackernews-threads"
+                type="number"
+                min={1}
+                max={3}
+                value={sources.hackernews.limit_stories}
+                onChange={(e) => patchSub('hackernews', { limit_stories: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 md:col-span-2 space-y-3">
+            <Toggle
+              id="source-twitter"
+              label="Twitter / X hiring posts"
+              description="Uses public mirrors that are often unavailable; empty results show as degraded in Logs & Health."
+              checked={sources.twitter.enabled}
+              onChange={(enabled) => setSource('twitter', { ...sources.twitter, enabled })}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TagInput
+                id="twitter-queries"
+                label="Search queries / hashtags"
+                values={sources.twitter.search_queries}
+                onChange={(search_queries) => setSource('twitter', { ...sources.twitter, search_queries })}
+                placeholder="#hiring #remotejobs"
+              />
+              <TagInput
+                id="twitter-accounts"
+                label="Accounts to monitor"
+                values={sources.twitter.monitored_accounts}
+                onChange={(accounts) =>
+                  setSource('twitter', { ...sources.twitter, monitored_accounts: accounts.map((a) => a.replace(/^@/, '')) })
+                }
+                placeholder="JobbermanOnline"
+              />
             </div>
           </div>
         </div>
-      </div>
+      </Section>
+
+      <Section
+        icon={<Rss className="w-5 h-5 text-amber-400" aria-hidden="true" />}
+        title="RSS / Atom feeds"
+        description="Careers feeds from companies or job boards (RSS 2.0 or Atom)."
+      >
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="flex-1 min-w-[160px]">
+            <label htmlFor="feed-name" className={labelClass}>Name</label>
+            <input id="feed-name" type="text" value={feedName} onChange={(e) => setFeedName(e.target.value)} placeholder="e.g. Acme Careers" className={inputClass} />
+          </div>
+          <div className="flex-[2] min-w-[220px]">
+            <label htmlFor="feed-url" className={labelClass}>Feed URL</label>
+            <input id="feed-url" type="url" value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} placeholder="https://…/jobs.rss" className={inputClass} />
+          </div>
+          <button type="button" onClick={addFeed}
+            className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1">
+            <Plus className="w-4 h-4" aria-hidden="true" /> Add feed
+          </button>
+        </div>
+        {sources.rss_feeds.length > 0 && (
+          <ul className="space-y-2" aria-label="RSS feeds">
+            {sources.rss_feeds.map((feed, index) => (
+              <li key={`${feed.url}-${index}`} className="bg-slate-950 border border-slate-800 rounded-lg p-3 flex items-center justify-between gap-3">
+                <Toggle
+                  id={`feed-${index}`}
+                  label={feed.name}
+                  description={feed.url}
+                  checked={feed.enabled}
+                  onChange={(enabled) =>
+                    setSource('rss_feeds', sources.rss_feeds.map((f, i) => (i === index ? { ...f, enabled } : f)))
+                  }
+                />
+                <button type="button" aria-label={`Remove feed ${feed.name}`} title={`Remove ${feed.name}`}
+                  onClick={() => setSource('rss_feeds', sources.rss_feeds.filter((_, i) => i !== index))}
+                  className="text-slate-500 hover:text-red-400 p-1 rounded">
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
     </div>
   );
 };
-

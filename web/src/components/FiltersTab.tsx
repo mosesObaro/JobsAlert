@@ -1,303 +1,144 @@
-import React, { useState } from 'react';
-import { AppConfig } from '../types';
-import { Sliders, DollarSign, MapPin, Award, Scale, Plus, X } from 'lucide-react';
+import React from 'react';
+import { Award, DollarSign, MapPin, Scale } from 'lucide-react';
+import { AppConfig, ScoringWeights } from '../types';
+import { Notice, Section, TagInput, inputClass, labelClass } from './ui';
 
 interface Props {
   config: AppConfig;
   onChange: (newConfig: AppConfig) => void;
 }
 
+const WEIGHTS: { key: keyof ScoringWeights; label: string; min: number; max: number }[] = [
+  { key: 'title_and_stack', label: 'Title & core skills', min: 10, max: 70 },
+  { key: 'location_remote', label: 'Location & remote eligibility', min: 5, max: 50 },
+  { key: 'compensation', label: 'Compensation fit', min: 5, max: 40 },
+  { key: 'company_priority', label: 'Company watchlist', min: 5, max: 40 },
+  { key: 'recency_urgency', label: 'Recency (first 24h)', min: 5, max: 30 },
+];
+
 export const FiltersTab: React.FC<Props> = ({ config, onChange }) => {
-  const [newLocation, setNewLocation] = useState('');
-
-  const addLocation = () => {
-    if (!newLocation.trim()) return;
-    onChange({
-      ...config,
-      profile: {
-        ...config.profile,
-        preferred_locations: [...config.profile.preferred_locations, newLocation.trim()],
-      },
-    });
-    setNewLocation('');
-  };
-
-  const removeLocation = (idx: number) => {
-    onChange({
-      ...config,
-      profile: {
-        ...config.profile,
-        preferred_locations: config.profile.preferred_locations.filter((_, i) => i !== idx),
-      },
-    });
-  };
-
-  const totalWeight =
-    config.scoring_weights.title_and_stack +
-    config.scoring_weights.location_remote +
-    config.scoring_weights.compensation +
-    config.scoring_weights.company_priority +
-    config.scoring_weights.recency_urgency;
+  const setProfile = (patch: Partial<AppConfig['profile']>) => onChange({ ...config, profile: { ...config.profile, ...patch } });
+  const weights = config.scoring_weights;
+  const totalWeight = WEIGHTS.reduce((sum, w) => sum + weights[w.key], 0);
 
   return (
-    <div className="space-y-8">
-      {/* Candidate Seniority & Salary Floor */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Candidate Profile Details */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Award className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-lg font-bold text-white">Seniority & Experience</h2>
-          </div>
+    <div className="space-y-6">
+      {config.job_specs.length > 0 && (
+        <Notice
+          kind="info"
+          message="Experience, salary floor and locations here are defaults; a job spec's own values take priority. Scoring weights apply to every spec that doesn't set its own."
+        />
+      )}
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Section icon={<Award className="w-5 h-5 text-indigo-400" aria-hidden="true" />} title="Candidate & experience">
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Candidate Name / Label
-              </label>
+              <label htmlFor="candidate-name" className={labelClass}>Candidate name / label</label>
               <input
+                id="candidate-name"
                 type="text"
                 value={config.profile.candidate_name}
-                onChange={(e) =>
-                  onChange({
-                    ...config,
-                    profile: { ...config.profile, candidate_name: e.target.value },
-                  })
-                }
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                onChange={(e) => setProfile({ candidate_name: e.target.value })}
+                className={inputClass}
               />
             </div>
-
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Relevant Experience: <span className="text-indigo-300 font-bold">{config.profile.experience_years} Years</span>
-                </label>
-              </div>
+              <label htmlFor="experience-years" className={labelClass}>
+                Relevant experience: <span className="text-indigo-300">{config.profile.experience_years} years</span>
+              </label>
               <input
+                id="experience-years"
                 type="range"
-                min={1}
+                min={0}
                 max={20}
                 step={1}
                 value={config.profile.experience_years}
-                onChange={(e) =>
-                  onChange({
-                    ...config,
-                    profile: { ...config.profile, experience_years: parseInt(e.target.value) },
-                  })
-                }
+                onChange={(e) => setProfile({ experience_years: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
               <p className="text-xs text-slate-500 mt-1">
-                Candidates with 5+ years automatically exclude entry/junior and internship postings.
+                With 5+ years (or a senior spec), junior, intern and graduate titles are excluded.
               </p>
             </div>
           </div>
-        </div>
+        </Section>
 
-        {/* Salary Floor */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="w-5 h-5 text-amber-400" />
-            <h2 className="text-lg font-bold text-white">Compensation Transparency & Floor</h2>
-          </div>
-
-          <div className="space-y-4">
+        <Section icon={<DollarSign className="w-5 h-5 text-amber-400" aria-hidden="true" />} title="Salary floor">
+          <div className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Minimum Acceptable Base Salary (USD / year)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-slate-400 font-semibold">$</span>
-                <input
-                  type="number"
-                  step={5000}
-                  value={config.profile.salary_floor_usd}
-                  onChange={(e) =>
-                    onChange({
-                      ...config,
-                      profile: { ...config.profile, salary_floor_usd: parseFloat(e.target.value) || 0 },
-                    })
-                  }
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-8 pr-4 py-2 text-sm text-white font-mono focus:outline-none focus:border-amber-500"
-                />
-              </div>
+              <label htmlFor="salary-floor" className={labelClass}>Minimum base salary (USD per year)</label>
+              <input
+                id="salary-floor"
+                type="number"
+                min={0}
+                step={1000}
+                value={config.profile.salary_floor_usd}
+                onChange={(e) => setProfile({ salary_floor_usd: parseFloat(e.target.value) || 0 })}
+                className={`${inputClass} font-mono`}
+              />
             </div>
-
-            <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg text-xs text-slate-400 space-y-1">
-              <div className="text-amber-300 font-semibold">Compensation Scoring Rules:</div>
-              <div>• <strong>Above floor:</strong> Full score + "Why You Match" bonus badge.</div>
-              <div>• <strong>Unlisted salary:</strong> Neutral score (unpenalized).</div>
-              <div>• <strong>Sub-floor postings:</strong> Significant score penalties applied.</div>
-            </div>
+            <p className="text-xs text-slate-400">
+              Salaries in other currencies and periods (e.g. ₦ per month) are converted to annual USD using the rates in
+              <code className="mx-1 text-slate-300">fx_rates_to_usd</code>. Unlisted pay scores neutrally.
+            </p>
           </div>
-        </div>
+        </Section>
       </div>
 
-      {/* Preferred Locations & Geographies */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <MapPin className="w-5 h-5 text-emerald-400" />
-          <h2 className="text-lg font-bold text-white">Preferred Locations & Remote Scope</h2>
-        </div>
-        <p className="text-sm text-slate-400 mb-4">
-          The engine prioritizes "Worldwide Remote", validates country boundaries, and matches preferred local tech hubs.
-        </p>
+      <Section
+        icon={<MapPin className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
+        title="Preferred locations"
+        description="Include your country (e.g. Nigeria) so remote roles restricted to other countries are recognised and scored down."
+      >
+        <TagInput
+          id="preferred-locations"
+          label="Preferred locations"
+          tone="emerald"
+          values={config.profile.preferred_locations}
+          onChange={(preferred_locations) => setProfile({ preferred_locations })}
+          placeholder="e.g. Remote, Worldwide, Nigeria, Africa"
+          addLabel="Add location"
+        />
+      </Section>
 
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            placeholder="e.g. Remote, Worldwide, United States, United Kingdom, Lagos, Nigeria"
-            value={newLocation}
-            onChange={(e) => setNewLocation(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addLocation()}
-            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
-          <button
-            onClick={addLocation}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1 transition"
+      <Section
+        icon={<Scale className="w-5 h-5 text-blue-400" aria-hidden="true" />}
+        title="Scoring weights"
+        description="How much each factor contributes to the 0–10 score."
+        actions={
+          <span
+            className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
+              totalWeight === 100 ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'
+            }`}
           >
-            <Plus className="w-4 h-4" /> Add Location
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {config.profile.preferred_locations.map((loc, idx) => (
-            <span
-              key={idx}
-              className="bg-emerald-950/60 border border-emerald-800/80 text-emerald-200 text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-2"
-            >
-              📍 {loc}
-              <button onClick={() => removeLocation(idx)} className="hover:text-red-400">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Granular Scoring Weights Sliders */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Scale className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-bold text-white">Relevance Scoring Weight Distribution</h2>
-          </div>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${totalWeight === 100 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}`}>
             Total: {totalWeight}%
           </span>
-        </div>
-        <p className="text-sm text-slate-400 mb-6">
-          Fine-tune how much each evaluation vector influences the final 0–10 score.
-        </p>
-
+        }
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Title & Core Stack</span>
-              <span className="text-blue-400">{config.scoring_weights.title_and_stack}%</span>
+          {WEIGHTS.map((w) => (
+            <div key={w.key}>
+              <label htmlFor={`weight-${w.key}`} className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                <span>{w.label}</span>
+                <span className="text-blue-400">{weights[w.key]}%</span>
+              </label>
+              <input
+                id={`weight-${w.key}`}
+                type="range"
+                min={w.min}
+                max={w.max}
+                step={5}
+                value={weights[w.key]}
+                onChange={(e) =>
+                  onChange({ ...config, scoring_weights: { ...weights, [w.key]: parseFloat(e.target.value) } })
+                }
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              />
             </div>
-            <input
-              type="range"
-              min={10}
-              max={70}
-              step={5}
-              value={config.scoring_weights.title_and_stack}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  scoring_weights: { ...config.scoring_weights, title_and_stack: parseFloat(e.target.value) },
-                })
-              }
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Location & Remote Policy</span>
-              <span className="text-blue-400">{config.scoring_weights.location_remote}%</span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={50}
-              step={5}
-              value={config.scoring_weights.location_remote}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  scoring_weights: { ...config.scoring_weights, location_remote: parseFloat(e.target.value) },
-                })
-              }
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Compensation Fit</span>
-              <span className="text-blue-400">{config.scoring_weights.compensation}%</span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={40}
-              step={5}
-              value={config.scoring_weights.compensation}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  scoring_weights: { ...config.scoring_weights, compensation: parseFloat(e.target.value) },
-                })
-              }
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Company Priority Watchlist</span>
-              <span className="text-blue-400">{config.scoring_weights.company_priority}%</span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={40}
-              step={5}
-              value={config.scoring_weights.company_priority}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  scoring_weights: { ...config.scoring_weights, company_priority: parseFloat(e.target.value) },
-                })
-              }
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Recency & Urgency (24h advantage)</span>
-              <span className="text-blue-400">{config.scoring_weights.recency_urgency}%</span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={30}
-              step={5}
-              value={config.scoring_weights.recency_urgency}
-              onChange={(e) =>
-                onChange({
-                  ...config,
-                  scoring_weights: { ...config.scoring_weights, recency_urgency: parseFloat(e.target.value) },
-                })
-              }
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
+          ))}
         </div>
-      </div>
+      </Section>
     </div>
   );
 };
