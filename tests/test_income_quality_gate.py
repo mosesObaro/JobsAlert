@@ -6,9 +6,6 @@ Source Trust Model, Hard Rejection Classifier, and Precision Scoring.
 import pytest
 from src.income_opportunities.config import OnlineIncomeConfig
 from src.income_opportunities.models import (
-    CompensationDetails,
-    CompensationType,
-    GeographicScope,
     OnlineIncomeOpportunity,
     OpportunityStatus,
     SourceTrustTier,

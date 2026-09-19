@@ -1,7 +1,5 @@
-import pytest
 from src.income_opportunities.models import OnlineIncomeOpportunity
 from src.income_opportunities.verifier import (
-    IncomeOpportunityVerifier,
     analyze_opportunity_safety,
 )
 

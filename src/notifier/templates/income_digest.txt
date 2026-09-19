@@ -3,7 +3,7 @@
 ================================================================================
 Hi {{ candidate_name }},
 
-We discovered {{ opportunities|length }} verified flexible online income opportunities matching your criteria:
+We discovered {{ opportunities|length }} flexible online income opportunities matching your criteria:
 
 {% for scored in opportunities %}
 --------------------------------------------------------------------------------

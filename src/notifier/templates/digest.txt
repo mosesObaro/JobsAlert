@@ -19,7 +19,7 @@ SPECIFICATION: {{ group.spec_name|upper }} ({{ group.jobs|length }} Matches)
 Company:     {{ scored.job.company }}
 Location:    {{ scored.job.location }} ({{ scored.job.remote_scope }})
 {% if scored.job.salary_min or scored.job.salary_max %}
-Salary:      ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+Salary:      {{ scored.job|salary }}
 {% else %}
 Salary:      Unlisted / Competitive
 {% endif %}
@@ -51,7 +51,7 @@ TARGET CAREER & EMPLOYMENT OPPORTUNITIES ({{ jobs|length }} Found)
 Company:     {{ scored.job.company }}
 Location:    {{ scored.job.location }} ({{ scored.job.remote_scope }})
 {% if scored.job.salary_min or scored.job.salary_max %}
-Salary:      ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+Salary:      {{ scored.job|salary }}
 {% else %}
 Salary:      Unlisted / Competitive
 {% endif %}
@@ -71,7 +71,7 @@ Apply Directly:
 {% endif %}
 
 {% if income_opportunities %}
-VERIFIED ONLINE INCOME & FLEXIBLE REMOTE TRACKS ({{ income_opportunities|length }} Selected)
+ONLINE INCOME & FLEXIBLE REMOTE TRACKS ({{ income_opportunities|length }} Selected)
 --------------------------------------------------------------------------------
 {% for scored in income_opportunities %}
 [{{ scored.score }}/10 OVERALL MATCH] {{ scored.opportunity.title }}

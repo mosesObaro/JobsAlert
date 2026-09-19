@@ -1,27 +1,36 @@
 """
 JobsAlert Link Verification Engine.
-Performs fast, asynchronous verification of job URLs to ensure postings are active,
-reachable, and not expired or soft-404 closed pages before alerting candidates.
+Checks whether application links still lead to an open posting.
+
+Only a 404/410 or a page saying the posting is closed counts as dead. Rate limits
+(429), access blocks (401/403), server errors and timeouts are "unknown": the
+posting is kept and the result is not cached, so a throttled site never causes a
+permanent discard.
 """
 
 from __future__ import annotations
 import asyncio
-import json
-import re
-import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Iterable, Optional
+from urllib.parse import urlparse
+
 import httpx
 from pydantic import BaseModel
 
+from src import paths
 from src.config import LinkVerificationConfig
-from src.models import JobPosting
+from src.storage import parse_timestamp, read_json, write_json_atomic
 
-CACHE_FILE = Path(__file__).resolve().parent.parent / "data" / "verified_links_cache.json"
-USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 JobsAlert/1.0"
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 JobsAlert/2.0"
+MAX_BODY_BYTES = 65536
+MAX_RETRY_AFTER_SECONDS = 10.0
 
-# Text signatures used by ATS platforms and job boards when a position is closed/expired
+ACTIVE = "active"
+DEAD = "dead"
+UNKNOWN = "unknown"
+
+# Text used by ATS platforms and job boards when a position is closed or expired
 CLOSED_JOB_PHRASES = [
     "this job is no longer available",
     "this position has been closed",
@@ -46,55 +55,77 @@ CLOSED_JOB_PHRASES = [
 
 class VerificationResult(BaseModel):
     url: str
-    is_valid: bool
+    status: str = UNKNOWN  # "active", "dead" or "unknown"
     status_code: Optional[int] = None
-    reason: str = "active"
+    reason: str = ""
     verified_at: str = ""
+
+    @property
+    def is_dead(self) -> bool:
+        return self.status == DEAD
+
+    @property
+    def is_valid(self) -> bool:
+        """False only for links known to be dead."""
+        return self.status != DEAD
+
+
+def _result(url: str, status: str, reason: str, status_code: Optional[int] = None) -> VerificationResult:
+    return VerificationResult(
+        url=url, status=status, status_code=status_code, reason=reason,
+        verified_at=datetime.now(timezone.utc).isoformat(),
+    )
 
 
 class LinkVerifier:
-    """Asynchronously verifies job URLs with caching, timeout resilience, and soft-404 detection."""
+    """Verifies URLs concurrently with per-host limits and a persistent cache of definite results."""
 
-    def __init__(self, cache_file: Optional[Path] = None):
-        self.cache_file = cache_file or CACHE_FILE
-        self._cache: Dict[str, Dict] = self._load_cache()
+    def __init__(self, cache_file: Optional[Path] = None, transport: Optional[httpx.AsyncBaseTransport] = None):
+        self.cache_file = Path(cache_file) if cache_file else paths.data_file(paths.LINK_CACHE)
+        self.transport = transport  # injectable for tests
+        self._cache: Dict[str, dict] = self._load_cache()
 
-    def _load_cache(self) -> Dict[str, Dict]:
-        if not self.cache_file.exists():
+    def _load_cache(self) -> Dict[str, dict]:
+        data = read_json(self.cache_file, {})
+        if not isinstance(data, dict):
             return {}
-        try:
-            with open(self.cache_file, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return {}
+        # Entries written before results had a `status` may record throttling as dead; drop them.
+        return {url: entry for url, entry in data.items() if isinstance(entry, dict) and entry.get("status") in (ACTIVE, DEAD)}
 
-    def _save_cache(self) -> None:
+    def save_cache(self, ttl_hours: int = 24) -> None:
+        """Persists definite results younger than the TTL (keeps the cache bounded)."""
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=ttl_hours)
+        fresh = {}
+        for url, entry in self._cache.items():
+            verified_at = parse_timestamp(entry.get("verified_at"))
+            if verified_at and verified_at >= cutoff:
+                fresh[url] = entry
+        self._cache = fresh
         try:
-            self.cache_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self.cache_file, "w", encoding="utf-8") as f:
-                json.dump(self._cache, f, indent=2)
-        except Exception:
-            pass
+            write_json_atomic(self.cache_file, fresh)
+        except OSError as exc:
+            print(f"[WARNING] Could not save link cache: {exc}")
 
     def get_cached_result(self, url: str, ttl_hours: int = 24) -> Optional[VerificationResult]:
         entry = self._cache.get(url)
         if not entry:
             return None
-
-        # Check TTL
-        verified_time_str = entry.get("verified_at")
-        if verified_time_str:
-            try:
-                verified_at = datetime.fromisoformat(verified_time_str)
-                age_seconds = (datetime.now(timezone.utc) - verified_at).total_seconds()
-                if age_seconds < ttl_hours * 3600:
-                    return VerificationResult(**entry)
-            except Exception:
-                pass
+        verified_at = parse_timestamp(entry.get("verified_at"))
+        if verified_at and datetime.now(timezone.utc) - verified_at < timedelta(hours=ttl_hours):
+            return VerificationResult(**entry)
         return None
 
     def cache_result(self, result: VerificationResult) -> None:
-        self._cache[result.url] = result.model_dump()
+        if result.status in (ACTIVE, DEAD):
+            self._cache[result.url] = result.model_dump()
+
+    def _client(self, timeout: float) -> httpx.AsyncClient:
+        return httpx.AsyncClient(
+            headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,*/*"},
+            timeout=timeout,
+            follow_redirects=True,
+            transport=self.transport,
+        )
 
     async def verify_url(
         self,
@@ -104,175 +135,98 @@ class LinkVerifier:
         check_content: bool = True,
         ttl_hours: int = 24,
     ) -> VerificationResult:
-        """Checks whether a single URL is alive, reachable, and not a closed job page."""
-        # 1. Check Cache
+        """Checks whether a single URL still leads to an open posting."""
+        if not url or not url.startswith(("http://", "https://")):
+            return _result(url, UNKNOWN, "No link to check")
         cached = self.get_cached_result(url, ttl_hours=ttl_hours)
         if cached:
             return cached
 
-        # Synthetic example URLs in test/mock mode
-        if "example.com" in url or "example.org" in url:
-            res = VerificationResult(
-                url=url,
-                is_valid=True,
-                status_code=200,
-                reason="mock_valid",
-                verified_at=datetime.now(timezone.utc).isoformat(),
-            )
-            self.cache_result(res)
-            return res
-
-        should_close_client = False
-        if client is None:
-            client = httpx.AsyncClient(
-                headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,*/*"},
-                timeout=timeout,
-                follow_redirects=True,
-            )
-            should_close_client = True
-
+        own_client = client is None
+        client = client or self._client(timeout)
         try:
-            # First try a lightweight GET request with streaming / limited read
-            resp = await client.get(url, timeout=timeout)
-            status_code = resp.status_code
-
-            # Handle non-2xx status codes
-            if status_code in (404, 410):
-                result = VerificationResult(
-                    url=url,
-                    is_valid=False,
-                    status_code=status_code,
-                    reason=f"HTTP {status_code} Not Found / Expired",
-                    verified_at=datetime.now(timezone.utc).isoformat(),
-                )
-                self.cache_result(result)
-                return result
-
-            if status_code >= 400:
-                result = VerificationResult(
-                    url=url,
-                    is_valid=False,
-                    status_code=status_code,
-                    reason=f"HTTP Error {status_code}",
-                    verified_at=datetime.now(timezone.utc).isoformat(),
-                )
-                self.cache_result(result)
-                return result
-
-            # For 200 OK, check for soft-404 / closed posting keywords
-            if check_content and resp.text:
-                body_lower = resp.text[:32768].lower()
-                for phrase in CLOSED_JOB_PHRASES:
-                    if phrase in body_lower:
-                        result = VerificationResult(
-                            url=url,
-                            is_valid=False,
-                            status_code=status_code,
-                            reason=f"Position closed ('{phrase}')",
-                            verified_at=datetime.now(timezone.utc).isoformat(),
-                        )
-                        self.cache_result(result)
-                        return result
-
-            result = VerificationResult(
-                url=url,
-                is_valid=True,
-                status_code=status_code,
-                reason="active",
-                verified_at=datetime.now(timezone.utc).isoformat(),
-            )
-            self.cache_result(result)
-            return result
-
-        except httpx.TimeoutException:
-            return VerificationResult(
-                url=url,
-                is_valid=False,
-                status_code=None,
-                reason="Connection Timeout",
-                verified_at=datetime.now(timezone.utc).isoformat(),
-            )
-        except httpx.ConnectError:
-            return VerificationResult(
-                url=url,
-                is_valid=False,
-                status_code=None,
-                reason="Host Unreachable / DNS Failure",
-                verified_at=datetime.now(timezone.utc).isoformat(),
-            )
-        except Exception as e:
-            return VerificationResult(
-                url=url,
-                is_valid=False,
-                status_code=None,
-                reason=f"Network Error: {str(e)[:60]}",
-                verified_at=datetime.now(timezone.utc).isoformat(),
-            )
+            result = await self._fetch(client, url, timeout, check_content, allow_retry=True)
         finally:
-            if should_close_client:
+            if own_client:
                 await client.aclose()
+        self.cache_result(result)
+        return result
 
-    async def verify_jobs_batch(
-        self,
-        jobs: List[JobPosting],
-        config: Optional[LinkVerificationConfig] = None,
-    ) -> Tuple[List[JobPosting], List[Tuple[JobPosting, str]]]:
-        """
-        Verifies a list of job postings concurrently.
-        Returns:
-            (valid_jobs, list_of_(invalid_job, failure_reason))
-        """
-        if not jobs:
-            return [], []
+    async def _fetch(self, client: httpx.AsyncClient, url: str, timeout: float, check_content: bool, allow_retry: bool) -> VerificationResult:
+        try:
+            async with client.stream("GET", url, timeout=timeout) as resp:
+                code = resp.status_code
+                if code in (404, 410):
+                    return _result(url, DEAD, f"HTTP {code} (not found)", code)
+                if code == 429:
+                    retry_after = _retry_after_seconds(resp.headers.get("retry-after"))
+                    if allow_retry and retry_after is not None and retry_after <= MAX_RETRY_AFTER_SECONDS:
+                        await resp.aclose()
+                        await asyncio.sleep(retry_after)
+                        return await self._fetch(client, url, timeout, check_content, allow_retry=False)
+                    return _result(url, UNKNOWN, "Rate limited (HTTP 429)", code)
+                if code in (401, 403):
+                    return _result(url, UNKNOWN, f"Access blocked (HTTP {code})", code)
+                if code >= 500:
+                    return _result(url, UNKNOWN, f"Server error (HTTP {code})", code)
+                if code >= 400:
+                    return _result(url, UNKNOWN, f"HTTP {code}", code)
 
+                if check_content:
+                    body = await _read_limited(resp, MAX_BODY_BYTES)
+                    text = body.decode(resp.encoding or "utf-8", errors="ignore").lower()
+                    for phrase in CLOSED_JOB_PHRASES:
+                        if phrase in text:
+                            return _result(url, DEAD, f"Position closed ('{phrase}')", code)
+                return _result(url, ACTIVE, "active", code)
+        except httpx.TimeoutException:
+            return _result(url, UNKNOWN, "Timed out")
+        except httpx.HTTPError as exc:
+            return _result(url, UNKNOWN, f"Connection failed ({type(exc).__name__})")
+
+    async def verify_many(self, urls: Iterable[str], config: Optional[LinkVerificationConfig] = None) -> Dict[str, VerificationResult]:
+        """Verifies distinct URLs with global and per-host concurrency limits."""
         cfg = config or LinkVerificationConfig()
-        if not cfg.enabled:
-            for job in jobs:
-                job.is_verified = True
-                job.verification_status = "unverified (disabled in config)"
-            return jobs, []
+        unique = list(dict.fromkeys(u for u in urls if u))
+        if not unique:
+            return {}
 
-        sem = asyncio.Semaphore(cfg.max_concurrency)
-        valid_jobs: List[JobPosting] = []
-        invalid_jobs: List[Tuple[JobPosting, str]] = []
+        global_limit = asyncio.Semaphore(max(1, cfg.max_concurrency))
+        host_limits: Dict[str, asyncio.Semaphore] = {}
 
-        async with httpx.AsyncClient(
-            headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,*/*"},
-            timeout=cfg.timeout_seconds,
-            follow_redirects=True,
-        ) as client:
-
-            async def check_job(job: JobPosting):
-                async with sem:
-                    # Prefer raw_url or canonical url
-                    target_url = job.raw_url or job.url
-                    result = await self.verify_url(
-                        url=target_url,
-                        client=client,
-                        timeout=cfg.timeout_seconds,
-                        check_content=cfg.check_content_keywords,
-                        ttl_hours=cfg.cache_ttl_hours,
+        async with self._client(cfg.timeout_seconds) as client:
+            async def check(url: str) -> VerificationResult:
+                host = urlparse(url).netloc.lower()
+                host_limit = host_limits.setdefault(host, asyncio.Semaphore(max(1, cfg.per_host_concurrency)))
+                # Host slot first, so tasks queued behind a busy host don't hold global slots.
+                async with host_limit, global_limit:
+                    return await self.verify_url(
+                        url, client=client, timeout=cfg.timeout_seconds,
+                        check_content=cfg.check_content_keywords, ttl_hours=cfg.cache_ttl_hours,
                     )
-                    job.is_verified = result.is_valid
-                    job.verification_status = result.reason
-                    return job, result
 
-            tasks = [check_job(job) for job in jobs]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            outcomes = await asyncio.gather(*(check(u) for u in unique), return_exceptions=True)
 
-            for item in results:
-                if isinstance(item, Exception):
-                    continue
-                job, res = item
-                is_ats_source = job.source in ["greenhouse", "ashby", "lever", "remotive", "remoteok", "jobicy", "custom"]
-                if not res.is_valid and is_ats_source and any(err in res.reason.lower() for err in ["dns", "connect", "network error", "timeout", "unreachable"]):
-                    job.is_verified = True
-                    job.verification_status = "active (verified standing ATS)"
-                    valid_jobs.append(job)
-                elif res.is_valid:
-                    valid_jobs.append(job)
-                else:
-                    invalid_jobs.append((job, res.reason))
+        results: Dict[str, VerificationResult] = {}
+        for url, outcome in zip(unique, outcomes):
+            results[url] = outcome if isinstance(outcome, VerificationResult) else _result(url, UNKNOWN, f"Check failed ({type(outcome).__name__})")
+        self.save_cache(cfg.cache_ttl_hours)
+        return results
 
-        self._save_cache()
-        return valid_jobs, invalid_jobs
+
+async def _read_limited(resp: httpx.Response, limit: int) -> bytes:
+    chunks = bytearray()
+    async for chunk in resp.aiter_bytes():
+        chunks.extend(chunk)
+        if len(chunks) >= limit:
+            break
+    return bytes(chunks[:limit])
+
+
+def _retry_after_seconds(value: Optional[str]) -> Optional[float]:
+    if not value:
+        return None
+    try:
+        return max(0.0, float(value))
+    except ValueError:
+        return None

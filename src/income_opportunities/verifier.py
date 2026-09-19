@@ -1,45 +1,65 @@
 """
-Online Income Opportunities Verification & Safety Analysis Layer.
-Integrates Hard Rejection classification, anti-scam heuristics, source reputation tiers,
-and HTTP reachability verification to categorize opportunities into:
-'verified', 'needs_review', 'risk_flagged', 'expired', or 'rejected'.
+Online Income Opportunities Verification & Safety Analysis.
+Hard-rejection rules for scams and non-work content, caution signals, platform
+trust tiers matched by exact domain, and link checks for alert candidates.
+
+Statuses: 'verified_source' (known platform or your own entry), 'needs_review'
+(unknown source), 'risk_flagged' (caution signals) and 'rejected'.
 """
 
 from __future__ import annotations
-import asyncio
 import re
-from datetime import datetime, timezone
-from typing import List, Optional, Set, Tuple
-import httpx
+from typing import Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
+from src.config import LinkVerificationConfig
 from src.income_opportunities.models import (
     OnlineIncomeOpportunity,
     OpportunityStatus,
     SourceTrustTier,
 )
-from src.verifier import LinkVerifier, VerificationResult
+from src.verifier import LinkVerifier
 
-# Known legitimate, established flexible micro-task, testing, and AI platforms (Tier 1 & 2)
-TIER_1_PLATFORMS: Set[str] = {
-    "dataannotation", "dataannotation.tech",
-    "outlier", "outlier.ai", "remotasks", "remotasks.com",
-    "oneforma", "oneforma.com", "centific",
-    "telus", "telus international", "appen", "appen.com",
-    "cambridge proofreading", "proofreading.org",
-    "scribbr", "scribbr.com", "enago", "enago.com",
-    "academic positions", "academicpositions.com",
+# Established platforms, matched on the registered domain of the listing or application URL.
+# Names alone are not trusted: any listing can call itself "Outlier" or put "review" in a URL.
+KNOWN_PLATFORM_DOMAINS: Dict[str, SourceTrustTier] = {
+    "dataannotation.tech": SourceTrustTier.TIER_1_HIGHEST,
+    "outlier.ai": SourceTrustTier.TIER_1_HIGHEST,
+    "remotasks.com": SourceTrustTier.TIER_1_HIGHEST,
+    "oneforma.com": SourceTrustTier.TIER_1_HIGHEST,
+    "centific.com": SourceTrustTier.TIER_1_HIGHEST,
+    "telusinternational.com": SourceTrustTier.TIER_1_HIGHEST,
+    "telusinternational.ai": SourceTrustTier.TIER_1_HIGHEST,
+    "telusdigital.com": SourceTrustTier.TIER_1_HIGHEST,
+    "appen.com": SourceTrustTier.TIER_1_HIGHEST,
+    "proofreading.org": SourceTrustTier.TIER_1_HIGHEST,
+    "cambridgeproofreading.com": SourceTrustTier.TIER_1_HIGHEST,
+    "scribbr.com": SourceTrustTier.TIER_1_HIGHEST,
+    "enago.com": SourceTrustTier.TIER_1_HIGHEST,
+    "academicpositions.com": SourceTrustTier.TIER_1_HIGHEST,
+    "usertesting.com": SourceTrustTier.TIER_2_GOOD,
+    "testbirds.com": SourceTrustTier.TIER_2_GOOD,
+    "respondent.io": SourceTrustTier.TIER_2_GOOD,
+    "prolific.com": SourceTrustTier.TIER_2_GOOD,
+    "prolific.co": SourceTrustTier.TIER_2_GOOD,
+    "preply.com": SourceTrustTier.TIER_2_GOOD,
+    "cambly.com": SourceTrustTier.TIER_2_GOOD,
+    "rev.com": SourceTrustTier.TIER_2_GOOD,
+    "gotranscript.com": SourceTrustTier.TIER_2_GOOD,
+    "modsquad.com": SourceTrustTier.TIER_2_GOOD,
+    "belaysolutions.com": SourceTrustTier.TIER_2_GOOD,
+    "timeetc.com": SourceTrustTier.TIER_2_GOOD,
 }
 
-TIER_2_PLATFORMS: Set[str] = {
-    "usertesting", "usertesting.com", "testbirds", "testbirds.com",
-    "respondent", "respondent.io", "prolific", "prolific.com", "prolific.co",
-    "preply", "preply.com", "cambly", "cambly.com",
-    "rev", "rev.com", "gotranscript", "gotranscript.com",
-    "modsquad", "modsquad.com", "belay", "belaysolutions.com",
-    "time etc", "timeetc.com"
-}
 
-ALL_VERIFIED_PLATFORMS = TIER_1_PLATFORMS | TIER_2_PLATFORMS
+def platform_for_url(url: Optional[str]) -> Optional[Tuple[str, SourceTrustTier]]:
+    """(domain, tier) when the URL's host is a known platform domain or one of its subdomains."""
+    host = urlparse(url or "").netloc.lower().split(":")[0]
+    for domain, tier in KNOWN_PLATFORM_DOMAINS.items():
+        if host == domain or host.endswith("." + domain):
+            return domain, tier
+    return None
+
 
 # ==============================================================================
 # HARD REJECTION RULES: NON-WORK, SCHEMES, SCAMS, & ARTICLE NOISE
@@ -96,75 +116,53 @@ CAUTION_SIGNATURES = [
 
 
 class HardRejectionClassifier:
-    """Classifies whether an opportunity is invalid, scammy, or non-work advice."""
+    """Classifies whether an opportunity is a scam, a scheme or non-work advice."""
 
     @staticmethod
     def evaluate(opp: OnlineIncomeOpportunity) -> Tuple[bool, List[str]]:
-        """
-        Scans title, organization, description, URL, and category.
-        Returns: (is_hard_rejected, list_of_reasons)
-        """
+        """Scans title, organization, description, URL and tags. Returns (is_rejected, reasons)."""
         text_to_scan = f"{opp.title} {opp.organization} {opp.description} {opp.url} {' '.join(opp.tags)}".lower()
-        reasons: List[str] = []
-
-        # Check all hard rejection rules
-        for pattern, reason in HARD_REJECTION_RULES:
-            if re.search(pattern, text_to_scan, re.IGNORECASE):
-                reasons.append(reason)
-
-        is_rejected = len(reasons) > 0
-        return is_rejected, reasons
+        reasons = [reason for pattern, reason in HARD_REJECTION_RULES if re.search(pattern, text_to_scan, re.IGNORECASE)]
+        return bool(reasons), reasons
 
 
 def analyze_opportunity_safety(opp: OnlineIncomeOpportunity) -> OnlineIncomeOpportunity:
-    """
-    Evaluates observable content and metadata to assign trust tier, legitimacy,
-    and scam/risk indicators.
-    """
+    """Assigns trust tier, legitimacy and risk indicators, and the verification status."""
     text_to_scan = f"{opp.title} {opp.organization} {opp.description} {opp.url}".lower()
-
     legitimacy_points: List[str] = []
     risk_points: List[str] = []
 
-    # 1. Platform Trust Classification
-    norm_org = opp.organization.lower().strip()
-    norm_url = opp.url.lower()
-
-    if any(vp in norm_org or vp in norm_url for vp in TIER_1_PLATFORMS):
-        opp.source_trust_tier = SourceTrustTier.TIER_1_HIGHEST
-        opp.source_type = "official_portal"
-        legitimacy_points.append(f"Official Tier-1 verified platform ({opp.organization})")
-    elif any(vp in norm_org or vp in norm_url for vp in TIER_2_PLATFORMS):
-        opp.source_trust_tier = SourceTrustTier.TIER_2_GOOD
-        opp.source_type = "verified_platform"
-        legitimacy_points.append(f"Established Tier-2 verified platform ({opp.organization})")
+    platform = platform_for_url(opp.application_url) or platform_for_url(opp.url)
+    if platform:
+        domain, tier = platform
+        opp.source_trust_tier = tier
+        opp.source_type = "official_portal" if tier == SourceTrustTier.TIER_1_HIGHEST else "verified_platform"
+        legitimacy_points.append(f"Known platform ({domain})")
     elif opp.source == "custom":
         opp.source_trust_tier = SourceTrustTier.TIER_2_GOOD
-        legitimacy_points.append(f"User custom track ({opp.organization})")
-    elif opp.source == "income_rss":
-        opp.source_trust_tier = SourceTrustTier.TIER_3_REVIEW
-        legitimacy_points.append(f"Aggregated RSS feed ({opp.organization})")
+        legitimacy_points.append(f"Added by you ({opp.organization})")
     else:
         opp.source_trust_tier = SourceTrustTier.TIER_3_REVIEW
 
     if opp.url.startswith("https://"):
-        legitimacy_points.append("Secure HTTPS application endpoint")
+        legitimacy_points.append("Secure HTTPS application link")
+    if opp.last_reviewed:
+        legitimacy_points.append(f"Catalogue entry, last reviewed {opp.last_reviewed}")
 
-    # 2. Hard Rejection Evaluation
     is_rejected, rejection_reasons = HardRejectionClassifier.evaluate(opp)
     if is_rejected:
         risk_points.extend(rejection_reasons)
         opp.rejection_reasons = rejection_reasons
 
-    # 3. Caution Signatures
     for pattern, reason in CAUTION_SIGNATURES:
         if re.search(pattern, text_to_scan, re.IGNORECASE):
             risk_points.append(reason)
+    if opp.review_overdue:
+        risk_points.append(f"Catalogue entry overdue for review (last reviewed {opp.last_reviewed or 'never'})")
 
     opp.legitimacy_indicators = legitimacy_points
     opp.scam_risk_indicators = risk_points
 
-    # 4. Status Determination
     if is_rejected:
         opp.verification_status = "rejected"
         opp.status = OpportunityStatus.REJECTED
@@ -172,92 +170,46 @@ def analyze_opportunity_safety(opp: OnlineIncomeOpportunity) -> OnlineIncomeOppo
     elif risk_points:
         opp.verification_status = "risk_flagged"
         opp.status = OpportunityStatus.NEEDS_REVIEW
-    elif legitimacy_points and not risk_points:
+    elif opp.source_trust_tier in (SourceTrustTier.TIER_1_HIGHEST, SourceTrustTier.TIER_2_GOOD):
         opp.verification_status = "verified_source"
         opp.status = OpportunityStatus.VERIFIED
     else:
         opp.verification_status = "needs_review"
         opp.status = OpportunityStatus.NEEDS_REVIEW
-
     return opp
 
 
 class IncomeOpportunityVerifier:
-    """Combines link reachability verification with safety and quality screening."""
+    """Safety screening for every opportunity and link checks for alert candidates."""
 
     def __init__(self, link_verifier: Optional[LinkVerifier] = None):
-        self.link_verifier = link_verifier or LinkVerifier()
+        self.link_verifier = link_verifier if link_verifier is not None else LinkVerifier()
 
-    async def verify_opportunity(
-        self,
-        opp: OnlineIncomeOpportunity,
-        check_link: bool = True
-    ) -> OnlineIncomeOpportunity:
-        """Runs link reachability verification and safety analysis on an opportunity."""
-        opp = analyze_opportunity_safety(opp)
+    @staticmethod
+    def screen(opportunities: List[OnlineIncomeOpportunity]) -> Tuple[List[OnlineIncomeOpportunity], List[OnlineIncomeOpportunity]]:
+        """(accepted, rejected) after safety analysis. No network access."""
+        accepted: List[OnlineIncomeOpportunity] = []
+        rejected: List[OnlineIncomeOpportunity] = []
+        for opp in opportunities:
+            analyze_opportunity_safety(opp)
+            (rejected if opp.verification_status == "rejected" else accepted).append(opp)
+        return accepted, rejected
 
-        if opp.verification_status == "rejected":
-            opp.is_verified = False
-            return opp
-
-        if check_link:
-            target_url = opp.application_url or opp.url
-            res: VerificationResult = await self.link_verifier.verify_url(target_url)
-            is_tier_1_2 = opp.source_trust_tier in [SourceTrustTier.TIER_1_HIGHEST, SourceTrustTier.TIER_2_GOOD]
-
-            # In sandboxed / offline test suites, keep standing Tier 1 & 2 platforms active
-            if not res.is_valid and is_tier_1_2 and any(err in res.reason.lower() for err in ["dns", "connect", "network error", "timeout", "unreachable"]):
-                opp.is_verified = True
-                opp.link_verification_status = "active (verified standing track)"
-                opp.status = OpportunityStatus.VERIFIED
-            else:
-                opp.is_verified = res.is_valid
-                opp.link_verification_status = res.reason
-                if not res.is_valid:
-                    opp.scam_risk_indicators.append(f"Link Unreachable/Closed ({res.reason})")
-                    opp.status = OpportunityStatus.EXPIRED
-                    if opp.verification_status == "verified_source":
-                        opp.verification_status = "needs_review"
-                else:
-                    opp.status = OpportunityStatus.VERIFIED
-        else:
-            opp.is_verified = opp.verification_status != "rejected"
-
-        return opp
-
-    async def verify_opportunities_batch(
-        self,
-        opportunities: List[OnlineIncomeOpportunity],
-        check_links: bool = True,
-        max_concurrency: int = 15,
-    ) -> Tuple[List[OnlineIncomeOpportunity], List[OnlineIncomeOpportunity]]:
-        """
-        Verifies a batch of income opportunities.
-        Returns:
-            (valid_opportunities, rejected_or_dead_opportunities)
-        """
-        if not opportunities:
-            return [], []
-
-        sem = asyncio.Semaphore(max_concurrency)
-
-        async def _verify_one(opp: OnlineIncomeOpportunity):
-            async with sem:
-                return await self.verify_opportunity(opp, check_link=check_links)
-
-        tasks = [_verify_one(opp) for opp in opportunities]
-        analyzed = await asyncio.gather(*tasks, return_exceptions=True)
-
-        valid_list: List[OnlineIncomeOpportunity] = []
-        rejected_list: List[OnlineIncomeOpportunity] = []
-
-        for item in analyzed:
-            if isinstance(item, Exception):
+    async def check_links(self, opportunities: List[OnlineIncomeOpportunity], config: Optional[LinkVerificationConfig] = None) -> Dict[str, str]:
+        """Checks application links. Marks dead ones expired; returns {fingerprint: link status}."""
+        targets = {opp.fingerprint: (opp.application_url or opp.url) for opp in opportunities}
+        results = await self.link_verifier.verify_many(targets.values(), config)
+        statuses: Dict[str, str] = {}
+        for opp in opportunities:
+            result = results.get(targets[opp.fingerprint])
+            if result is None:
                 continue
-            opp: OnlineIncomeOpportunity = item
-            if opp.verification_status == "rejected" or not opp.is_verified:
-                rejected_list.append(opp)
-            else:
-                valid_list.append(opp)
-
-        return valid_list, rejected_list
+            statuses[opp.fingerprint] = result.status
+            opp.link_verification_status = result.reason
+            if result.is_dead:
+                opp.is_verified = False
+                opp.status = OpportunityStatus.EXPIRED
+                opp.scam_risk_indicators.append(f"Link closed or missing ({result.reason})")
+                if opp.verification_status == "verified_source":
+                    opp.verification_status = "needs_review"
+        return statuses

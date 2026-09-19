@@ -19,3 +19,15 @@ web/dist/
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Generated runtime state. Scheduled runs keep it on the `jobsalert-state` branch;
+# `scripts/sync_state.sh` copies it here. Hand-edited data/custom_*.json stays tracked.
+data/seen_jobs.json
+data/seen_income_opportunities.json
+data/run_logs.json
+data/income_run_logs.json
+data/verified_links_cache.json
+data/latest_email_preview.html
+data/last_run_results.json
+data/*.bak
+data/.*.tmp

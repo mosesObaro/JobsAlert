@@ -1,3 +1,5 @@
+// Mirrors the Pydantic models in src/config.py, src/models.py and src/income_opportunities/.
+
 export interface WatchlistCompany {
   name: string;
   priority_multiplier: number;
@@ -5,11 +7,11 @@ export interface WatchlistCompany {
 
 export interface SourceSubConfig {
   enabled: boolean;
-  companies?: string[];
-  categories?: string[];
-  tags?: string[];
-  category?: string;
-  limit_stories?: number;
+  companies: string[];
+  categories: string[];
+  tags: string[];
+  category: string | null;
+  limit_stories: number;
 }
 
 export interface RSSFeedConfig {
@@ -29,9 +31,95 @@ export interface LinkVerificationConfig {
   enabled: boolean;
   timeout_seconds: number;
   max_concurrency: number;
+  per_host_concurrency: number;
   check_content_keywords: boolean;
   cache_ttl_hours: number;
 }
+
+export interface ScoringWeights {
+  title_and_stack: number;
+  location_remote: number;
+  compensation: number;
+  company_priority: number;
+  recency_urgency: number;
+}
+
+export interface JobSpec {
+  name: string;
+  keywords: string[];
+  target_roles: string[];
+  seniority: string | null;
+  experience_years: number | null;
+  technologies: string[];
+  must_have_skills: string[];
+  nice_to_have_skills: string[];
+  employment_type: string | null;
+  remote: boolean | null;
+  preferred_locations: string[];
+  salary_floor_usd: number | null;
+  excluded_terms: string[];
+  excluded_companies: string[];
+  scoring_weights: ScoringWeights | null;
+}
+
+export interface IncomeSourceSubConfig {
+  enabled: boolean;
+  trust_tier: string;
+  platforms: string[];
+  categories: string[];
+  tags: string[];
+  limit_items: number;
+}
+
+export interface IncomeRSSFeedConfig {
+  name: string;
+  url: string;
+  category: string;
+  trust_tier: string;
+  enabled: boolean;
+}
+
+export interface OnlineIncomeConfig {
+  enabled: boolean;
+  include_in_daily_digest: boolean;
+  candidate_name: string;
+  eligible_countries: string[];
+  preferred_categories: string[];
+  excluded_categories: string[];
+  minimum_quality_score: number;
+  minimum_side_job_fit_score: number;
+  minimum_final_score: number;
+  instant_alert_score: number;
+  max_digest_items: number;
+  min_source_trust_tier: string;
+  require_verified_source: boolean;
+  reject_unknown_eligibility: boolean;
+  reject_unknown_compensation: boolean;
+  catalog_stale_after_days: number;
+  minimum_hourly_rate_usd: number;
+  preferred_flexibility: string;
+  maximum_hours_per_week: number;
+  allow_asynchronous_only: boolean;
+  preferred_currencies: string[];
+  require_link_verification: boolean;
+  scoring_weights: {
+    quality: number;
+    relevance: number;
+    side_job_fit: number;
+    country_eligibility: number;
+    compensation: number;
+  };
+  sources: {
+    ai_evaluation: IncomeSourceSubConfig;
+    user_testing: IncomeSourceSubConfig;
+    academic_tutoring: IncomeSourceSubConfig;
+    transcription_support: IncomeSourceSubConfig;
+    rss_feeds: IncomeRSSFeedConfig[];
+    custom: IncomeSourceSubConfig;
+  };
+}
+
+export type CatalogSourceKey = 'ai_evaluation' | 'user_testing' | 'academic_tutoring' | 'transcription_support';
 
 export interface AppConfig {
   profile: {
@@ -47,13 +135,8 @@ export interface AppConfig {
     excluded_terms: string[];
     excluded_companies: string[];
   };
-  scoring_weights: {
-    title_and_stack: number;
-    location_remote: number;
-    compensation: number;
-    company_priority: number;
-    recency_urgency: number;
-  };
+  job_specs: JobSpec[];
+  scoring_weights: ScoringWeights;
   company_watchlist: WatchlistCompany[];
   sources: {
     greenhouse: SourceSubConfig;
@@ -70,8 +153,6 @@ export interface AppConfig {
   link_verification: LinkVerificationConfig;
   schedule: {
     timezone: string;
-    daily_digest_time: string;
-    weekly_digest_day: string;
     instant_alert_threshold: number;
   };
   delivery: {
@@ -81,6 +162,11 @@ export interface AppConfig {
     send_instant_alerts: boolean;
     send_daily_digest: boolean;
   };
+  state: {
+    retention_days: number;
+  };
+  fx_rates_to_usd: Record<string, number>;
+  online_income: OnlineIncomeConfig;
 }
 
 export interface JobPosting {
@@ -92,19 +178,19 @@ export interface JobPosting {
   is_remote: boolean;
   remote_scope: string;
   url: string;
-  raw_url?: string;
+  raw_url?: string | null;
   description: string;
-  salary_min?: number;
-  salary_max?: number;
+  salary_min?: number | null;
+  salary_max?: number | null;
   salary_currency: string;
   salary_period: string;
   employment_type: string;
-  seniority?: string;
-  posted_at?: string;
+  seniority?: string | null;
+  posted_at?: string | null;
   source: string;
   tags: string[];
   is_verified?: boolean;
-  verification_status?: string;
+  verification_status?: string | null;
 }
 
 export interface MatchBreakdown {
@@ -119,40 +205,55 @@ export interface MatchBreakdown {
   missing_must_have: string[];
   penalties_applied: string[];
   highlights: string[];
+  eligibility?: string | null;
   is_verified?: boolean;
 }
+
+export type TriageAction = 'discard' | 'low_match' | 'digest' | 'instant';
 
 export interface ScoredJob {
   job: JobPosting;
   score: number;
-  action: 'discard' | 'low_match' | 'digest' | 'instant';
+  action: TriageAction;
   breakdown: MatchBreakdown;
+  spec_name?: string | null;
   scored_at: string;
 }
 
+export type SourceStatus = 'healthy' | 'degraded' | 'error' | 'disabled';
+
 export interface CrawlerHealth {
   source_name: string;
-  status: 'healthy' | 'degraded' | 'error';
-  jobs_found: number;
+  status: SourceStatus;
+  jobs_found?: number;
+  opportunities_found?: number;
   latency_ms: number;
-  last_crawled?: string;
-  error_message?: string;
+  last_crawled?: string | null;
+  error_message?: string | null;
 }
 
 export interface RunSummary {
   run_id: string;
   timestamp: string;
+  mode: 'live' | 'dry_run';
+  trigger: string;
   total_fetched: number;
   unique_candidates: number;
   discarded: number;
   low_matches: number;
   digest_matches: number;
   instant_matches: number;
+  spec_counts: Record<string, Record<string, number>>;
   emails_dispatched: number;
+  delivery_errors: string[];
+  pending_alerts: number;
+  links_checked: number;
   expired_links_removed: number;
+  unverified_links: number;
   execution_time_seconds: number;
   source_health: CrawlerHealth[];
   error_count: number;
+  degraded_count: number;
 }
 
 export interface OnlineIncomeOpportunity {
@@ -164,67 +265,52 @@ export interface OnlineIncomeOpportunity {
   category: string;
   opportunity_type: string;
   url: string;
-  application_url?: string;
+  application_url?: string | null;
+  source: string;
+  source_trust_tier: string;
   location_eligibility: string;
-  country_restrictions: string[];
-  eligible_countries: string[];
-  is_remote: boolean;
-  is_flexible: boolean;
-  estimated_pay_min?: number;
-  estimated_pay_max?: number;
-  pay_rate_display?: string;
+  is_asynchronous: boolean;
+  estimated_pay_min?: number | null;
+  estimated_pay_max?: number | null;
+  pay_rate_display?: string | null;
   pay_currency: string;
   pay_frequency: string;
-  experience_requirement: string;
-  time_commitment: string;
-  flexibility: string;
-  source: string;
-  tags: string[];
-  date_discovered: string;
-  date_published?: string;
-  verification_status: 'verified_source' | 'needs_review' | 'risk_flagged' | 'rejected';
+  verification_status: string;
   legitimacy_indicators: string[];
   scam_risk_indicators: string[];
-  is_verified: boolean;
-  link_verification_status?: string;
+  rejection_reasons: string[];
+  quality_score: number;
+  side_job_fit_score: number;
+  link_verification_status?: string | null;
+  last_reviewed?: string | null;
+  review_overdue?: boolean;
 }
 
 export interface IncomeMatchBreakdown {
-  category_score: number;
-  country_eligibility_score: number;
-  compensation_score: number;
-  flexibility_score: number;
-  time_commitment_score: number;
-  legitimacy_score: number;
-  ease_of_entry_score: number;
-  recurring_potential_score: number;
-  source_quality_score: number;
+  quality_score: number;
+  side_job_fit_score: number;
+  final_score: number;
+  passed_quality_gate: boolean;
+  eligibility_status: string;
   penalties_applied: string[];
   highlights: string[];
-  risk_flags: string[];
+  rejection_reasons: string[];
   is_verified: boolean;
 }
 
 export interface ScoredOpportunity {
   opportunity: OnlineIncomeOpportunity;
   score: number;
-  action: 'discard' | 'low_match' | 'digest' | 'instant';
+  action: TriageAction;
   breakdown: IncomeMatchBreakdown;
   scored_at: string;
-}
-
-export interface IncomeCollectorHealth {
-  source_name: string;
-  status: 'healthy' | 'degraded' | 'error';
-  opportunities_found: number;
-  latency_ms: number;
-  last_crawled?: string;
-  error_message?: string;
 }
 
 export interface IncomeRunSummary {
   run_id: string;
   timestamp: string;
+  mode: 'live' | 'dry_run';
+  trigger: string;
   total_fetched: number;
   unique_candidates: number;
   discarded: number;
@@ -232,10 +318,35 @@ export interface IncomeRunSummary {
   digest_matches: number;
   instant_matches: number;
   emails_dispatched: number;
-  expired_links_removed: number;
-  risk_rejected: number;
+  delivery_errors: string[];
+  pending_alerts: number;
   execution_time_seconds: number;
-  source_health: IncomeCollectorHealth[];
+  source_health: CrawlerHealth[];
   error_count: number;
 }
 
+export interface CustomJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  url: string;
+  description: string;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string;
+  salary_period?: string;
+  created_at?: string;
+}
+
+export interface CustomIncome {
+  id: string;
+  title: string;
+  organization: string;
+  category: string;
+  url: string;
+  location_eligibility: string;
+  description: string;
+  pay_rate_display?: string | null;
+  created_at?: string;
+}

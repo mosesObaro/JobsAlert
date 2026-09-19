@@ -1,34 +1,92 @@
 """
 JobsAlert Email Notification Service.
-Supports Resend (recommended free tier), Brevo, SendGrid, SMTP, and local Console/File preview.
+Renders digest and instant-alert emails and delivers them through Resend, Brevo,
+SendGrid or SMTP (or prints a preview with the "console" provider).
+
+Every send returns a DeliveryResult; callers record an alert as delivered only
+when it is truthy.
 """
 
 from __future__ import annotations
+import asyncio
 import os
 import smtplib
+import ssl
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import parseaddr
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, List, Optional
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
 import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src import paths
 from src.config import AppConfig
 from src.models import ScoredJob, SpecMatchGroup
+from src.money import format_range
+from src.storage import write_text_atomic
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
-PREVIEW_FILE = Path(__file__).resolve().parent.parent.parent / "data" / "latest_email_preview.html"
+PROVIDER_TIMEOUT_SECONDS = 20.0
+
+
+def preview_file() -> Path:
+    return paths.data_file(paths.EMAIL_PREVIEW)
+
+
+@dataclass
+class DeliveryResult:
+    ok: bool
+    provider: str = ""
+    error: Optional[str] = None
+
+    def __bool__(self) -> bool:
+        return self.ok
+
+
+def _salary(job: Any) -> str:
+    period = getattr(job, "salary_period", "yearly") or "yearly"
+    return format_range(job.salary_min, job.salary_max, getattr(job, "salary_currency", "USD") or "USD",
+                        None if period == "yearly" else period)
+
+
+def _pay(opp: Any) -> str:
+    period = getattr(opp, "pay_frequency", "hourly") or "hourly"
+    return format_range(opp.estimated_pay_min, opp.estimated_pay_max, getattr(opp, "pay_currency", "USD") or "USD",
+                        period if period in ("hourly", "daily", "weekly", "monthly", "yearly") else None)
+
+
+def _one_line(text: str) -> str:
+    """Collapses whitespace so subjects built from posting titles can't span header lines."""
+    return " ".join(str(text).split())
+
+
+def _local_date(fmt: str, tz_name: str) -> str:
+    try:
+        tz = ZoneInfo(tz_name or "UTC")
+    except (ZoneInfoNotFoundError, ValueError):
+        tz = timezone.utc
+    return datetime.now(tz).strftime(fmt)
+
+
+def _bare_address(address: str) -> str:
+    return parseaddr(address)[1] or address.strip()
 
 
 class EmailNotifier:
-    """Renders structured templates and handles multi-provider dispatch."""
+    """Renders templates and delivers email through the configured provider."""
 
     def __init__(self):
         self.env = Environment(
             loader=FileSystemLoader(TEMPLATES_DIR),
-            autoescape=select_autoescape(["html", "xml"])
+            autoescape=select_autoescape(["html", "xml"]),
         )
+        self.env.filters["salary"] = _salary
+        self.env.filters["pay"] = _pay
         self.digest_html_tmpl = self.env.get_template("digest.html")
         self.digest_txt_tmpl = self.env.get_template("digest.txt")
         self.immediate_html_tmpl = self.env.get_template("immediate.html")
@@ -36,40 +94,32 @@ class EmailNotifier:
         self.income_digest_txt_tmpl = self.env.get_template("income_digest.txt")
         self.income_immediate_html_tmpl = self.env.get_template("income_immediate.html")
 
+    # ------------------------------------------------------------------ subjects
     def format_digest_subject(
         self,
         jobs: Optional[List[ScoredJob]] = None,
         income_opportunities: Optional[list] = None,
         spec_groups: Optional[List[SpecMatchGroup]] = None,
+        tz_name: str = "UTC",
     ) -> str:
-        """Formats standard subject dynamically for jobs, income tracks, or unified alerts."""
-        date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
-        if spec_groups is not None:
-            job_count = sum(len(g.jobs) for g in spec_groups)
-        else:
-            job_count = len(jobs) if jobs else 0
-        income_count = len(income_opportunities) if income_opportunities else 0
+        """Subject for job-only, income-only or combined digests."""
+        date_str = _local_date("%d %b %Y", tz_name)
+        job_count = sum(len(g.jobs) for g in spec_groups) if spec_groups is not None else len(jobs or [])
+        income_count = len(income_opportunities or [])
 
         if job_count > 0 and income_count > 0:
             job_plural = "Roles" if job_count != 1 else "Role"
             inc_plural = "Income Tracks" if income_count != 1 else "Income Track"
             return f"[Daily Alert] {date_str} — {job_count} Target {job_plural} & {income_count} Online {inc_plural} Found"
-        elif job_count > 0:
+        if job_count > 0:
             plural = "Opportunities" if job_count != 1 else "Opportunity"
             return f"[Job Alert] {date_str} — {job_count} High-Match {plural} Found"
-        elif income_count > 0:
+        if income_count > 0:
             plural = "Tracks" if income_count != 1 else "Track"
-            return f"[Income Alert] {date_str} — {income_count} Verified Online Income {plural} Found"
-        else:
-            return f"[Daily Alert] {date_str} — Daily Intelligence Digest"
+            return f"[Income Alert] {date_str} — {income_count} Online Income {plural} Found"
+        return f"[Daily Alert] {date_str} — Daily Intelligence Digest"
 
-    def format_income_digest_subject(self, opportunities: list) -> str:
-        """Formats standard subject: [Income Alert] 27 Aug 2026 — 4 Verified Online Gigs & AI Evaluation Tracks"""
-        date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
-        count = len(opportunities)
-        plural = "Tracks" if count != 1 else "Track"
-        return f"[Income Alert] {date_str} — {count} Verified Online Income {plural} Found"
-
+    # ------------------------------------------------------------------ rendering
     def render_digest(
         self,
         jobs: Optional[List[ScoredJob]] = None,
@@ -77,175 +127,118 @@ class EmailNotifier:
         income_opportunities: Optional[list] = None,
         spec_groups: Optional[List[SpecMatchGroup]] = None,
     ) -> tuple[str, str, str]:
-        """Renders HTML and plaintext versions of the digest email, supporting combined jobs & income tracks."""
-        date_str = datetime.now(timezone.utc).strftime("%A, %d %B %Y")
+        """Renders the HTML and plaintext digest (jobs, income tracks, or both)."""
+        config = config or AppConfig()
+        tz_name = config.schedule.timezone
         jobs_list = jobs or []
         income_list = income_opportunities or []
-        subject = self.format_digest_subject(jobs_list, income_list, spec_groups=spec_groups)
+        subject = self.format_digest_subject(jobs_list, income_list, spec_groups=spec_groups, tz_name=tz_name)
 
         all_scores = [j.score for j in jobs_list]
-        if spec_groups:
-            for g in spec_groups:
-                for j in g.jobs:
-                    all_scores.append(j.score)
-
-        for opp in income_list:
-            if isinstance(opp, dict):
-                all_scores.append(opp.get("score", 0.0))
-            else:
-                all_scores.append(getattr(opp, "score", 0.0))
-
-        min_score = min(all_scores) if all_scores else 7.0
+        for group in spec_groups or []:
+            all_scores.extend(j.score for j in group.jobs)
+        all_scores.extend(o.get("score", 0.0) if isinstance(o, dict) else getattr(o, "score", 0.0) for o in income_list)
 
         total_jobs_count = sum(len(g.jobs) for g in spec_groups) if spec_groups is not None else len(jobs_list)
-
         if total_jobs_count > 0 and income_list:
             header_title = f"{total_jobs_count} Target Roles & {len(income_list)} Online Income Tracks"
         elif total_jobs_count > 0:
             header_title = f"{total_jobs_count} High-Match Opportunities Found"
         elif income_list:
-            header_title = f"{len(income_list)} Verified Online Income Tracks"
+            header_title = f"{len(income_list)} Online Income Tracks"
         else:
             header_title = "Daily Intelligence Digest"
-
-        candidate_name = config.profile.candidate_name if config else "Candidate"
-        recipient_email = config.delivery.recipient_email if config else "candidate@example.com"
 
         ctx = {
             "subject": subject,
             "header_title": header_title,
-            "date_str": date_str,
-            "candidate_name": candidate_name,
-            "recipient_email": recipient_email,
+            "date_str": _local_date("%A, %d %B %Y", tz_name),
+            "candidate_name": config.profile.candidate_name,
+            "recipient_email": config.delivery.recipient_email,
             "jobs": jobs_list,
             "spec_groups": spec_groups,
             "income_opportunities": income_list,
-            "min_score": min_score,
+            "min_score": min(all_scores) if all_scores else 7.0,
+            "job_instant_threshold": config.schedule.instant_alert_threshold,
+            "income_instant_threshold": config.online_income.instant_alert_score,
         }
-
-        html_content = self.digest_html_tmpl.render(ctx)
-        text_content = self.digest_txt_tmpl.render(ctx)
-        return subject, html_content, text_content
+        return subject, self.digest_html_tmpl.render(ctx), self.digest_txt_tmpl.render(ctx)
 
     def render_immediate(self, scored: ScoredJob, config: AppConfig) -> tuple[str, str]:
-        """Renders an instant high-priority alert for a 9.0+ match."""
-        subject = f"[URGENT 9.0+] {scored.score}/10 Match: {scored.job.title} @ {scored.job.company}"
+        """Renders an instant alert for a match at or above the instant threshold."""
+        subject = _one_line(f"[Instant Alert] {scored.score}/10 Match: {scored.job.title} @ {scored.job.company}")
         ctx = {
             "scored": scored,
             "candidate_name": config.profile.candidate_name,
             "recipient_email": config.delivery.recipient_email,
+            "instant_threshold": config.schedule.instant_alert_threshold,
         }
-        html_content = self.immediate_html_tmpl.render(ctx)
-        return subject, html_content
+        return subject, self.immediate_html_tmpl.render(ctx)
+
+    def render_income_digest(self, opportunities: list, candidate_name: str, recipient_email: str,
+                             instant_threshold: float = 9.0, tz_name: str = "UTC") -> tuple[str, str, str]:
+        """Renders the HTML and plaintext online income digest."""
+        subject = self.format_digest_subject([], opportunities, tz_name=tz_name)
+        scores = [o.get("score", 0.0) if isinstance(o, dict) else getattr(o, "score", 0.0) for o in opportunities]
+        ctx = {
+            "subject": subject,
+            "header_title": f"{len(opportunities)} Online Income Tracks Found",
+            "date_str": _local_date("%A, %d %B %Y", tz_name),
+            "candidate_name": candidate_name,
+            "recipient_email": recipient_email,
+            "opportunities": opportunities,
+            "min_score": min(scores) if scores else 7.0,
+            "income_instant_threshold": instant_threshold,
+        }
+        return subject, self.income_digest_html_tmpl.render(ctx), self.income_digest_txt_tmpl.render(ctx)
+
+    def render_income_immediate(self, scored: Any, candidate_name: str, recipient_email: str) -> tuple[str, str]:
+        """Renders an instant alert for a top-scoring income track."""
+        subject = _one_line(f"[Instant Alert] Online Income Track: {scored.opportunity.title} ({scored.opportunity.organization})")
+        ctx = {"scored": scored, "candidate_name": candidate_name, "recipient_email": recipient_email}
+        return subject, self.income_immediate_html_tmpl.render(ctx)
 
     def save_preview(self, html_content: str) -> Path:
-        """Saves rendered HTML to data/latest_email_preview.html for instant inspection."""
-        PREVIEW_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(PREVIEW_FILE, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        return PREVIEW_FILE
+        """Writes the rendered HTML to data/latest_email_preview.html."""
+        target = preview_file()
+        write_text_atomic(target, html_content)
+        return target
 
+    # ------------------------------------------------------------------ sending
     async def send_digest(
         self,
         jobs: Optional[List[ScoredJob]] = None,
         config: Optional[AppConfig] = None,
         income_opportunities: Optional[list] = None,
         spec_groups: Optional[List[SpecMatchGroup]] = None,
-        dry_run: bool = False
-    ) -> bool:
-        """Sends the digest email or outputs preview in dry-run mode, supporting combined opportunities."""
-        jobs_list = jobs or []
-        income_list = income_opportunities or []
-        total_spec_jobs = sum(len(g.jobs) for g in spec_groups) if spec_groups else 0
+        dry_run: bool = False,
+    ) -> DeliveryResult:
+        """Sends the digest, or saves a preview in dry-run / console mode."""
+        config = config or AppConfig()
+        if not jobs and not income_opportunities and not any(g.jobs for g in spec_groups or []):
+            return DeliveryResult(ok=True, provider="none")
 
-        if not jobs_list and not income_list and total_spec_jobs == 0 and not spec_groups:
-            return True
-
-        subject, html_body, text_body = self.render_digest(
-            jobs=jobs_list,
-            config=config,
-            income_opportunities=income_list,
-            spec_groups=spec_groups,
-        )
+        subject, html_body, text_body = self.render_digest(jobs, config, income_opportunities, spec_groups)
         self.save_preview(html_body)
-
-        to_email = config.delivery.recipient_email if config else "candidate@example.com"
-        provider = config.delivery.email_provider if config else "console"
-        from_email = config.delivery.from_email if config else "alerts@jobsalert.dev"
-
-        if dry_run or provider == "console":
+        if dry_run or config.delivery.email_provider == "console":
             print(f"\n[DRY RUN / PREVIEW] Email Subject: {subject}")
-            print(f"[DRY RUN / PREVIEW] Recipient: {to_email}")
-            print(f"[DRY RUN / PREVIEW] Preview saved to: {PREVIEW_FILE.resolve()}")
-            return True
+            print(f"[DRY RUN / PREVIEW] Preview saved to: {preview_file().resolve()}")
+            return DeliveryResult(ok=True, provider="console")
+        return await self._dispatch_provider(config.delivery.email_provider, config.delivery.recipient_email,
+                                             config.delivery.from_email, subject, html_body, text_body)
 
-        return await self._dispatch_provider(
-            provider=provider,
-            to_email=to_email,
-            from_email=from_email,
-            subject=subject,
-            html_body=html_body,
-            text_body=text_body,
-        )
-
-    async def send_immediate(
-        self,
-        job: ScoredJob,
-        config: AppConfig,
-        dry_run: bool = False
-    ) -> bool:
-        """Dispatches an immediate alert for top-tier opportunities."""
+    async def send_immediate(self, job: ScoredJob, config: AppConfig, dry_run: bool = False) -> DeliveryResult:
+        """Sends an instant alert for one top-tier job."""
         subject, html_body = self.render_immediate(job, config)
         self.save_preview(html_body)
-
         if dry_run or config.delivery.email_provider == "console":
             print(f"\n[DRY RUN / PREVIEW] Instant Alert: {subject}")
-            return True
-
+            return DeliveryResult(ok=True, provider="console")
+        apply_line = f" Apply at: {job.job.url}" if job.job.url else ""
         return await self._dispatch_provider(
-            provider=config.delivery.email_provider,
-            to_email=config.delivery.recipient_email,
-            from_email=config.delivery.from_email,
-            subject=subject,
-            html_body=html_body,
-            text_body=f"Instant Match: {job.job.title} at {job.job.company}. Apply at: {job.job.url}",
+            config.delivery.email_provider, config.delivery.recipient_email, config.delivery.from_email,
+            subject, html_body, f"Instant Match: {job.job.title} at {job.job.company}.{apply_line}",
         )
-
-    def render_income_digest(self, opportunities: list, candidate_name: str, recipient_email: str) -> tuple[str, str, str]:
-        """Renders HTML and plaintext versions of the online income opportunities digest."""
-        date_str = datetime.now(timezone.utc).strftime("%A, %d %B %Y")
-        subject = self.format_income_digest_subject(opportunities)
-        
-        def _get_score(o):
-            return o.get("score", 0.0) if isinstance(o, dict) else getattr(o, "score", 0.0)
-
-        scores = [_get_score(o) for o in opportunities]
-        min_score = min(scores) if scores else 7.0
-
-        ctx = {
-            "subject": subject,
-            "header_title": f"{len(opportunities)} Verified Income Tracks Found",
-            "date_str": date_str,
-            "candidate_name": candidate_name,
-            "recipient_email": recipient_email,
-            "opportunities": opportunities,
-            "min_score": min_score,
-        }
-
-        html_content = self.income_digest_html_tmpl.render(ctx)
-        text_content = self.income_digest_txt_tmpl.render(ctx)
-        return subject, html_content, text_content
-
-    def render_income_immediate(self, scored: any, candidate_name: str, recipient_email: str) -> tuple[str, str]:
-        """Renders an instant high-priority alert for a 9.0+ income opportunity."""
-        subject = f"[URGENT 9.0+] Top Online Income Track: {scored.opportunity.title} ({scored.opportunity.organization})"
-        ctx = {
-            "scored": scored,
-            "candidate_name": candidate_name,
-            "recipient_email": recipient_email,
-        }
-        html_content = self.income_immediate_html_tmpl.render(ctx)
-        return subject, html_content
 
     async def send_income_digest(
         self,
@@ -254,161 +247,120 @@ class EmailNotifier:
         recipient_email: str,
         email_provider: str = "console",
         from_email: str = "alerts@jobsalert.dev",
-        dry_run: bool = False
-    ) -> bool:
-        """Sends the online income digest email or outputs preview in dry-run mode."""
+        dry_run: bool = False,
+        instant_threshold: float = 9.0,
+    ) -> DeliveryResult:
+        """Sends the online income digest, or saves a preview in dry-run / console mode."""
         if not opportunities:
-            return True
-
-        subject, html_body, text_body = self.render_income_digest(opportunities, candidate_name, recipient_email)
+            return DeliveryResult(ok=True, provider="none")
+        subject, html_body, text_body = self.render_income_digest(opportunities, candidate_name, recipient_email, instant_threshold)
         self.save_preview(html_body)
-
         if dry_run or email_provider == "console":
             print(f"\n[INCOME SCOUT PREVIEW] Email Subject: {subject}")
-            print(f"[INCOME SCOUT PREVIEW] Recipient: {recipient_email}")
-            print(f"[INCOME SCOUT PREVIEW] Preview saved to: {PREVIEW_FILE.resolve()}")
-            return True
-
-        return await self._dispatch_provider(
-            provider=email_provider,
-            to_email=recipient_email,
-            from_email=from_email,
-            subject=subject,
-            html_body=html_body,
-            text_body=text_body,
-        )
+            print(f"[INCOME SCOUT PREVIEW] Preview saved to: {preview_file().resolve()}")
+            return DeliveryResult(ok=True, provider="console")
+        return await self._dispatch_provider(email_provider, recipient_email, from_email, subject, html_body, text_body)
 
     async def send_income_immediate(
         self,
-        scored: any,
+        scored: Any,
         candidate_name: str,
         recipient_email: str,
         email_provider: str = "console",
         from_email: str = "alerts@jobsalert.dev",
-        dry_run: bool = False
-    ) -> bool:
-        """Dispatches an immediate alert for a top-tier income track."""
+        dry_run: bool = False,
+    ) -> DeliveryResult:
+        """Sends an instant alert for one top-tier income track."""
         subject, html_body = self.render_income_immediate(scored, candidate_name, recipient_email)
         self.save_preview(html_body)
-
         if dry_run or email_provider == "console":
             print(f"\n[INCOME SCOUT PREVIEW] Instant Alert: {subject}")
-            return True
-
+            return DeliveryResult(ok=True, provider="console")
+        link = scored.opportunity.application_url or scored.opportunity.url
         return await self._dispatch_provider(
-            provider=email_provider,
-            to_email=recipient_email,
-            from_email=from_email,
-            subject=subject,
-            html_body=html_body,
-            text_body=f"Instant Income Match: {scored.opportunity.title} ({scored.opportunity.organization}). Apply at: {scored.opportunity.application_url or scored.opportunity.url}",
+            email_provider, recipient_email, from_email, subject, html_body,
+            f"Instant Income Match: {scored.opportunity.title} ({scored.opportunity.organization}). Apply at: {link}",
         )
 
-    async def _dispatch_provider(
-        self,
-        provider: str,
-        to_email: str,
-        from_email: str,
-        subject: str,
-        html_body: str,
-        text_body: str,
-    ) -> bool:
-        provider = provider.lower().strip()
+    async def _dispatch_provider(self, provider: str, to_email: str, from_email: str, subject: str,
+                                 html_body: str, text_body: str) -> DeliveryResult:
+        provider = (provider or "").lower().strip()
+        try:
+            if provider == "smtp":
+                return await asyncio.to_thread(self._send_smtp, to_email, from_email, subject, html_body, text_body)
+            if provider in ("resend", "brevo", "sendgrid"):
+                return await self._send_http(provider, to_email, from_email, subject, html_body, text_body)
+            return self._failed(provider, f"Unknown email provider '{provider}'")
+        except httpx.HTTPError as exc:
+            return self._failed(provider, f"{type(exc).__name__}: {exc}")
+        except Exception as exc:  # any other delivery failure must be reported, not crash the run
+            return self._failed(provider, f"{type(exc).__name__}: {exc}")
 
-        # 1. RESEND (Default free tier: 3,000 emails/mo)
+    @staticmethod
+    def _failed(provider: str, error: str) -> DeliveryResult:
+        print(f"[ERROR] Email delivery via {provider or 'unknown provider'} failed: {error}")
+        return DeliveryResult(ok=False, provider=provider, error=error[:500])
+
+    async def _send_http(self, provider: str, to_email: str, from_email: str, subject: str,
+                         html_body: str, text_body: str) -> DeliveryResult:
+        key_name = {"resend": "RESEND_API_KEY", "brevo": "BREVO_API_KEY", "sendgrid": "SENDGRID_API_KEY"}[provider]
+        api_key = os.getenv(key_name)
+        if not api_key:
+            return self._failed(provider, f"{key_name} is not set")
+
+        sender = _bare_address(from_email) or "alerts@jobsalert.dev"
         if provider == "resend":
-            api_key = os.getenv("RESEND_API_KEY")
-            if not api_key:
-                print("[WARNING] RESEND_API_KEY is not set. Falling back to preview.")
-                return False
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post(
-                    "https://api.resend.com/emails",
-                    headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                    json={
-                        "from": from_email,
-                        "to": [to_email],
-                        "subject": subject,
-                        "html": html_body,
-                        "text": text_body,
-                    },
-                )
-                if resp.status_code in [200, 201]:
-                    print(f"✓ Email successfully delivered via Resend to {to_email}")
-                    return True
-                print(f"[ERROR] Resend error {resp.status_code}: {resp.text}")
-                return False
-
-        # 2. BREVO (300 free emails/day)
+            url, ok_codes = "https://api.resend.com/emails", (200, 201)
+            headers = {"Authorization": f"Bearer {api_key}"}
+            payload: dict = {"from": from_email, "to": [to_email], "subject": subject, "html": html_body, "text": text_body}
         elif provider == "brevo":
-            api_key = os.getenv("BREVO_API_KEY")
-            if not api_key:
-                print("[WARNING] BREVO_API_KEY is not set.")
-                return False
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post(
-                    "https://api.brevo.com/v3/smtp/email",
-                    headers={"api-key": api_key, "Content-Type": "application/json"},
-                    json={
-                        "sender": {"email": from_email.split("<")[-1].replace(">", "").strip() or "alerts@jobsalert.dev", "name": "JobsAlert Scout"},
-                        "to": [{"email": to_email}],
-                        "subject": subject,
-                        "htmlContent": html_body,
-                        "textContent": text_body,
-                    },
-                )
-                return resp.status_code in [200, 201]
+            url, ok_codes = "https://api.brevo.com/v3/smtp/email", (200, 201)
+            headers = {"api-key": api_key}
+            payload = {"sender": {"email": sender, "name": parseaddr(from_email)[0] or "JobsAlert"},
+                       "to": [{"email": to_email}], "subject": subject, "htmlContent": html_body, "textContent": text_body}
+        else:
+            url, ok_codes = "https://api.sendgrid.com/v3/mail/send", (200, 202)
+            headers = {"Authorization": f"Bearer {api_key}"}
+            payload = {"personalizations": [{"to": [{"email": to_email}]}], "from": {"email": sender},
+                       "subject": subject, "content": [{"type": "text/plain", "value": text_body},
+                                                       {"type": "text/html", "value": html_body}]}
 
-        # 3. SENDGRID
-        elif provider == "sendgrid":
-            api_key = os.getenv("SENDGRID_API_KEY")
-            if not api_key:
-                print("[WARNING] SENDGRID_API_KEY is not set.")
-                return False
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post(
-                    "https://api.sendgrid.com/v3/mail/send",
-                    headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                    json={
-                        "personalizations": [{"to": [{"email": to_email}]}],
-                        "from": {"email": from_email.split("<")[-1].replace(">", "").strip() or "alerts@jobsalert.dev"},
-                        "subject": subject,
-                        "content": [
-                            {"type": "text/plain", "value": text_body},
-                            {"type": "text/html", "value": html_body},
-                        ],
-                    },
-                )
-                return resp.status_code in [200, 202]
+        async with httpx.AsyncClient(timeout=PROVIDER_TIMEOUT_SECONDS) as client:
+            resp = await client.post(url, headers={**headers, "Content-Type": "application/json"}, json=payload)
+        if resp.status_code in ok_codes:
+            print(f"✓ Email delivered via {provider.capitalize()}")
+            return DeliveryResult(ok=True, provider=provider)
+        return self._failed(provider, f"HTTP {resp.status_code}: {resp.text[:300]}")
 
-        # 4. STANDARD SMTP (Gmail App Password, AWS SES, Custom SMTP)
-        elif provider == "smtp":
-            host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-            port = int(os.getenv("SMTP_PORT", "587"))
-            username = os.getenv("SMTP_USERNAME")
-            password = os.getenv("SMTP_PASSWORD")
-            use_tls = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    def _send_smtp(self, to_email: str, from_email: str, subject: str, html_body: str, text_body: str) -> DeliveryResult:
+        host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+        port = int(os.getenv("SMTP_PORT", "587"))
+        username = os.getenv("SMTP_USERNAME")
+        password = os.getenv("SMTP_PASSWORD")
+        use_tls = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
 
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = from_email
-            msg["To"] = to_email
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = from_email
+        msg["To"] = to_email
+        msg.attach(MIMEText(text_body, "plain"))
+        msg.attach(MIMEText(html_body, "html"))
 
-            msg.attach(MIMEText(text_body, "plain"))
-            msg.attach(MIMEText(html_body, "html"))
-
+        context = ssl.create_default_context()
+        if port == 465:
+            server: smtplib.SMTP = smtplib.SMTP_SSL(host, port, timeout=PROVIDER_TIMEOUT_SECONDS, context=context)
+        else:
+            server = smtplib.SMTP(host, port, timeout=PROVIDER_TIMEOUT_SECONDS)
+        try:
+            if use_tls and port != 465:
+                server.starttls(context=context)
+            if username and password:
+                server.login(username, password)
+            server.sendmail(_bare_address(from_email), [to_email], msg.as_string())
+        finally:
             try:
-                server = smtplib.SMTP(host, port)
-                if use_tls:
-                    server.starttls()
-                if username and password:
-                    server.login(username, password)
-                server.sendmail(from_email, [to_email], msg.as_string())
                 server.quit()
-                print(f"✓ Email successfully delivered via SMTP to {to_email}")
-                return True
-            except Exception as e:
-                print(f"[ERROR] SMTP sending failed: {e}")
-                return False
-
-        return False
+            except smtplib.SMTPException:
+                server.close()
+        print("✓ Email delivered via SMTP")
+        return DeliveryResult(ok=True, provider="smtp")

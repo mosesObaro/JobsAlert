@@ -1,76 +1,61 @@
 """
 JobsAlert Deduplication & State Persistence Layer.
-Implements URL canonicalization, identity fingerprinting, and state management.
+URL canonicalization, identity fingerprinting and the seen/alerted job registry.
 """
 
 from __future__ import annotations
 import hashlib
-import json
-import os
 import re
-from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, Optional, Set
-from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+from typing import Dict, Optional
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+from src import paths
 from src.models import JobPosting
+from src.storage import JsonStateStore
 
 TRACKING_PARAMS = {
     "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
     "ref", "gh_src", "source", "lever-origin", "fbclid", "gclid",
     "subid", "affiliate", "trk", "tracking", "referral", "src",
-    "mc_cid", "mc_eid", "otm", "hsCtaTracking"
+    "mc_cid", "mc_eid", "otm", "hsctatracking",
 }
-
-DEFAULT_STATE_FILE = Path(__file__).resolve().parent.parent / "data" / "seen_jobs.json"
 
 
 def canonicalize_url(raw_url: str) -> str:
     """
-    Strips all marketing, campaign, affiliate, and tracking tokens from a job URL.
-    Standardizes protocol, hostname, and trailing paths.
+    Strips marketing, campaign, affiliate and tracking parameters from a job URL,
+    lowercases scheme and host, sorts the remaining query parameters and drops fragments.
     """
     if not raw_url:
         return ""
 
     parsed = urlparse(raw_url.strip())
-    # Standardize scheme and lowercase netloc
     scheme = parsed.scheme.lower() or "https"
     netloc = parsed.netloc.lower()
 
-    # Filter query parameters
-    query_dict = parse_qs(parsed.query, keep_blank_values=False)
-    filtered_query = {
-        k: v for k, v in query_dict.items()
+    query = sorted(
+        (k, v) for k, v in parse_qsl(parsed.query, keep_blank_values=False)
         if k.lower() not in TRACKING_PARAMS and not k.lower().startswith("utm_")
-    }
-
-    # Reconstruct query string sorted by keys
-    clean_query = urlencode(filtered_query, doseq=True)
-
-    # Standardize path
+    )
     path = parsed.path.rstrip("/") if parsed.path != "/" else "/"
-
-    clean_url = urlunparse((
-        scheme,
-        netloc,
-        path,
-        "",  # params
-        clean_query,
-        ""   # fragment
-    ))
-    return clean_url
+    return urlunparse((scheme, netloc, path, "", urlencode(query, doseq=True), ""))
 
 
 def normalize_string(text: str) -> str:
-    """Normalizes a string by lowercasing, stripping special chars, and collapsing whitespace."""
+    """Lowercases, strips common corporate suffixes and punctuation, and collapses whitespace."""
     if not text:
         return ""
     text = text.lower()
-    # Strip common corporate suffixes for matching
     text = re.sub(r"\b(inc|ltd|llc|corp|corporation|technologies|tech|gmbh|co)\b", "", text)
     text = re.sub(r"[^\w\s]", " ", text)
     return " ".join(text.split())
+
+
+def stable_hash(*parts: object, length: int = 16) -> str:
+    """Deterministic short hash (unlike built-in hash(), which is salted per process)."""
+    raw = "\x1f".join("" if p is None else str(p).strip().lower() for p in parts)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:length]
 
 
 def compute_job_fingerprint(
@@ -81,125 +66,84 @@ def compute_job_fingerprint(
     canonical_url: str = ""
 ) -> str:
     """
-    Generates a deterministic SHA-256 fingerprint for a job posting.
-    Ensures that identical jobs posted on multiple boards (e.g. Greenhouse + Remotive + LinkedIn)
-    produce the exact same fingerprint.
+    Deterministic SHA-256 identity of a posting from company, title, location scope
+    and the source's reference id (or the last URL path segment when there is none).
+    Reference ids are source-specific, so the same role cross-posted on two boards
+    produces two fingerprints.
     """
-    norm_company = normalize_string(company)
-    norm_title = normalize_string(title)
-    norm_loc = normalize_string(location_type)
-
-    # If reference id exists, sanitize it; otherwise extract clean path slug from canonical url
-    norm_ref = reference_id.strip().lower()
+    norm_ref = (reference_id or "").strip().lower()
     if not norm_ref and canonical_url:
-        parsed = urlparse(canonical_url)
-        path_parts = [p for p in parsed.path.split("/") if p]
+        path_parts = [p for p in urlparse(canonical_url).path.split("/") if p]
         if path_parts:
             norm_ref = path_parts[-1].lower()
 
-    # Core fingerprint seed
-    fingerprint_raw = f"{norm_company}::{norm_title}::{norm_loc}::{norm_ref}"
-    return hashlib.sha256(fingerprint_raw.encode("utf-8")).hexdigest()
+    seed = f"{normalize_string(company)}::{normalize_string(title)}::{normalize_string(location_type)}::{norm_ref}"
+    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
 
 
-class StateManager:
-    """
-    Thread-safe persistence manager for tracking previously seen and alerted jobs.
-    Supports file-based JSON storage (default for zero-cost GitHub Actions runs)
-    and optional Supabase PostgreSQL sync.
-    """
+def content_key(source: str, company: str, title: str, url: str) -> str:
+    """Identity of a posting independent of its fingerprint (used to recognise legacy records)."""
+    return f"{(source or '').lower()}|{normalize_string(company)}|{normalize_string(title)}|{canonicalize_url(url or '')}"
 
-    def __init__(
-        self,
-        state_file_path: Optional[Path | str] = None,
-        filepath: Optional[Path | str] = None,
-    ):
-        target_path = state_file_path or filepath or DEFAULT_STATE_FILE
-        self.state_file = Path(target_path)
-        self.state_file.parent.mkdir(parents=True, exist_ok=True)
-        self.seen_data: Dict[str, dict] = {}
-        self._load()
 
-    def _load(self) -> None:
-        if self.state_file.exists():
-            try:
-                with open(self.state_file, "r", encoding="utf-8") as f:
-                    self.seen_data = json.load(f)
-            except Exception as e:
-                # Corrupted or empty file, reset
-                self.seen_data = {}
-        else:
-            self.seen_data = {}
+class StateManager(JsonStateStore):
+    """Registry of previously seen and alerted job fingerprints (data/seen_jobs.json)."""
 
-    def save(self) -> None:
-        """Flushes the current state to disk."""
-        with open(self.state_file, "w", encoding="utf-8") as f:
-            json.dump(self.seen_data, f, indent=2, default=str)
+    def __init__(self, path: Optional[Path | str] = None):
+        super().__init__(Path(path) if path else paths.data_file(paths.SEEN_JOBS))
+        self._aliases: Optional[Dict[str, str]] = None
 
-    def is_seen(self, fingerprint: str) -> bool:
-        """Returns True if the job fingerprint has already been processed."""
-        return fingerprint in self.seen_data
+    def _alias_index(self) -> Dict[str, str]:
+        if self._aliases is None:
+            index: Dict[str, str] = {}
+            for fp, entry in self.records.items():
+                key = content_key(entry.get("source", ""), entry.get("company", ""), entry.get("title", ""), entry.get("canonical_url", ""))
+                # Prefer an alerted record so an earlier delivery is never forgotten.
+                if key not in index or (entry.get("alerted") and not self.records[index[key]].get("alerted")):
+                    index[key] = fp
+            self._aliases = index
+        return self._aliases
 
-    def is_alerted(self, fingerprint: str) -> bool:
-        """Returns True if the job has already been alerted/sent to the candidate."""
-        entry = self.seen_data.get(fingerprint)
-        return bool(entry and entry.get("alerted", False))
+    def find_equivalent(self, job: JobPosting) -> Optional[str]:
+        """Fingerprint of an existing record for the same posting under a different fingerprint."""
+        fp = self._alias_index().get(content_key(job.source, job.company, job.title, job.url))
+        return fp if fp and fp != job.fingerprint else None
+
+    def adopt(self, job: JobPosting, existing_fingerprint: str) -> None:
+        """Re-keys knowledge about a posting under its current fingerprint (keeps alerted state)."""
+        existing = self.records.get(existing_fingerprint) or {}
+        entry = self._upsert(job.fingerprint, self._fields(job), alerted=bool(existing.get("alerted")))
+        entry["first_seen_at"] = existing.get("first_seen_at", entry["first_seen_at"])
+        entry["alerted_at"] = existing.get("alerted_at", entry.get("alerted_at"))
+        for key in ("score", "action", "spec"):
+            if key in existing:
+                entry[key] = existing[key]
+
+    @staticmethod
+    def _fields(job: JobPosting) -> dict:
+        return {
+            "company": job.company,
+            "title": job.title,
+            "canonical_url": job.url,
+            "source": job.source,
+        }
 
     def record_job(
         self,
         job: JobPosting,
         score: float,
         action: str,
-        alerted: bool = False
+        alerted: bool = False,
+        spec: Optional[str] = None,
     ) -> None:
-        """
-        Records a job into the state database with timestamp and score.
-        """
-        now_iso = datetime.now(timezone.utc).isoformat()
-        if job.fingerprint not in self.seen_data:
-            self.seen_data[job.fingerprint] = {
-                "fingerprint": job.fingerprint,
-                "company": job.company,
-                "title": job.title,
-                "canonical_url": job.url,
-                "source": job.source,
-                "first_seen_at": now_iso,
-                "last_seen_at": now_iso,
-                "score": score,
-                "action": action,
-                "alerted": alerted,
-                "alerted_at": now_iso if alerted else None,
-            }
-        else:
-            entry = self.seen_data[job.fingerprint]
-            entry["last_seen_at"] = now_iso
-            entry["score"] = score
-            entry["action"] = action
-            if alerted:
-                entry["alerted"] = True
-                entry["alerted_at"] = now_iso
-
-    def mark_alerted(self, fingerprint: str) -> None:
-        """Flags an existing job as alerted to prevent subsequent notifications."""
-        if fingerprint in self.seen_data:
-            self.seen_data[fingerprint]["alerted"] = True
-            self.seen_data[fingerprint]["alerted_at"] = datetime.now(timezone.utc).isoformat()
+        """Records a processed job with its best score; `alerted` never reverts to False."""
+        fields = self._fields(job)
+        fields.update({"score": score, "action": action})
+        if spec:
+            fields["spec"] = spec
+        self._upsert(job.fingerprint, fields, alerted=alerted)
+        if self._aliases is not None:
+            self._aliases.setdefault(content_key(job.source, job.company, job.title, job.url), job.fingerprint)
 
     def get_seen_count(self) -> int:
-        return len(self.seen_data)
-
-    def prune_older_than(self, days: int = 60) -> int:
-        """Prunes records older than N days to keep cache fast and lightweight."""
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        to_delete = []
-        for fp, item in self.seen_data.items():
-            first_seen = datetime.fromisoformat(item.get("first_seen_at", datetime.now(timezone.utc).isoformat()))
-            if first_seen < cutoff:
-                to_delete.append(fp)
-
-        for fp in to_delete:
-            del self.seen_data[fp]
-
-        if to_delete:
-            self.save()
-        return len(to_delete)
+        return len(self)

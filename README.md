@@ -1,293 +1,120 @@
-# JobsAlert — Autonomous Career Intelligence & Email Alert System
+# JobsAlert
 
-> **Autonomous Career Intelligence & Opportunity Scout**  
-> Continuously monitors target job boards, employer career APIs, ATS platforms, and public vacancy feeds, paired with a web control panel for visual configuration and high-signal, deduplicated email alerts scored against exact candidate criteria.
+JobsAlert watches job boards, company career pages and hiring feeds, scores every new posting against the job searches you define, and emails you the good ones. It runs on a schedule with GitHub Actions and has a local web control panel. An optional second track finds flexible online income work (AI evaluation, user testing, tutoring, transcription) and adds it to the same email.
 
----
+## How it works
 
-## Architecture Overview
+Each run goes through the same stages:
 
-```
-                      ┌────────────────────────────────────────────────────────┐
-                      │                   DATA SOURCES                         │
-                      │  • Direct ATS: Greenhouse, Lever, Ashby                │
-                      │  • Aggregators: Remotive, RemoteOK, Arbeitnow, Jobicy  │
-                      │  • Startup Feeds: Hacker News "Who is Hiring?"         │
-                      │  • Custom RSS/Atom Feeds                               │
-                      └───────────────────────────┬────────────────────────────┘
-                                                  │ Concurrent Fetch
-                                                  ▼
-                      ┌────────────────────────────────────────────────────────┐
-                      │           URL CANONICALIZER & DEDUPLICATOR             │
-                      │  • Strips utm_*, ref, gh_src, lever-origin tracking    │
-                      │  • SHA-256 Fingerprint: Company + Title + Loc + Ref    │
-                      │  • Queries State Layer (seen_jobs.json / Supabase)     │
-                      └───────────────────────────┬────────────────────────────┘
-                                                  │ Unique Postings
-                                                  ▼
-                      ┌────────────────────────────────────────────────────────┐
-                      │            RELEVANCE SCORING ENGINE (0–10)             │
-                      │  • Title & Core Stack (40%)                            │
-                      │  • Remote Policy & Location (20%)                      │
-                      │  • Compensation Fit (15%)                              │
-                      │  • Company Priority Watchlist (15%)                    │
-                      │  • Recency & Urgency (10%)                             │
-                      │  • Generates "Why You Match" bullet points             │
-                      └───────────────────────────┬────────────────────────────┘
-                                                  │
-                 ┌────────────────────────────────┴────────────────────────────────┐
-                 │                                                                 │
-                 ▼                                                                 ▼
-      [0.0 - 4.9] Discard                                              [5.0 - 6.9] Low Match
-      Dropped immediately                                              Archived for UI search
-                 │                                                                 │
-                 ▼                                                                 ▼
-      [7.0 - 8.9] Strong Match                                         [9.0 - 10.0] Instant Alert
-      Queued for Daily Digest                                          Triggers Immediate Dispatch
-                 │                                                                 │
-                 └────────────────────────────────┬────────────────────────────────┘
-                                                  │
-                                                  ▼
-                      ┌────────────────────────────────────────────────────────┐
-                      │                 DISPATCH & NOTIFIER                    │
-                      │  • Resend API (3,000 free emails/mo)                   │
-                      │  • Brevo / Sendinblue (300 free emails/day)            │
-                      │  • Standard SMTP (Gmail App Password, AWS SES)         │
-                      │  • Local Preview (latest_email_preview.html)           │
-                      └────────────────────────────────────────────────────────┘
-```
+1. **Collect** postings from company job boards (Greenhouse, Lever, Ashby), remote job boards (Remotive, RemoteOK, Arbeitnow, Jobicy), the monthly Hacker News "Who is hiring?" threads, Twitter/X, RSS/Atom feeds and jobs you add by hand. Every source reports its health; a source that fails or returns nothing shows as degraded.
+2. **Deduplicate** against postings already processed. Identities are stable across runs, and postings still listed are kept in memory until no source has shown them for `state.retention_days` (90 by default).
+3. **Score** each new posting from 0 to 10 against every job spec, with a breakdown of why it matches.
+4. **Verify links** of the postings worth alerting. Only a 404/410 or a "position closed" page counts as dead; rate limits, blocks and timeouts leave the posting in.
+5. **Deliver** an instant email for top matches and one digest grouped by job spec.
+6. **Save state.** A posting counts as alerted only after the email provider accepted it. Matches that couldn't be sent stay queued and are retried on the next run.
 
----
+### Scoring
 
-## Features
+| Score | What happens |
+|---|---|
+| below 5.0 | Discarded |
+| 5.0 – 7.0 | Kept as a low match (visible in the control panel, not emailed) |
+| 7.0 – instant threshold | Included in the digest |
+| instant threshold and above (`schedule.instant_alert_threshold`) | Instant email, and included in the digest |
 
-- **Granular 0–10 Scoring Model:** Evaluates roles beyond keyword counting. Penalizes mismatched seniority (e.g. Junior roles for experienced staff), verifies remote policies (distinguishing Worldwide from US-only), scores compensation bands against floors, and boosts target watchlist employers.
-- **Why You Match Breakdown:** Every alerted opportunity includes 3–4 transparent bullet points highlighting skill alignment, compensation fit, and location match.
-- **Cross-Platform Deduplication:** Prevents duplicate emails when a position is cross-posted across multiple boards using URL canonicalization and deterministic SHA-256 fingerprinting.
-- **Web Control Panel:** Modern responsive dashboard featuring Role & Skill matrices, compensation sliders, dream company manager, ATS source switches, delivery settings, and a real-time dry-run previewer with an embedded HTML email reader.
-- **100% Free-Tier Infrastructure:** Built to run cost-free using GitHub Actions (scheduled execution), GitHub Pages or Cloudflare Pages (control panel hosting), Git-committed state or Supabase (persistence), and Resend or Brevo (email dispatch).
+The score weighs title and skills, location and remote eligibility, pay, your company watchlist and recency (weights are configurable). Roles, skills and company names are matched as whole words. Remote postings are checked against where you can work from: a role limited to other countries (e.g. "Remote (US)", "must be located in the UK") scores low. Salaries in other currencies and periods are converted to annual USD with the rates in `fx_rates_to_usd`.
 
----
+## Quick start
 
-## Directory Structure
+Requirements: Python 3.12; Node 20 only if you want the web control panel.
 
-```
-JobsAlert/
-├── config/
-│   ├── jobs.yaml                    # Active configuration schema
-│   └── profiles/                    # Preset search personas
-│       ├── remote_high_comp.yaml    # US & Worldwide High-Comp Staff Engineer
-│       ├── hybrid_lead.yaml         # Hybrid Tech Lead / Engineering Manager
-│       └── contract_specialist.yaml # Freelance / C2C Distributed Systems
-├── src/
-│   ├── config.py                    # Pydantic v2 configuration manager
-│   ├── models.py                    # Standardized schemas for jobs, scores, telemetry
-│   ├── deduplication.py             # URL canonicalization, fingerprinting, StateManager
-│   ├── scoring.py                   # 0–10 weighted relevance scoring engine
-│   ├── pipeline.py                  # End-to-end execution orchestrator
-│   ├── main.py                      # CLI runner and entrypoint
-│   ├── collectors/                  # Pluggable collector modules
-│   │   ├── base.py                  # BaseCollector with retry & rate limiting
-│   │   ├── greenhouse.py            # Greenhouse public boards API
-│   │   ├── lever.py                 # Lever public postings API
-│   │   ├── ashby.py                 # Ashby public API
-│   │   ├── remotive.py              # Remotive remote jobs API
-│   │   ├── remoteok.py              # RemoteOK public API
-│   │   ├── arbeitnow.py             # Arbeitnow European & global remote API
-│   │   ├── jobicy.py                # Jobicy API
-│   │   ├── hackernews.py            # Hacker News "Who is Hiring?" Algolia collector
-│   │   └── rss.py                   # Generic RSS / Atom feed parser
-│   ├── notifier/                    # Multi-provider email notification engine
-│   │   ├── email_service.py         # Resend, Brevo, SendGrid, SMTP, Console preview
-│   │   └── templates/
-│   │       ├── digest.html          # Responsive mobile-friendly HTML digest
-│   │       ├── digest.txt           # Plaintext email fallback
-│   │       └── immediate.html       # Single high-priority 9.0+ match alert
-│   └── api/                         # FastAPI Web Control Panel Backend
-│       ├── server.py                # REST API endpoints & static asset router
-│       └── embedded_ui.py           # Self-contained zero-dependency dashboard UI
-├── web/                             # React + Vite + Tailwind Control Panel source
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
-│   └── src/
-│       ├── App.tsx                  # Dashboard container & navigation
-│       ├── types.ts                 # TypeScript schemas
-│       └── components/              # Tab components (Roles, Filters, Sources, etc.)
-├── data/                            # Persistent state & telemetry
-│   ├── seen_jobs.json               # Deduplication fingerprint cache
-│   ├── run_logs.json                # Execution logs and crawler latency
-│   └── latest_email_preview.html    # Rendered HTML preview from last dry run
-├── .github/
-│   └── workflows/
-│       ├── job_alert.yml            # Scheduled GitHub Actions cron runner
-│       └── deploy_dashboard.yml     # Automated frontend deployment to GitHub Pages
-├── tests/                           # Pytest test suite (18 unit tests)
-├── .env.example                     # Environment template
-├── requirements.txt                 # Backend dependencies
-├── run.py                           # Root runner script
-└── README.md
-```
-
----
-
-## Quick Start (Local Setup)
-
-### 1. Prerequisites
-- Python 3.11+
-- Node.js 18+ (optional, only needed for modifying the React frontend source)
-
-### 2. Installation
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/JobsAlert.git
-cd JobsAlert
-
-# Create and activate virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Create your local environment file
-cp .env.example .env
+pip install -r requirements-dev.txt
+cp .env.example .env        # add your email provider key and address
+python run.py --dry-run     # collect and score without sending or saving anything
 ```
 
-### 3. Running a Dry-Run & Email Preview
-Test the collection and scoring pipeline without dispatching real emails:
+A dry run saves the rendered digest to `data/latest_email_preview.html`.
+
+### Control panel
+
 ```bash
-python run.py --dry-run
+cd web && npm install && npm run build && cd ..
+python run.py --server      # http://localhost:8000
 ```
-This will:
-1. Query active ATS and aggregator feeds.
-2. Filter out blacklisted companies and excluded terms.
-3. Score candidates on a 0–10 scale.
-4. Render the email digest and save it to `data/latest_email_preview.html`.
 
-### 4. Launching the Web Control Panel
-Start the control panel web server:
-```bash
-python run.py --server --port 8000
-```
-Open your browser to: **`http://localhost:8000`**
+For frontend development, run `npm run dev` in `web/` (http://localhost:3000, proxied to the API on port 8000).
 
-From the Web Control Panel you can:
-- Adjust roles, must-have skills, and excluded terms with tag chips.
-- Fine-tune salary floors and scoring weights using dynamic sliders.
-- Manage your dream company priority watchlist and agency blacklist.
-- Toggle ATS sources and configure target company slugs (e.g. `cloudflare, datadog, linear`).
-- Switch between saved search profiles (e.g., *Remote High-Comp*, *Hybrid Lead*, *Contract Specialist*).
-- Click **"Test Run & Preview"** to execute a dry-run and inspect the live interactive HTML email preview in an iframe.
+The server listens on 127.0.0.1 only. Every change goes through an API token that the dashboard fetches automatically on this machine. To reach the panel from another device, set `JOBSALERT_API_TOKEN` to a long random value and start with `--host 0.0.0.0`; the dashboard then asks for the token.
 
----
+## Configuration
 
-## CLI Options
+`config/jobs.yaml` holds everything the control panel edits:
 
-The `run.py` script provides flexible flags for automation and local development:
+- **`job_specs`** — the searches you run, e.g. "HR Remote Roles" or "Junior Data Analyst — Remote Contract". Each has its own roles, title keywords, skills, seniority, employment type, locations and salary floor. Empty fields inherit the defaults below.
+- **`profile` / `filters`** — defaults for every spec. Excluded terms and companies here always apply.
+- **`company_watchlist`** — companies whose postings get a score boost.
+- **`sources`** — which sources run, company board slugs, RSS feeds, Twitter queries.
+- **`schedule`** — the instant alert threshold and the time zone used for dates in emails. When runs happen is set by the cron in `.github/workflows/job_alert.yml` (07:30 and 19:30 UTC).
+- **`delivery`** — email provider and addresses. `CANDIDATE_EMAIL`, `ALERTS_FROM_EMAIL` and `EMAIL_PROVIDER` from the environment override these at runtime and are never written back to the file.
+- **`link_verification`**, **`state`**, **`fx_rates_to_usd`** — link checking limits, how long processed postings are remembered, exchange rates.
+- **`online_income`** — the online income track: where you can work from, minimum hourly pay, maximum weekly hours, which platform groups to include, and quality gates.
+
+`config/profiles/*.yaml` are saved presets (`python run.py --profile hr_remote_nigeria`). `config/income_catalog.yaml` is a hand-maintained list of income platforms; each entry has a `last_reviewed` date, and entries older than `online_income.catalog_stale_after_days` are flagged for review.
+
+Jobs and income opportunities you add yourself live in `data/custom_jobs.json` and `data/custom_income_opportunities.json` (also editable from the control panel, or with `--add-job` / `--add-income`).
+
+## Command line
 
 | Flag | Description |
 |---|---|
-| `--dry-run` | Runs collection and scoring without sending emails or updating permanent state |
-| `--send-email` | Dispatches live emails via the configured provider |
-| `--profile <name>` | Executes a specific profile preset from `config/profiles/<name>.yaml` |
-| `--force-all` | Ignores the deduplication cache and re-evaluates all collected postings |
-| `--immediate-only` | Only sends alerts for high-priority matches scoring ≥ 9.0 |
-| `--preview-email` | Renders and saves `data/latest_email_preview.html` |
-| `--server` | Launches the FastAPI web control panel server |
-| `--port <number>` | Specifies port for the web server (default: 8000) |
+| `--dry-run` | Collect and score without sending email or saving state |
+| `--send-email` | Send alerts through the configured provider |
+| `--profile <name>` | Run a saved profile from `config/profiles/<name>.yaml` |
+| `--force-all` | Re-score postings that were already processed (already-alerted ones are never re-sent) |
+| `--immediate-only` | Send only instant alerts; digest matches wait for the next full run |
+| `--income`, `--income-dry-run`, `--income-send-email` | Run only the online income track |
+| `--add-job`, `--add-income` | Add a custom job or income opportunity interactively |
+| `--server [--host H] [--port P]` | Start the control panel API |
+| `--trigger <name>` | Label recorded in the run log (the scheduled workflow sets it) |
 
----
+Exit codes: `0` success, `1` some alerts could not be delivered (they are retried on the next run), `2` the configuration or a state file could not be read.
 
-## Scoring Engine Specifications
+## Scheduled runs (GitHub Actions)
 
-The engine scores opportunities on a **0.0 to 10.0 scale**:
+1. Add repository secrets: `RESEND_API_KEY` (or `BREVO_API_KEY`, `SENDGRID_API_KEY`, or the `SMTP_*` settings), `CANDIDATE_EMAIL` and `ALERTS_FROM_EMAIL`.
+2. `.github/workflows/job_alert.yml` runs twice a day and can be started manually from the Actions tab, with options for a dry run, a profile, re-scoring everything, or instant alerts only.
+3. Processed postings, run logs and the link cache live on the **`jobsalert-state`** branch as a single commit that each run replaces, so `main`'s history doesn't grow. The first run after upgrading copies the state files from `main` to that branch and stops tracking them on `main`. To look at production state locally, run `scripts/sync_state.sh`.
+4. If an email can't be sent, the run fails (red in Actions), records what was delivered, and keeps the rest queued for the next run.
 
-| Score Band | Classification | Action Taken |
-|---|---|---|
-| **0.0 – 4.9** | Discard / Exclude | Discarded immediately. Never alerted or emailed. |
-| **5.0 – 6.9** | Low Match | Archived in state database for UI search; excluded from email. |
-| **7.0 – 8.9** | Strong Match | Included in the scheduled daily/weekly email digest. |
-| **9.0 – 10.0** | High Priority Target | Triggers an immediate instant alert email if enabled. |
+`.github/workflows/ci.yml` runs the Python tests, `ruff`, and the dashboard type-check and build on every pull request.
 
-### Evaluation Criteria Breakdown:
-1. **Title & Core Stack (40% Weight):**
-   - Exact title match vs. adjacent match vs. seniority match.
-   - Must-have skills matching (missing skills incur score drops).
-   - Nice-to-have toolchain bonuses (e.g., Rust, WebAssembly, Edge AI).
-   - Hard exclusion check: postings containing negative keywords (e.g. `PHP`, `WordPress`, `Security Clearance`) or mismatched junior roles for senior candidates drop immediately to 0.0.
-2. **Remote Policy & Location (20% Weight):**
-   - Distinguishes "Worldwide Remote", country-restricted remote ("US-Only Remote"), and local tech hubs.
-   - Full points for Worldwide remote or candidate's preferred country/state.
-3. **Compensation Fit (15% Weight):**
-   - Parses listed salary bands. Bonus points for salaries meeting or exceeding the user's floor.
-   - Unlisted salaries are scored neutrally without penalty.
-   - Significant penalties for postings explicitly below the candidate floor.
-4. **Company Priority Watchlist (15% Weight):**
-   - Multipliers (e.g. 1.25x - 1.50x) applied to postings from dream companies (e.g. Cloudflare, Stripe, Datadog).
-   - Direct verified ATS postings (Greenhouse, Lever, Ashby) receive a source reputation boost.
-   - Blacklisted agencies/recruiters drop immediately to 0.0.
-5. **Recency & Urgency (10% Weight):**
-   - Postings published within the last 24 hours receive maximum recency score to maximize early-applicant advantage.
+## Development
 
----
-
-## 100% Free-Tier Cloud Deployment Guide
-
-You can host and run the entire system 100% free with zero monthly server costs:
-
-### Step 1: Push Repository to GitHub
-Create a private GitHub repository and push this codebase:
 ```bash
-git remote add origin https://github.com/yourusername/JobsAlert.git
-git branch -M main
-git push -u origin main
+pytest -q          # tests never touch real data, config or email, and make no network calls
+ruff check .
+cd web && npm run typecheck && npm run build
 ```
 
-### Step 2: Configure Free Email Delivery (Resend)
-1. Register for a free account at [resend.com](https://resend.com) (includes 3,000 free emails/month).
-2. Generate an API Key under **API Keys**.
-3. In your GitHub repository, navigate to **Settings** → **Secrets and variables** → **Actions** and add the following repository secrets:
-   - `RESEND_API_KEY`: Your Resend API token (`re_...`)
-   - `CANDIDATE_EMAIL`: Your destination email address
-   - `ALERTS_FROM_EMAIL`: `Job Intelligence <onboarding@resend.dev>` (works out of the box with zero custom domain DNS setup)
+Project layout:
 
-### Step 3: Scheduled Automation via GitHub Actions
-The included workflow [`.github/workflows/job_alert.yml`](.github/workflows/job_alert.yml) is pre-configured to run on a scheduled cron trigger (e.g. daily at 07:30 UTC).
-
-It performs the following automatically:
-1. Wakes up on the scheduled cron time.
-2. Pulls target vacancies from Greenhouse, Lever, Ashby, Remotive, RemoteOK, Arbeitnow, Jobicy, and Hacker News.
-3. Deduplicates against previously seen postings in `data/seen_jobs.json`.
-4. Scores postings using candidate rules from `config/jobs.yaml`.
-5. Dispatches formatted HTML digests to your inbox via Resend.
-6. Commits updated `seen_jobs.json` and execution telemetry back to the repository with `[skip ci]`.
-
-You can also trigger a manual run anytime by visiting **Actions** → **Automated Job Intelligence Scout & Alert** → **Run workflow**.
-
-### Step 4: Deploying the Web Control Panel (GitHub Pages or Cloudflare Pages)
-- **GitHub Pages:** Enable GitHub Pages in your repo settings pointing to GitHub Actions. The included workflow [`.github/workflows/deploy_dashboard.yml`](.github/workflows/deploy_dashboard.yml) builds and publishes the web control panel automatically.
-- **Cloudflare Pages / Vercel:** Connect your GitHub repo, set the root directory to `web`, framework preset to `Vite`, and build command to `npm run build`.
-
----
-
-## Testing
-
-Run the full automated test suite:
-```bash
-pytest -v
 ```
-
-All 18 unit tests cover:
-- Scoring engine edge cases (blacklists, negative terms, seniority mismatch, watchlist boosts, salary floors).
-- URL canonicalization and parameter stripping (`utm_*`, `gh_src`, `ref`).
-- Deduplication state persistence and SHA-256 fingerprint collisions.
-- HTML and plaintext email template rendering and "Why You Match" bullets.
-- FastAPI REST endpoints (`/api/health`, `/api/config`, `/api/profiles`, `/api/preview-email`, `/`).
-
----
+src/
+  collectors/            job sources (one module per source) and the shared collector base
+  income_opportunities/  income track: catalogue/RSS/custom collectors, screening, scoring, pipeline
+  api/server.py          control panel API
+  notifier/              email rendering (Jinja2 templates) and providers
+  pipeline.py            the run: collect -> deduplicate -> score -> verify -> deliver -> save
+  scoring.py, eligibility.py, money.py, matching.py, verifier.py, deduplication.py, storage.py
+web/                     React + TypeScript control panel (Vite, Tailwind)
+config/                  jobs.yaml, profiles/, income_catalog.yaml
+data/                    custom entries (tracked) and local runtime state (ignored)
+tests/                   pytest suite
+```
 
 ## License
 
-MIT License. Free for personal and commercial career intelligence automation.
+MIT

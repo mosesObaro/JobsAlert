@@ -1,11 +1,9 @@
 import asyncio
-import pytest
 from src.income_opportunities.collectors import (
     AIEvaluationCollector,
     UserTestingCollector,
     AcademicTutoringCollector,
     TranscriptionSupportCollector,
-    CustomIncomeCollector,
     get_all_income_collectors,
     run_all_income_collectors,
 )
@@ -57,4 +55,5 @@ def test_run_all_income_collectors():
     opps, health = asyncio.run(run_all_income_collectors(config))
     assert len(opps) > 10
     assert len(health) == len(get_all_income_collectors())
-    assert all(h.status in ["healthy", "degraded"] for h in health)
+    assert all(h.status in ["healthy", "degraded", "disabled"] for h in health)
+    assert {h.source_name: h.status for h in health}["income_rss"] == "disabled"  # no feeds configured

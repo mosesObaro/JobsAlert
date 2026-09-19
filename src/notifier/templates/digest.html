@@ -309,7 +309,7 @@
         </div>
         <h1 class="header-title">{{ header_title }}</h1>
         <p class="header-subtitle">
-          Aggregated, scam-verified & scored against target profile for <strong>{{ candidate_name }}</strong>
+          Collected, screened and scored against your profile for <strong>{{ candidate_name }}</strong>
         </p>
       </div>
 
@@ -321,17 +321,17 @@
         <span>💰 {{ income_opportunities|length }} Online Income Tracks</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
         {% elif total_career_jobs > 0 %}
-        <span>⚡ {{ total_career_jobs }} Verified Career Matches</span>
+        <span>⚡ {{ total_career_jobs }} Career Matches</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
-        <span>🌐 Remote & Verified ATS</span>
+        <span>🌐 Remote & direct ATS</span>
         {% elif income_opportunities %}
-        <span>💰 {{ income_opportunities|length }} Verified Income Tracks</span>
+        <span>💰 {{ income_opportunities|length }} Income Tracks</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
         <span>🛡️ Scam & Safety Screened</span>
         {% else %}
         <span>⚡ 0 New Alerts Today</span>
         <span>🎯 Standing Guard</span>
-        <span>🌐 Remote & Verified</span>
+        <span>🌐 Remote & screened</span>
         {% endif %}
       </div>
 
@@ -366,7 +366,7 @@
                   <div class="company-name">{{ scored.job.company }}</div>
                 </div>
                 <div>
-                  {% if scored.score >= 9.0 %}
+                  {% if scored.score >= job_instant_threshold %}
                   <div class="score-badge score-high">
                     ★ {{ scored.score }}/10 Match
                   </div>
@@ -385,7 +385,7 @@
                 </span>
                 {% if scored.job.salary_min or scored.job.salary_max %}
                 <span class="chip chip-salary">
-                  💰 ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+                  💰 {{ scored.job|salary }}
                 </span>
                 {% else %}
                 <span class="chip">
@@ -412,10 +412,10 @@
 
               <!-- Card Footer & Direct Apply Button -->
               <div class="card-footer">
-                <span class="source-tag">Source: Verified {{ scored.job.source }}</span>
-                <a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                <span class="source-tag">Source: {{ scored.job.source }}</span>
+                {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
                   Apply Directly →
-                </a>
+                </a>{% endif %}
               </div>
             </div>
             {% endfor %}
@@ -441,7 +441,7 @@
               <div class="company-name">{{ scored.job.company }}</div>
             </div>
             <div>
-              {% if scored.score >= 9.0 %}
+              {% if scored.score >= job_instant_threshold %}
               <div class="score-badge score-high">
                 ★ {{ scored.score }}/10 Match
               </div>
@@ -460,7 +460,7 @@
             </span>
             {% if scored.job.salary_min or scored.job.salary_max %}
             <span class="chip chip-salary">
-              💰 ${{ "{:,.0f}".format(scored.job.salary_min or scored.job.salary_max) }}{% if scored.job.salary_max and scored.job.salary_max != scored.job.salary_min %} - ${{ "{:,.0f}".format(scored.job.salary_max) }}{% endif %}
+              💰 {{ scored.job|salary }}
             </span>
             {% else %}
             <span class="chip">
@@ -487,10 +487,10 @@
 
           <!-- Card Footer & Direct Apply Button -->
           <div class="card-footer">
-            <span class="source-tag">Source: Verified {{ scored.job.source }}</span>
-            <a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+            <span class="source-tag">Source: {{ scored.job.source }}</span>
+            {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
               Apply Directly →
-            </a>
+            </a>{% endif %}
           </div>
         </div>
         {% endfor %}
@@ -499,7 +499,7 @@
         <!-- SECTION 2: ONLINE INCOME & FLEXIBLE REMOTE TRACKS -->
         {% if income_opportunities %}
         <div class="section-header" style="{% if (spec_groups and spec_groups|length > 0) or jobs %}margin-top: 36px;{% endif %}">
-          <h3 class="section-title">Verified Online Income & Flexible Remote Tracks</h3>
+          <h3 class="section-title">Online Income & Flexible Remote Tracks</h3>
           <span class="section-badge badge-income">Top {{ income_opportunities|length }} Selected</span>
         </div>
 
@@ -518,7 +518,7 @@
               </div>
             </div>
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-              {% if scored.score >= 9.0 %}
+              {% if scored.score >= income_instant_threshold %}
               <div class="score-badge score-high">
                 ★ {{ scored.score }}/10 Overall
               </div>

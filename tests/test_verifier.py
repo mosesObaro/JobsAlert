@@ -1,137 +1,110 @@
 """
-Unit tests for the Link Verification Engine.
-Tests HTTP status code evaluation, soft-404 closed posting keyword detection, caching, and timeouts.
+Unit tests for the Link Verification Engine: dead vs. unknown classification,
+closed-posting detection, retries, caching and per-host limits.
 """
 
 import asyncio
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
-import pytest
+
 import httpx
 
 from src.config import LinkVerificationConfig
-from src.models import JobPosting
 from src.verifier import LinkVerifier, VerificationResult
 
 
-def test_link_verifier_cache(tmp_path):
-    cache_file = tmp_path / "test_link_cache.json"
+def verifier_with(handler, tmp_path) -> LinkVerifier:
+    return LinkVerifier(cache_file=tmp_path / "cache.json", transport=httpx.MockTransport(handler))
+
+
+def test_404_is_dead(tmp_path):
+    verifier = verifier_with(lambda request: httpx.Response(404), tmp_path)
+    result = asyncio.run(verifier.verify_url("https://real-site.test/job/404"))
+    assert result.status == "dead"
+    assert result.is_valid is False
+    assert "404" in result.reason
+
+
+def test_closed_posting_page_is_dead(tmp_path):
+    page = "<html><p>This position has been closed and we are no longer accepting applications.</p></html>"
+    verifier = verifier_with(lambda request: httpx.Response(200, text=page), tmp_path)
+    result = asyncio.run(verifier.verify_url("https://boards.greenhouse.io/acme/jobs/999"))
+    assert result.status == "dead"
+    assert "Position closed" in result.reason
+
+
+def test_open_posting_is_active(tmp_path):
+    page = "<html><h1>Staff Engineer</h1><button>Apply Now</button></html>"
+    verifier = verifier_with(lambda request: httpx.Response(200, text=page), tmp_path)
+    result = asyncio.run(verifier.verify_url("https://jobs.ashbyhq.com/acme/123"))
+    assert result.status == "active"
+    assert result.is_valid
+
+
+def test_rate_limits_blocks_and_server_errors_are_unknown_not_dead(tmp_path):
+    for code in (429, 403, 401, 500, 503):
+        verifier = verifier_with(lambda request, code=code: httpx.Response(code), tmp_path)
+        result = asyncio.run(verifier.verify_url(f"https://news.ycombinator.com/item?id={code}"))
+        assert result.status == "unknown", code
+        assert result.is_valid, code
+
+
+def test_timeouts_are_unknown(tmp_path):
+    def timeout(request):
+        raise httpx.ConnectTimeout("slow", request=request)
+
+    result = asyncio.run(verifier_with(timeout, tmp_path).verify_url("https://slow.test/job"))
+    assert result.status == "unknown"
+
+
+def test_429_with_short_retry_after_is_retried_once(tmp_path):
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) == 1:
+            return httpx.Response(429, headers={"Retry-After": "0"})
+        return httpx.Response(200, text="<html>Apply</html>")
+
+    result = asyncio.run(verifier_with(handler, tmp_path).verify_url("https://busy.test/job"))
+    assert result.status == "active"
+    assert len(calls) == 2
+
+
+def test_only_definite_results_are_cached(tmp_path):
+    cache_file = tmp_path / "cache.json"
     verifier = LinkVerifier(cache_file=cache_file)
+    now = datetime.now(timezone.utc).isoformat()
+    verifier.cache_result(VerificationResult(url="https://a.test/1", status="active", status_code=200, reason="active", verified_at=now))
+    verifier.cache_result(VerificationResult(url="https://a.test/2", status="unknown", status_code=429, reason="Rate limited", verified_at=now))
+    verifier.save_cache()
 
-    res = VerificationResult(
-        url="https://example.com/jobs/1",
-        is_valid=True,
-        status_code=200,
-        reason="active",
-        verified_at=datetime.now(timezone.utc).isoformat(),
-    )
-    verifier.cache_result(res)
-    verifier._save_cache()
-
-    # Load in new instance
-    verifier2 = LinkVerifier(cache_file=cache_file)
-    cached = verifier2.get_cached_result("https://example.com/jobs/1", ttl_hours=24)
-    assert cached is not None
-    assert cached.is_valid is True
-    assert cached.status_code == 200
+    reloaded = LinkVerifier(cache_file=cache_file)
+    assert reloaded.get_cached_result("https://a.test/1").status == "active"
+    assert reloaded.get_cached_result("https://a.test/2") is None
 
 
-def test_mock_url_verification():
-    verifier = LinkVerifier()
-    res = asyncio.run(verifier.verify_url("https://example.com/test-job"))
-    assert res.is_valid is True
-    assert res.reason == "mock_valid"
+def test_legacy_cache_entries_without_status_are_ignored(tmp_path):
+    cache_file = tmp_path / "cache.json"
+    now = datetime.now(timezone.utc).isoformat()
+    cache_file.write_text('{"https://news.ycombinator.com/item?id=1": {"url": "x", "is_valid": false, "reason": "HTTP Error 429", "verified_at": "%s"}}' % now)
+    assert LinkVerifier(cache_file=cache_file).get_cached_result("https://news.ycombinator.com/item?id=1") is None
 
 
-def test_404_url_verification():
-    verifier = LinkVerifier()
-    mock_resp = httpx.Response(status_code=404, request=httpx.Request("GET", "https://real-site.com/job/404"))
+def test_verify_many_limits_concurrency_per_host(tmp_path):
+    active = {"now": 0, "peak": 0}
 
-    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = mock_resp
-        res = asyncio.run(verifier.verify_url("https://real-site.com/job/404"))
-        assert res.is_valid is False
-        assert "404" in res.reason
+    async def handler(request):
+        active["now"] += 1
+        active["peak"] = max(active["peak"], active["now"])
+        await asyncio.sleep(0.01)
+        active["now"] -= 1
+        return httpx.Response(200, text="<html>Apply</html>")
 
+    verifier = verifier_with(handler, tmp_path)
+    urls = [f"https://one-host.test/job/{i}" for i in range(12)]
+    config = LinkVerificationConfig(max_concurrency=20, per_host_concurrency=2)
+    results = asyncio.run(verifier.verify_many(urls, config))
 
-def test_soft_404_closed_job_detection():
-    verifier = LinkVerifier()
-    html_content = """
-    <html>
-        <body>
-            <h1>Thank you for your interest</h1>
-            <p>This position has been closed and we are no longer accepting applications.</p>
-        </body>
-    </html>
-    """
-    mock_resp = httpx.Response(
-        status_code=200,
-        text=html_content,
-        request=httpx.Request("GET", "https://boards.greenhouse.io/acme/jobs/999")
-    )
-
-    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = mock_resp
-        res = asyncio.run(verifier.verify_url("https://boards.greenhouse.io/acme/jobs/999"))
-        assert res.is_valid is False
-        assert "Position closed" in res.reason
-
-
-def test_active_200_job_verification():
-    verifier = LinkVerifier()
-    html_content = """
-    <html>
-        <body>
-            <h1>Staff Distributed Systems Engineer</h1>
-            <p>We are hiring! Apply below.</p>
-            <button>Apply Now</button>
-        </body>
-    </html>
-    """
-    mock_resp = httpx.Response(
-        status_code=200,
-        text=html_content,
-        request=httpx.Request("GET", "https://jobs.ashbyhq.com/acme/123")
-    )
-
-    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = mock_resp
-        res = asyncio.run(verifier.verify_url("https://jobs.ashbyhq.com/acme/123"))
-        assert res.is_valid is True
-        assert res.reason == "active"
-
-
-def test_verify_jobs_batch():
-    verifier = LinkVerifier()
-    jobs = [
-        JobPosting(
-            id="job_active",
-            title="Senior Go Dev",
-            company="Acme",
-            url="https://example.com/active",
-            source="custom"
-        ),
-        JobPosting(
-            id="job_closed",
-            title="Old Dev",
-            company="OldCorp",
-            url="https://real-site.com/closed-job",
-            source="custom"
-        ),
-    ]
-
-    mock_resp_closed = httpx.Response(
-        status_code=200,
-        text="<html><body>This job is no longer available</body></html>",
-        request=httpx.Request("GET", "https://real-site.com/closed-job")
-    )
-
-    with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = mock_resp_closed
-        valid, invalid = asyncio.run(verifier.verify_jobs_batch(jobs))
-
-        assert len(valid) == 1
-        assert valid[0].id == "job_active"
-        assert len(invalid) == 1
-        assert invalid[0][0].id == "job_closed"
-        assert "Position closed" in invalid[0][1]
+    assert len(results) == 12
+    assert all(r.status == "active" for r in results.values())
+    assert active["peak"] <= 2

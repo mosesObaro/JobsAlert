@@ -8,7 +8,6 @@ import pytest
 
 from src.config import AppConfig
 from src.deduplication import StateManager
-from src.income_opportunities.config import OnlineIncomeConfig
 from src.income_opportunities.deduplication import IncomeStateManager
 from src.income_opportunities.models import (
     IncomeCollectorHealth,
@@ -105,7 +104,7 @@ def test_format_digest_subject_scenarios(sample_job, sample_income_opp):
     # Only income
     subj_income = notifier.format_digest_subject([], [sample_income_opp])
     assert "[Income Alert]" in subj_income
-    assert "1 Verified Online Income Track Found" in subj_income
+    assert "1 Online Income Track Found" in subj_income
 
     # Empty
     subj_empty = notifier.format_digest_subject([], [])
@@ -124,7 +123,7 @@ def test_render_unified_digest_email(sample_job, sample_income_opp):
 
     # HTML assertions
     assert "Target Career & Employment Opportunities" in html_content
-    assert "Verified Online Income & Flexible Remote Tracks" in html_content
+    assert "Online Income & Flexible Remote Tracks" in html_content
     assert "Senior Financial Analyst" in html_content
     assert "Moniepoint" in html_content
     assert "AI Evaluation Specialist" in html_content
@@ -136,7 +135,7 @@ def test_render_unified_digest_email(sample_job, sample_income_opp):
 
     # Plaintext assertions
     assert "TARGET CAREER & EMPLOYMENT OPPORTUNITIES" in text_content
-    assert "VERIFIED ONLINE INCOME & FLEXIBLE REMOTE TRACKS" in text_content
+    assert "ONLINE INCOME & FLEXIBLE REMOTE TRACKS" in text_content
     assert "Senior Financial Analyst" in text_content
     assert "AI Evaluation Specialist - Reasoning & Logic" in text_content
 
@@ -151,7 +150,7 @@ def test_render_income_only_digest(sample_income_opp):
         income_opportunities=[sample_income_opp],
     )
 
-    assert "Verified Online Income Tracks" in html_content
+    assert "Online Income Tracks" in html_content
     assert "DataAnnotation.tech" in html_content
     assert "Target Career & Employment Opportunities" not in html_content
 
@@ -162,8 +161,8 @@ async def test_job_pipeline_unified_execution(tmp_path, sample_job, sample_incom
     state_file = tmp_path / "seen_jobs.json"
     income_state_file = tmp_path / "seen_income.json"
 
-    state_mgr = StateManager(filepath=state_file)
-    income_state_mgr = IncomeStateManager(filepath=income_state_file)
+    state_mgr = StateManager(state_file)
+    income_state_mgr = IncomeStateManager(income_state_file)
 
     config = AppConfig()
     config.online_income.enabled = True
@@ -186,7 +185,7 @@ async def test_job_pipeline_unified_execution(tmp_path, sample_job, sample_incom
     mock_income_health = [IncomeCollectorHealth(source_name="ai_evaluation", status="healthy", items_fetched=1, execution_time_seconds=0.1)]
 
     with patch("src.pipeline.run_all_collectors", new_callable=AsyncMock) as mock_rc, \
-         patch("src.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
+         patch("src.income_opportunities.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
          patch.object(pipeline.notifier, "send_digest", new_callable=AsyncMock) as mock_send_digest:
 
         mock_rc.return_value = (mock_jobs, mock_job_health)
@@ -217,8 +216,8 @@ async def test_job_pipeline_unified_execution(tmp_path, sample_job, sample_incom
 @pytest.mark.anyio
 async def test_job_pipeline_income_disabled(tmp_path, sample_job):
     """Verifies that income tracks are not collected when include_in_daily_digest is False."""
-    state_mgr = StateManager(filepath=tmp_path / "seen_jobs.json")
-    income_state_mgr = IncomeStateManager(filepath=tmp_path / "seen_income.json")
+    state_mgr = StateManager(tmp_path / "seen_jobs.json")
+    income_state_mgr = IncomeStateManager(tmp_path / "seen_income.json")
 
     config = AppConfig()
     config.online_income.include_in_daily_digest = False
@@ -233,7 +232,7 @@ async def test_job_pipeline_income_disabled(tmp_path, sample_job):
     mock_job_health = [CrawlerHealth(source_name="greenhouse", status="healthy", jobs_found=1, latency_ms=100.0)]
 
     with patch("src.pipeline.run_all_collectors", new_callable=AsyncMock) as mock_rc, \
-         patch("src.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric:
+         patch("src.income_opportunities.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric:
 
         mock_rc.return_value = (mock_jobs, mock_job_health)
 
@@ -250,8 +249,8 @@ async def test_job_pipeline_previously_alerted_suppressed(tmp_path, sample_job, 
     state_file = tmp_path / "seen_jobs_alerted.json"
     income_state_file = tmp_path / "seen_income_alerted.json"
 
-    state_mgr = StateManager(filepath=state_file)
-    income_state_mgr = IncomeStateManager(filepath=income_state_file)
+    state_mgr = StateManager(state_file)
+    income_state_mgr = IncomeStateManager(income_state_file)
 
     # 1. Pre-record the existing sample_job and sample_income_opp as ALREADY ALERTED
     state_mgr.record_job(sample_job.job, score=sample_job.score, action=sample_job.action, alerted=True)
@@ -297,7 +296,7 @@ async def test_job_pipeline_previously_alerted_suppressed(tmp_path, sample_job, 
     mock_income_health = [IncomeCollectorHealth(source_name="ai_evaluation", status="healthy", items_fetched=1, execution_time_seconds=0.1)]
 
     with patch("src.pipeline.run_all_collectors", new_callable=AsyncMock) as mock_rc, \
-         patch("src.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
+         patch("src.income_opportunities.pipeline.run_all_income_collectors", new_callable=AsyncMock) as mock_ric, \
          patch.object(pipeline.notifier, "send_digest", new_callable=AsyncMock) as mock_send_digest:
 
         mock_rc.return_value = (mock_jobs, mock_job_health)

@@ -1,105 +1,74 @@
 """
 Remotive Remote Jobs API Collector.
-Fetches curated remote technical listings from remotive.com.
+Fetches curated remote listings from remotive.com.
 """
 
 from __future__ import annotations
-import re
-from datetime import datetime
-from typing import List, Tuple
-from src.collectors.base import BaseCollector
+from typing import List, Optional, Tuple
+
+from src.collectors.base import BaseCollector, parse_iso_datetime
 from src.config import AppConfig
+from src.feeds import strip_html
 from src.models import JobPosting
+from src.money import parse_salary_text
 
 
-def parse_salary_string(salary_str: str) -> Tuple[float | None, float | None]:
-    """Parses text like '$120k - $160k' or '110,000 - 140,000 USD' into min and max floats."""
-    if not salary_str:
-        return None, None
-    clean = salary_str.replace(",", "").replace("$", "").lower()
-    numbers = re.findall(r"\d+(?:\.\d+)?", clean)
-    if not numbers:
-        return None, None
-
-    vals = []
-    for n in numbers:
-        val = float(n)
-        if "k" in clean and val < 1000:
-            val *= 1000
-        vals.append(val)
-
-    if len(vals) == 1:
-        return vals[0], vals[0]
-    return min(vals[0], vals[1]), max(vals[0], vals[1])
+def parse_salary_string(salary_str: str) -> Tuple[Optional[float], Optional[float]]:
+    """Parses '$120k - $160k' or '110,000 - 140,000 USD' into (min, max)."""
+    info = parse_salary_text(salary_str)
+    return info.min, info.max
 
 
 class RemotiveCollector(BaseCollector):
     def __init__(self):
         super().__init__(name="remotive")
 
+    def is_enabled(self, config: AppConfig) -> bool:
+        return config.sources.remotive.enabled
+
     async def collect(self, config: AppConfig) -> List[JobPosting]:
         if not config.sources.remotive.enabled:
             return []
-
         categories = config.sources.remotive.categories or ["software-dev", "hr", "data"]
         all_jobs: List[JobPosting] = []
         seen_job_ids = set()
 
         async with self.create_http_client(timeout=12.0) as client:
             for category in categories:
-                url = f"https://remotive.com/api/remote-jobs?category={category}&limit=50"
                 try:
-                    resp = await client.get(url)
-                    if resp.status_code != 200:
+                    resp = await client.get("https://remotive.com/api/remote-jobs", params={"category": category, "limit": 50})
+                except Exception as exc:
+                    self.note(f"remotive/{category}: {type(exc).__name__}")
+                    continue
+                if not self.accept(resp, f"remotive/{category}"):
+                    continue
+
+                for item in resp.json().get("jobs", []):
+                    job_id = str(item.get("id", ""))
+                    if job_id in seen_job_ids:
                         continue
-                    data = resp.json()
-                    items = data.get("jobs", [])
+                    seen_job_ids.add(job_id)
 
-                    for item in items:
-                        job_id = str(item.get("id", ""))
-                        if job_id in seen_job_ids:
-                            continue
-                        seen_job_ids.add(job_id)
-                        title = item.get("title", "").strip()
-                        company = item.get("company_name", "").strip()
-                        location = item.get("candidate_required_location", "Worldwide") or "Worldwide"
-                        job_url = item.get("url", "")
-                        salary_str = item.get("salary", "")
-                        s_min, s_max = parse_salary_string(salary_str)
-
-                        # Strip HTML from description
-                        raw_desc = item.get("description", "")
-                        clean_desc = re.sub(r"<[^>]+>", " ", raw_desc)
-                        clean_desc = " ".join(clean_desc.split())
-
-                        posted_at = None
-                        if item.get("publication_date"):
-                            try:
-                                posted_at = datetime.fromisoformat(item["publication_date"].replace("Z", "+00:00"))
-                            except Exception:
-                                pass
-
-                        loc_lower = location.lower()
-                        remote_scope = "Worldwide" if ("worldwide" in loc_lower or "anywhere" in loc_lower) else location
-
-                        posting = JobPosting(
-                            id=f"remotive_{job_id}",
-                            title=title,
-                            company=company,
-                            location=f"Remote ({location})",
-                            is_remote=True,
-                            remote_scope=remote_scope,
-                            url=job_url,
-                            raw_url=job_url,
-                            description=clean_desc[:3000],
-                            salary_min=s_min,
-                            salary_max=s_max,
-                            source="remotive",
-                            posted_at=posted_at,
-                            tags=item.get("tags", [])
-                        )
-                        all_jobs.append(posting)
-                except Exception as e:
-                    self.health.error_message = str(e)
-
+                    location = item.get("candidate_required_location") or "Worldwide"
+                    loc_lower = location.lower()
+                    salary = parse_salary_text(item.get("salary") or "")
+                    job_url = item.get("url", "")
+                    all_jobs.append(JobPosting(
+                        id=f"remotive_{job_id}",
+                        title=(item.get("title") or "").strip(),
+                        company=(item.get("company_name") or "").strip(),
+                        location=f"Remote ({location})",
+                        is_remote=True,
+                        remote_scope="Worldwide" if ("worldwide" in loc_lower or "anywhere" in loc_lower) else location,
+                        url=job_url,
+                        raw_url=job_url,
+                        description=strip_html(item.get("description", ""))[:3000],
+                        salary_min=salary.min,
+                        salary_max=salary.max,
+                        salary_currency=salary.currency,
+                        salary_period=salary.period,
+                        source="remotive",
+                        posted_at=parse_iso_datetime(item.get("publication_date")),
+                        tags=item.get("tags") or [],
+                    ))
         return all_jobs

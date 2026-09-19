@@ -1,15 +1,11 @@
-import pytest
-from datetime import datetime, timezone
 from src.income_opportunities.models import (
     OnlineIncomeOpportunity,
     IncomeMatchBreakdown,
     ScoredOpportunity,
-    IncomeCollectorHealth,
     IncomeRunSummary,
     SourceTrustTier,
-    OpportunityStatus,
 )
-from src.income_opportunities.config import OnlineIncomeConfig, IncomeSourcesConfig
+from src.income_opportunities.config import OnlineIncomeConfig
 
 
 def test_online_income_opportunity_defaults():

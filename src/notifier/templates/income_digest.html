@@ -225,13 +225,13 @@
         </div>
         <h1 class="header-title">{{ header_title }}</h1>
         <p class="header-subtitle">
-          Verified flexible micro-work, AI training, and research gigs scored for <strong>{{ candidate_name }}</strong>
+          Screened flexible micro-work, AI training and research gigs scored for <strong>{{ candidate_name }}</strong>
         </p>
       </div>
 
       <!-- Stats Bar -->
       <div class="stats-bar">
-        <span>⚡ {{ opportunities|length }} Verified Income Tracks</span>
+        <span>⚡ {{ opportunities|length }} Income Tracks</span>
         <span>🎯 Min Score: {{ min_score }}/10</span>
         <span>🌍 Remote & Zero Upfront Cost</span>
       </div>
@@ -253,7 +253,7 @@
               </div>
             </div>
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-              {% if scored.score >= 9.0 %}
+              {% if scored.score >= income_instant_threshold %}
               <div class="score-badge score-high">
                 ★ {{ scored.score }}/10 Overall
               </div>
@@ -290,7 +290,7 @@
             </span>
             {% elif scored.opportunity.estimated_pay_min or scored.opportunity.estimated_pay_max %}
             <span class="chip chip-pay">
-              💵 ${{ "{:,.0f}".format(scored.opportunity.estimated_pay_min or 0) }}{% if scored.opportunity.estimated_pay_max and scored.opportunity.estimated_pay_max != scored.opportunity.estimated_pay_min %}–${{ "{:,.0f}".format(scored.opportunity.estimated_pay_max) }}{% endif %}/hr
+              💵 {{ scored.opportunity|pay }}
             </span>
             {% else %}
             <span class="chip chip-pay">
