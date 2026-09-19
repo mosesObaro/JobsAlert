@@ -1,0 +1,100 @@
+{
+  "https://jobs.ashbyhq.com/scalearmy": {
+    "url": "https://jobs.ashbyhq.com/scalearmy",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.214817+00:00"
+  },
+  "https://jobs.lever.co/deel": {
+    "url": "https://jobs.lever.co/deel",
+    "status": "dead",
+    "status_code": 404,
+    "reason": "HTTP 404 (not found)",
+    "verified_at": "2026-09-19T03:42:25.234916+00:00"
+  },
+  "https://jobs.ashbyhq.com/lemfi": {
+    "url": "https://jobs.ashbyhq.com/lemfi",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.246103+00:00"
+  },
+  "https://boards.greenhouse.io/flutterwave": {
+    "url": "https://boards.greenhouse.io/flutterwave",
+    "status": "dead",
+    "status_code": 404,
+    "reason": "HTTP 404 (not found)",
+    "verified_at": "2026-09-19T03:42:25.245158+00:00"
+  },
+  "https://remoteok.com/remote-jobs/contract-data-analyst-bi-specialist-214950": {
+    "url": "https://remoteok.com/remote-jobs/contract-data-analyst-bi-specialist-214950",
+    "status": "dead",
+    "status_code": 404,
+    "reason": "HTTP 404 (not found)",
+    "verified_at": "2026-09-19T03:42:25.309990+00:00"
+  },
+  "https://boards.greenhouse.io/moniepoint": {
+    "url": "https://boards.greenhouse.io/moniepoint",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.317130+00:00"
+  },
+  "https://job-boards.greenhouse.io/canonical/jobs/5703396": {
+    "url": "https://job-boards.greenhouse.io/canonical/jobs/5703396",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.357316+00:00"
+  },
+  "https://jobs.ashbyhq.com/ramp/4859cd5e-f2a9-44d7-81f7-8bfc0e62369f": {
+    "url": "https://jobs.ashbyhq.com/ramp/4859cd5e-f2a9-44d7-81f7-8bfc0e62369f",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.395872+00:00"
+  },
+  "https://remotive.com/remote-jobs/data/junior-data-analyst-contract-203912": {
+    "url": "https://remotive.com/remote-jobs/data/junior-data-analyst-contract-203912",
+    "status": "dead",
+    "status_code": 410,
+    "reason": "HTTP 410 (not found)",
+    "verified_at": "2026-09-19T03:42:25.472659+00:00"
+  },
+  "https://remoteok.com/remote-jobs/junior-swift-developer-contract-194821": {
+    "url": "https://remoteok.com/remote-jobs/junior-swift-developer-contract-194821",
+    "status": "dead",
+    "status_code": 404,
+    "reason": "HTTP 404 (not found)",
+    "verified_at": "2026-09-19T03:42:25.473416+00:00"
+  },
+  "https://remotive.com/remote-jobs/software-dev/junior-ios-developer-182930": {
+    "url": "https://remotive.com/remote-jobs/software-dev/junior-ios-developer-182930",
+    "status": "dead",
+    "status_code": 410,
+    "reason": "HTTP 410 (not found)",
+    "verified_at": "2026-09-19T03:42:25.491284+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4056914101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4056914101",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.924461+00:00"
+  },
+  "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4576013101": {
+    "url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4576013101",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T03:42:25.928629+00:00"
+  },
+  "https://jobicy.com/jobs/151013-distributed-systems-testing-software-engineer-python-go": {
+    "url": "https://jobicy.com/jobs/151013-distributed-systems-testing-software-engineer-python-go",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-09-19T12:56:36.653967+00:00"
+  }
+}

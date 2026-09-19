@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Daily Alert] 19 Sep 2026 — 4 Target Roles &amp; 3 Online Income Tracks Found</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #334155;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #0f172a;
+      padding: 32px 12px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    }
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 32px 28px;
+      color: #ffffff;
+      border-bottom: 3px solid #3b82f6;
+    }
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .logo-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid #3b82f6;
+      color: #60a5fa;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .header-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin: 0 0 8px 0;
+      color: #f8fafc;
+    }
+    .header-subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+      margin: 0;
+    }
+    .stats-bar {
+      background-color: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .content {
+      padding: 24px 28px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 28px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .section-header:first-child {
+      margin-top: 0;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .section-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .badge-jobs {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .badge-income {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .job-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .income-card {
+      background-color: #ffffff;
+      border: 1px solid #d1fae5;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .job-title, .opp-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      line-height: 1.3;
+    }
+    .company-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2563eb;
+    }
+    .org-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #059669;
+    }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .score-high {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .score-strong {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 16px 0;
+    }
+    .chip {
+      display: inline-block;
+      padding: 3px 9px;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+    }
+    .chip-salary {
+      background-color: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+      font-weight: 600;
+    }
+    .chip-income-pay {
+      background-color: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+      font-weight: 700;
+    }
+    .chip-remote {
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+      font-weight: 600;
+    }
+    .chip-verified {
+      background-color: #ecfeff;
+      border-color: #a5f3fc;
+      color: #0e7490;
+      font-weight: 600;
+    }
+    .why-match-box {
+      background-color: #f8fafc;
+      border-left: 3px solid #3b82f6;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+    .why-match-box-income {
+      background-color: #f0fdf4;
+      border-left: 3px solid #10b981;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+    .why-match-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .why-match-title-income {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #065f46;
+      margin-bottom: 6px;
+    }
+    .why-match-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.5;
+    }
+    .why-match-list li {
+      margin-bottom: 4px;
+    }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .source-tag {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .apply-btn {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .apply-btn-income {
+      display: inline-block;
+      background-color: #059669;
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .footer {
+      background-color: #0f172a;
+      padding: 24px 28px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .footer a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-row">
+          <span class="logo-badge">Autonomous Career & Income Scout</span>
+          <span style="font-size: 12px; color: #94a3b8;">Saturday, 19 September 2026</span>
+        </div>
+        <h1 class="header-title">4 Target Roles &amp; 3 Online Income Tracks</h1>
+        <p class="header-subtitle">
+          Collected, screened and scored against your profile for <strong>Multi-Track Candidate</strong>
+        </p>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        
+        
+        <span>⚡ 4 Career Roles</span>
+        <span>💰 3 Online Income Tracks</span>
+        <span>🎯 Min Score: 7.0/10</span>
+        
+      </div>
+
+      <!-- Main Content -->
+      <div class="content">
+
+        <!-- SECTION 1: TARGET CAREER ROLES -->
+        
+        <div class="section-header">
+          <h3 class="section-title">🎯 Target Career & Employment Opportunities</h3>
+          
+          <span class="section-badge badge-jobs">4 Roles</span>
+        </div>
+
+        
+        <div class="spec-group-container" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px;">
+            <span style="font-size: 15px; font-weight: 700; color: #1e293b;">
+              📋 HR Remote Roles
+            </span>
+            <span class="chip" style="font-weight: 700; background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; margin: 0;">
+              2 matches
+            </span>
+          </div>
+
+          
+            
+            <div class="job-card">
+              <div class="card-top">
+                <div>
+                  <h2 class="job-title">Talent Acquisition Specialist</h2>
+                  <div class="company-name">Moniepoint</div>
+                </div>
+                <div>
+                  
+                  <div class="score-badge score-strong">
+                    ✦ 8.0/10 Match
+                  </div>
+                  
+                </div>
+              </div>
+
+              <!-- Metadata Chips -->
+              <div class="chips-row">
+                <span class="chip chip-remote">
+                  📍 Remote, Lagos, Nigeria (Remote)
+                </span>
+                
+                <span class="chip">
+                  💰 Comp Unlisted
+                </span>
+                
+                <span class="chip">
+                  👔 Full time
+                </span>
+                <span class="chip">
+                  🔗 Greenhouse
+                </span>
+              </div>
+
+              <!-- Why You Match Section -->
+              <div class="why-match-box">
+                <div class="why-match-title">Why You Match:</div>
+                <ul class="why-match-list">
+                  
+                  <li>Role matches target &#39;Talent Acquisition Specialist&#39;</li>
+                  
+                  <li>Aligned core skills: Human Resources, Recruitment, Talent Acquisition</li>
+                  
+                  <li>Remote, open to Nigeria</li>
+                  
+                  <li>Compensation unlisted (neutral score applied)</li>
+                  
+                  <li>Priority Watchlist Company: Moniepoint (1.3x boost)</li>
+                  
+                </ul>
+              </div>
+
+              <!-- Card Footer & Direct Apply Button -->
+              <div class="card-footer">
+                <span class="source-tag">Source: greenhouse</span>
+                <a href="https://job-boards.eu.greenhouse.io/moniepoint/jobs/4056914101" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                  Apply Directly →
+                </a>
+              </div>
+            </div>
+            
+            <div class="job-card">
+              <div class="card-top">
+                <div>
+                  <h2 class="job-title">Talent Acquisition Specialist</h2>
+                  <div class="company-name">Moniepoint</div>
+                </div>
+                <div>
+                  
+                  <div class="score-badge score-strong">
+                    ✦ 7.1/10 Match
+                  </div>
+                  
+                </div>
+              </div>
+
+              <!-- Metadata Chips -->
+              <div class="chips-row">
+                <span class="chip chip-remote">
+                  📍 Remote, Bangalore (Remote)
+                </span>
+                
+                <span class="chip">
+                  💰 Comp Unlisted
+                </span>
+                
+                <span class="chip">
+                  👔 Full time
+                </span>
+                <span class="chip">
+                  🔗 Greenhouse
+                </span>
+              </div>
+
+              <!-- Why You Match Section -->
+              <div class="why-match-box">
+                <div class="why-match-title">Why You Match:</div>
+                <ul class="why-match-list">
+                  
+                  <li>Role matches target &#39;Talent Acquisition Specialist&#39;</li>
+                  
+                  <li>Aligned core skills: Recruitment, Talent Acquisition</li>
+                  
+                  <li>Remote position: Remote, Bangalore</li>
+                  
+                  <li>Compensation unlisted (neutral score applied)</li>
+                  
+                  <li>Priority Watchlist Company: Moniepoint (1.3x boost)</li>
+                  
+                </ul>
+              </div>
+
+              <!-- Card Footer & Direct Apply Button -->
+              <div class="card-footer">
+                <span class="source-tag">Source: greenhouse</span>
+                <a href="https://job-boards.eu.greenhouse.io/moniepoint/jobs/4576013101" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                  Apply Directly →
+                </a>
+              </div>
+            </div>
+            
+          
+        </div>
+        
+        <div class="spec-group-container" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px;">
+            <span style="font-size: 15px; font-weight: 700; color: #1e293b;">
+              📋 Junior Swift/iOS Developer — Remote Contract
+            </span>
+            <span class="chip" style="font-weight: 700; background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; margin: 0;">
+              1 match
+            </span>
+          </div>
+
+          
+            
+            <div class="job-card">
+              <div class="card-top">
+                <div>
+                  <h2 class="job-title">Mobile Engineer, iOS</h2>
+                  <div class="company-name">Ramp</div>
+                </div>
+                <div>
+                  
+                  <div class="score-badge score-strong">
+                    ✦ 7.0/10 Match
+                  </div>
+                  
+                </div>
+              </div>
+
+              <!-- Metadata Chips -->
+              <div class="chips-row">
+                <span class="chip chip-remote">
+                  📍 New York, NY (HQ) (Remote)
+                </span>
+                
+                <span class="chip chip-salary">
+                  💰 $189,000 – $330,000
+                </span>
+                
+                <span class="chip">
+                  👔 Full time
+                </span>
+                <span class="chip">
+                  🔗 Ashby
+                </span>
+              </div>
+
+              <!-- Why You Match Section -->
+              <div class="why-match-box">
+                <div class="why-match-title">Why You Match:</div>
+                <ul class="why-match-list">
+                  
+                  <li>Role matches target &#39;iOS&#39;</li>
+                  
+                  <li>Aligned core skills: Swift, iOS, SwiftUI</li>
+                  
+                  <li>Remote position: New York, NY (HQ)</li>
+                  
+                  <li>Top-tier compensation: $189,000 – $330,000</li>
+                  
+                  <li>Direct employer ATS posting (Ashby)</li>
+                  
+                </ul>
+              </div>
+
+              <!-- Card Footer & Direct Apply Button -->
+              <div class="card-footer">
+                <span class="source-tag">Source: ashby</span>
+                <a href="https://jobs.ashbyhq.com/ramp/4859cd5e-f2a9-44d7-81f7-8bfc0e62369f" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                  Apply Directly →
+                </a>
+              </div>
+            </div>
+            
+          
+        </div>
+        
+        <div class="spec-group-container" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px;">
+            <span style="font-size: 15px; font-weight: 700; color: #1e293b;">
+              📋 Junior Data Analyst — Remote Contract
+            </span>
+            <span class="chip" style="font-weight: 700; background-color: #eff6ff; color: #2563eb; border-color: #bfdbfe; margin: 0;">
+              1 match
+            </span>
+          </div>
+
+          
+            
+            <div class="job-card">
+              <div class="card-top">
+                <div>
+                  <h2 class="job-title">Python and Kubernetes Software Engineer - Data, Workflows, AI/ML &amp; Analytics</h2>
+                  <div class="company-name">Canonical</div>
+                </div>
+                <div>
+                  
+                  <div class="score-badge score-strong">
+                    ✦ 7.0/10 Match
+                  </div>
+                  
+                </div>
+              </div>
+
+              <!-- Metadata Chips -->
+              <div class="chips-row">
+                <span class="chip chip-remote">
+                  📍 Home based - Worldwide (Worldwide)
+                </span>
+                
+                <span class="chip">
+                  💰 Comp Unlisted
+                </span>
+                
+                <span class="chip">
+                  👔 Full time
+                </span>
+                <span class="chip">
+                  🔗 Greenhouse
+                </span>
+              </div>
+
+              <!-- Why You Match Section -->
+              <div class="why-match-box">
+                <div class="why-match-title">Why You Match:</div>
+                <ul class="why-match-list">
+                  
+                  <li>Role matches target &#39;Python&#39;</li>
+                  
+                  <li>Aligned core skills: Python</li>
+                  
+                  <li>Worldwide remote: open to all locations</li>
+                  
+                  <li>Compensation unlisted (neutral score applied)</li>
+                  
+                  <li>Priority Watchlist Company: Canonical (1.25x boost)</li>
+                  
+                </ul>
+              </div>
+
+              <!-- Card Footer & Direct Apply Button -->
+              <div class="card-footer">
+                <span class="source-tag">Source: greenhouse</span>
+                <a href="https://job-boards.greenhouse.io/canonical/jobs/5703396" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                  Apply Directly →
+                </a>
+              </div>
+            </div>
+            
+          
+        </div>
+        
+
+        
+
+        <!-- SECTION 2: ONLINE INCOME & FLEXIBLE REMOTE TRACKS -->
+        
+        <div class="section-header" style="margin-top: 36px;">
+          <h3 class="section-title">Online Income & Flexible Remote Tracks</h3>
+          <span class="section-badge badge-income">Top 3 Selected</span>
+        </div>
+
+        
+        <div class="income-card">
+          <div class="card-top">
+            <div>
+              <h2 class="opp-title">Remote Academic Proofreader &amp; Editor</h2>
+              <div class="org-name">
+                Cambridge Proofreading LLC
+                
+                <span style="font-size: 11px; color: #047857; font-weight: 700; text-transform: uppercase; margin-left: 6px;">
+                  • Tier 1 Highest
+                </span>
+                
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              
+              <div class="score-badge score-high">
+                ★ 10.0/10 Overall
+              </div>
+              
+              <span style="font-size: 11px; color: #065f46; font-weight: 700;">
+                Quality: 10.0/10
+              </span>
+            </div>
+          </div>
+
+          <!-- Metadata Chips -->
+          <div class="chips-row">
+            <span class="chip chip-verified">
+              🛡️ Quality Gated & Scam-Screened
+            </span>
+            <span class="chip chip-remote">
+              📍 Worldwide (Native or Near-Native English)
+            </span>
+            
+            <span class="chip" style="background-color: #f0fdf4; border-color: #86efac; color: #15803d; font-weight: 700;">
+              🌙 Side-Job Fit: 10.0/10
+            </span>
+            
+            <span class="chip">
+              🏷️ Academic Editing
+            </span>
+            
+            <span class="chip chip-income-pay">
+              💵 $20–$30/hr equivalent
+            </span>
+            
+          </div>
+
+          <!-- Why This Opportunity Matches -->
+          <div class="why-match-box-income">
+            <div class="why-match-title-income">Why This Track Is Worth Considering:</div>
+            <ul class="why-match-list">
+              
+              <li>Platform: Known Tier 1 Highest platform (Cambridge Proofreading LLC)</li>
+              
+              <li>🌙 Side-Job Fit: 100% Asynchronous (work evenings &amp; weekends)</li>
+              
+              <li>Compensation: Excellent rate ($20–$30/hr equivalent)</li>
+              
+              <li>Location: 100% Remote (Nigeria eligible)</li>
+              
+            </ul>
+          </div>
+
+          <!-- Card Footer & Direct Apply Button -->
+          <div class="card-footer">
+            <span class="source-tag">Platform: Cambridge Proofreading LLC</span>
+            <a href="https://proofreading.org/careers/" class="apply-btn-income" target="_blank" rel="noopener noreferrer">
+              Apply / Start →
+            </a>
+          </div>
+        </div>
+        
+        <div class="income-card">
+          <div class="card-top">
+            <div>
+              <h2 class="opp-title">Academic Essay &amp; Thesis Editor</h2>
+              <div class="org-name">
+                Scribbr / Enago
+                
+                <span style="font-size: 11px; color: #047857; font-weight: 700; text-transform: uppercase; margin-left: 6px;">
+                  • Tier 1 Highest
+                </span>
+                
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              
+              <div class="score-badge score-high">
+                ★ 9.4/10 Overall
+              </div>
+              
+              <span style="font-size: 11px; color: #065f46; font-weight: 700;">
+                Quality: 10.0/10
+              </span>
+            </div>
+          </div>
+
+          <!-- Metadata Chips -->
+          <div class="chips-row">
+            <span class="chip chip-verified">
+              🛡️ Quality Gated & Scam-Screened
+            </span>
+            <span class="chip chip-remote">
+              📍 Worldwide
+            </span>
+            
+            <span class="chip" style="background-color: #f0fdf4; border-color: #86efac; color: #15803d; font-weight: 700;">
+              🌙 Side-Job Fit: 10.0/10
+            </span>
+            
+            <span class="chip">
+              🏷️ Academic Editing
+            </span>
+            
+            <span class="chip chip-income-pay">
+              💵 €20–€30/hr equivalent
+            </span>
+            
+          </div>
+
+          <!-- Why This Opportunity Matches -->
+          <div class="why-match-box-income">
+            <div class="why-match-title-income">Why This Track Is Worth Considering:</div>
+            <ul class="why-match-list">
+              
+              <li>Platform: Known Tier 1 Highest platform (Scribbr / Enago)</li>
+              
+              <li>🌙 Side-Job Fit: 100% Asynchronous (work evenings &amp; weekends)</li>
+              
+              <li>Compensation: Below target floor (€20–€30/hr equivalent)</li>
+              
+              <li>Location: 100% Remote (Nigeria eligible)</li>
+              
+            </ul>
+          </div>
+
+          <!-- Card Footer & Direct Apply Button -->
+          <div class="card-footer">
+            <span class="source-tag">Platform: Scribbr / Enago</span>
+            <a href="https://www.scribbr.com/jobs/freelance-editor/" class="apply-btn-income" target="_blank" rel="noopener noreferrer">
+              Apply / Start →
+            </a>
+          </div>
+        </div>
+        
+        <div class="income-card">
+          <div class="card-top">
+            <div>
+              <h2 class="opp-title">Remote Academic Research Assistant &amp; Literature Synthesizer</h2>
+              <div class="org-name">
+                Academic Positions Network
+                
+                <span style="font-size: 11px; color: #047857; font-weight: 700; text-transform: uppercase; margin-left: 6px;">
+                  • Tier 1 Highest
+                </span>
+                
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              
+              <div class="score-badge score-high">
+                ★ 9.4/10 Overall
+              </div>
+              
+              <span style="font-size: 11px; color: #065f46; font-weight: 700;">
+                Quality: 10.0/10
+              </span>
+            </div>
+          </div>
+
+          <!-- Metadata Chips -->
+          <div class="chips-row">
+            <span class="chip chip-verified">
+              🛡️ Quality Gated & Scam-Screened
+            </span>
+            <span class="chip chip-remote">
+              📍 Worldwide / Remote
+            </span>
+            
+            <span class="chip" style="background-color: #f0fdf4; border-color: #86efac; color: #15803d; font-weight: 700;">
+              🌙 Side-Job Fit: 10.0/10
+            </span>
+            
+            <span class="chip">
+              🏷️ Research
+            </span>
+            
+            <span class="chip chip-income-pay">
+              💵 $16–$26/hr
+            </span>
+            
+          </div>
+
+          <!-- Why This Opportunity Matches -->
+          <div class="why-match-box-income">
+            <div class="why-match-title-income">Why This Track Is Worth Considering:</div>
+            <ul class="why-match-list">
+              
+              <li>Platform: Known Tier 1 Highest platform (Academic Positions Network)</li>
+              
+              <li>🌙 Side-Job Fit: 100% Asynchronous (work evenings &amp; weekends)</li>
+              
+              <li>Compensation: Below target floor ($16–$26/hr)</li>
+              
+              <li>Location: 100% Remote (Nigeria eligible)</li>
+              
+            </ul>
+          </div>
+
+          <!-- Card Footer & Direct Apply Button -->
+          <div class="card-footer">
+            <span class="source-tag">Platform: Academic Positions Network</span>
+            <a href="https://academicpositions.com/jobs" class="apply-btn-income" target="_blank" rel="noopener noreferrer">
+              Apply / Start →
+            </a>
+          </div>
+        </div>
+        
+        
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p style="margin: 0 0 8px 0; color: #94a3b8;">
+          Sent by <strong>JobsAlert Autonomous Intelligence System</strong> • 100% Free Open Infrastructure
+        </p>
+        <p style="margin: 0;">
+          Configured for obaro.moses.emisho@gmail.com • Modify preferences anytime via your Web Control Panel.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
