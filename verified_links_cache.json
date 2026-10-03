@@ -1,0 +1,23 @@
+{
+  "https://jobicy.com/jobs/149985-engineering-manager-public-cloud-python-golang": {
+    "url": "https://jobicy.com/jobs/149985-engineering-manager-public-cloud-python-golang",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-10-03T12:41:02.200113+00:00"
+  },
+  "https://jobicy.com/jobs/149989-python-engineering-manager-commercial-systems": {
+    "url": "https://jobicy.com/jobs/149989-python-engineering-manager-commercial-systems",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-10-03T12:41:03.340148+00:00"
+  },
+  "https://jobicy.com/jobs/149988-software-engineer-data-infrastructure-kafka": {
+    "url": "https://jobicy.com/jobs/149988-software-engineer-data-infrastructure-kafka",
+    "status": "active",
+    "status_code": 200,
+    "reason": "active",
+    "verified_at": "2026-10-03T12:41:03.629145+00:00"
+  }
+}
