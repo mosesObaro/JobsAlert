@@ -29,7 +29,7 @@ class JobPosting(BaseModel):
     employment_type: str = "full_time"  # "full_time", "contract", "internship", "part_time"
     seniority: Optional[str] = None  # "junior", "mid", "senior", "staff", "principal", "lead", "executive"
     posted_at: Optional[datetime] = None
-    source: str  # "greenhouse", "lever", "ashby", "remotive", "remoteok", "arbeitnow", "jobicy", "hackernews", "rss", "twitter", "custom"
+    source: str  # "greenhouse", "lever", "ashby", "remotive", "remoteok", "arbeitnow", "jobicy", "hackernews", "rss", "twitter", "linkedin", "custom"
     tags: List[str] = Field(default_factory=list)
     is_verified: bool = True
     verification_status: Optional[str] = None  # "active", "dead", "unknown", "not checked"
