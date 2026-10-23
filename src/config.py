@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from src import paths
 from src.income_opportunities.config import OnlineIncomeConfig
@@ -156,6 +156,44 @@ class TwitterConfig(BaseModel):
     max_tweets: int = 30
 
 
+class LinkedInSearchConfig(BaseModel):
+    """One query against LinkedIn's public guest job search."""
+    name: str = ""  # label used in health reports
+    keywords: str = ""
+    location: str = "Worldwide"
+    job_type: str = "C"  # f_JT: C contract, F full time, P part time, T temporary, I internship
+    time_posted: str = "r86400"  # f_TPR: seconds back to search; "" for no window
+    remote_only: bool = False  # f_WT=2
+    max_results: int = 30
+
+    @field_validator("job_type")
+    @classmethod
+    def _known_job_type(cls, value: str) -> str:
+        code = (value or "C").strip().upper()
+        if code not in {"F", "P", "C", "T", "I", "V", "O"}:
+            raise ValueError(f"unknown LinkedIn f_JT code: {value!r}")
+        return code
+
+    @field_validator("time_posted")
+    @classmethod
+    def _valid_time_posted(cls, value: str) -> str:
+        window = (value or "").strip()
+        if window and not re.fullmatch(r"r\d+", window):
+            raise ValueError(f"f_TPR must look like 'r86400' (seconds), got {value!r}")
+        return window
+
+
+class LinkedInConfig(BaseModel):
+    """LinkedIn guest search settings.
+
+    The endpoint is undocumented and rate-limits quickly, so the collector paces
+    itself; see src/collectors/linkedin.py for what was measured.
+    """
+    enabled: bool = True
+    searches: List[LinkedInSearchConfig] = Field(default_factory=list)
+    request_delay_seconds: float = 1.5  # between consecutive requests
+
+
 class LinkVerificationConfig(BaseModel):
     enabled: bool = True
     timeout_seconds: float = 6.0
@@ -185,6 +223,7 @@ class SourcesConfig(BaseModel):
     jobicy: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True, category="dev"))
     hackernews: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True, limit_stories=1))
     twitter: TwitterConfig = Field(default_factory=TwitterConfig)
+    linkedin: LinkedInConfig = Field(default_factory=LinkedInConfig)
     rss_feeds: List[RSSFeedConfig] = Field(default_factory=list)
 
 

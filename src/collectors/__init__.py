@@ -17,6 +17,7 @@ from src.collectors.hackernews import HackerNewsCollector
 from src.collectors.rss import RSSCollector
 from src.collectors.custom import CustomJobCollector
 from src.collectors.twitter import TwitterCollector
+from src.collectors.linkedin import LinkedInCollector
 from src.config import AppConfig
 from src.models import CrawlerHealth, JobPosting
 
@@ -35,6 +36,7 @@ def get_all_collectors() -> List[BaseCollector]:
         RSSCollector(),
         CustomJobCollector(),
         TwitterCollector(),
+        LinkedInCollector(),
     ]
 
 

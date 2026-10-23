@@ -27,6 +27,22 @@ export interface TwitterConfig {
   max_tweets: number;
 }
 
+export interface LinkedInSearchConfig {
+  name: string;
+  keywords: string;
+  location: string;
+  job_type: string;
+  time_posted: string;
+  remote_only: boolean;
+  max_results: number;
+}
+
+export interface LinkedInConfig {
+  enabled: boolean;
+  searches: LinkedInSearchConfig[];
+  request_delay_seconds: number;
+}
+
 export interface LinkVerificationConfig {
   enabled: boolean;
   timeout_seconds: number;
@@ -148,6 +164,7 @@ export interface AppConfig {
     jobicy: SourceSubConfig;
     hackernews: SourceSubConfig;
     twitter: TwitterConfig;
+    linkedin: LinkedInConfig;
     rss_feeds: RSSFeedConfig[];
   };
   link_verification: LinkVerificationConfig;
