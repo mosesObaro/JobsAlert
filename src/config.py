@@ -53,6 +53,10 @@ class ScoringWeightsConfig(BaseModel):
     compensation: float = 15.0
     company_priority: float = 15.0
     recency_urgency: float = 10.0
+    # Rewards a posting whose engagement matches `employment_type`. Additive on top
+    # of the weights above, and 0 by default so specs that do not set it keep the
+    # scores they had before this existed.
+    employment_fit: float = 0.0
 
 
 def _merge_unique(*lists: List[str]) -> List[str]:
@@ -84,6 +88,17 @@ class JobSpecConfig(BaseModel):
     excluded_terms: List[str] = Field(default_factory=list)
     excluded_companies: List[str] = Field(default_factory=list)
     scoring_weights: Optional[ScoringWeightsConfig] = None
+    # True holds a posting that matches none of the must-have skills out of the
+    # digest. It still scores and still shows in the dashboard's low matches, so
+    # this is a precision gate, not a hard exclusion.
+    require_must_have: bool = False
+    # True scores junior, mid and senior titles alike: no seniority-mismatch
+    # discard, for a track that wants every level.
+    ignore_seniority: bool = False
+    # Triage cut-offs for this track. None falls back to 7.0 for the digest and
+    # to schedule.instant_alert_threshold for instant alerts.
+    digest_threshold: Optional[float] = None
+    instant_threshold: Optional[float] = None
 
     def get_all_roles(self) -> List[str]:
         return _merge_unique(self.target_roles, self.keywords) or ["General Specialist"]
@@ -130,6 +145,8 @@ class SourceSubConfig(BaseModel):
     tags: List[str] = Field(default_factory=list)
     category: Optional[str] = None
     limit_stories: int = 1  # Hacker News: number of recent monthly "Who is hiring?" threads to read
+    # Hacker News: also read the monthly "Freelancer? Seeking freelancer?" thread.
+    freelancer_threads: bool = False
 
 
 class RSSFeedConfig(BaseModel):

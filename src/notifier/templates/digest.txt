@@ -24,6 +24,7 @@ Salary:      {{ scored.job|salary }}
 Salary:      Unlisted / Competitive
 {% endif %}
 Seniority:   {{ scored.job.seniority or 'Unspecified' }}
+Engagement:  {% if scored.job.employment_type == 'contract' %}[CONTRACT / FREELANCE]{% else %}{{ scored.job.employment_type.replace('_', ' ').capitalize() }}{% endif %}
 Source:      {{ scored.job.source.capitalize() }}
 
 Why You Match:
@@ -56,6 +57,7 @@ Salary:      {{ scored.job|salary }}
 Salary:      Unlisted / Competitive
 {% endif %}
 Seniority:   {{ scored.job.seniority or 'Unspecified' }}
+Engagement:  {% if scored.job.employment_type == 'contract' %}[CONTRACT / FREELANCE]{% else %}{{ scored.job.employment_type.replace('_', ' ').capitalize() }}{% endif %}
 Source:      {{ scored.job.source.capitalize() }}
 
 Why You Match:

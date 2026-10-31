@@ -43,6 +43,7 @@ class MatchBreakdown(BaseModel):
     compensation_score: float = 0.0
     company_score: float = 0.0
     recency_score: float = 0.0
+    employment_score: float = 0.0
     matched_must_have: List[str] = Field(default_factory=list)
     matched_nice_to_have: List[str] = Field(default_factory=list)
     missing_must_have: List[str] = Field(default_factory=list)

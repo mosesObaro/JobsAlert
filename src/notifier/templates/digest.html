@@ -110,6 +110,12 @@
       color: #059669;
       border: 1px solid #a7f3d0;
     }
+    .chip-contract {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      font-weight: 700;
+    }
     .job-card {
       background-color: #ffffff;
       border: 1px solid #e2e8f0;
@@ -392,9 +398,15 @@
                   💰 Comp Unlisted
                 </span>
                 {% endif %}
+                {% if scored.job.employment_type == 'contract' %}
+                <span class="chip chip-contract">
+                  📝 Contract / Freelance
+                </span>
+                {% else %}
                 <span class="chip">
                   👔 {{ scored.job.employment_type.replace('_', ' ').capitalize() }}
                 </span>
+                {% endif %}
                 <span class="chip">
                   🔗 {{ scored.job.source.capitalize() }}
                 </span>

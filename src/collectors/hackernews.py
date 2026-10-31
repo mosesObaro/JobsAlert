@@ -10,14 +10,19 @@ from typing import List, Optional
 
 import httpx
 
-from src.collectors.base import BaseCollector
+from src.collectors.base import BaseCollector, parse_iso_datetime
 from src.config import AppConfig
 from src.feeds import strip_html
 from src.models import JobPosting
 from src.money import parse_salary_text
 
 ALGOLIA = "https://hn.algolia.com/api/v1"
+SEEKING_WORK = re.compile(r"seeking\s+work", re.IGNORECASE)
 MAX_PAGES_PER_THREAD = 5
+# A monthly thread is always recent. This keeps a stale one from being read as
+# current: the "Freelancer? Seeking freelancer?" thread stopped in February 2020,
+# so matching it by title alone would inject years-old postings.
+MAX_THREAD_AGE_DAYS = 120
 HITS_PER_PAGE = 200
 
 
@@ -40,16 +45,42 @@ class HackerNewsCollector(BaseCollector):
             resp = await client.get(f"{ALGOLIA}/search_by_date", params={"tags": "story,author_whoishiring", "hitsPerPage": 12})
             if not self.accept(resp, "hackernews/threads"):
                 return []
-            threads = [h for h in resp.json().get("hits", []) if "who is hiring" in (h.get("title") or "").lower()]
+            wanted = ["who is hiring"]
+            if config.sources.hackernews.freelancer_threads:
+                wanted.append("freelancer")
+            # "Who wants to be hired?" is the job-seeker thread and is never wanted.
+            threads = [
+                h for h in resp.json().get("hits", [])
+                if any(w in (h.get("title") or "").lower() for w in wanted)
+                and "wants to be hired" not in (h.get("title") or "").lower()
+            ]
             if not threads:
-                self.note("hackernews: no 'Who is hiring?' thread found")
+                self.note("hackernews: no hiring thread found")
                 return []
 
-            for thread in threads[:thread_limit]:
-                all_jobs.extend(await self._collect_thread(client, str(thread.get("objectID"))))
+            for kind in wanted:
+                matching = [h for h in threads if kind in (h.get("title") or "").lower()]
+                # Age is only checked on the threads actually read: older ones
+                # further down the list are simply not wanted, not a problem.
+                for thread in matching[:thread_limit]:
+                    if not self._is_current(thread, kind):
+                        continue
+                    all_jobs.extend(await self._collect_thread(
+                        client, str(thread.get("objectID")), freelancer="freelancer" in kind
+                    ))
         return all_jobs
 
-    async def _collect_thread(self, client: httpx.AsyncClient, story_id: str) -> List[JobPosting]:
+    def _is_current(self, thread: dict, kind: str) -> bool:
+        created = parse_iso_datetime(thread.get("created_at"))
+        if created is None:
+            return True
+        age_days = (datetime.now(timezone.utc) - created).days
+        if age_days <= MAX_THREAD_AGE_DAYS:
+            return True
+        self.note(f"hackernews: newest '{kind}' thread is {age_days} days old, skipped")
+        return False
+
+    async def _collect_thread(self, client: httpx.AsyncClient, story_id: str, freelancer: bool = False) -> List[JobPosting]:
         jobs: List[JobPosting] = []
         page, pages = 0, 1
         while page < min(pages, MAX_PAGES_PER_THREAD):
@@ -65,16 +96,21 @@ class HackerNewsCollector(BaseCollector):
                 # Replies ("is this still open?") are not job posts; only top-level comments are.
                 if str(item.get("parent_id")) != story_id:
                     continue
-                job = self._parse_comment(item)
+                job = self._parse_comment(item, freelancer=freelancer)
                 if job:
                     jobs.append(job)
             page += 1
         return jobs
 
     @staticmethod
-    def _parse_comment(item: dict) -> Optional[JobPosting]:
+    def _parse_comment(item: dict, freelancer: bool = False) -> Optional[JobPosting]:
         comment_html = item.get("comment_text") or ""
         if not comment_html:
+            return None
+        # The freelancer thread mixes "SEEKING FREELANCER" (employers) with
+        # "SEEKING WORK" (freelancers advertising themselves); only the first
+        # is a job. The marker never appears in the "Who is hiring?" thread.
+        if SEEKING_WORK.search(comment_html):
             return None
         lines = [strip_html(part) for part in re.split(r"<p>", comment_html)]
         lines = [line for line in lines if line]
@@ -125,5 +161,5 @@ class HackerNewsCollector(BaseCollector):
             salary_period=salary.period if salary else "yearly",
             source="hackernews",
             posted_at=posted_at,
-            tags=["HN Who is Hiring", "Startup"],
+            tags=["HN Freelancer", "Contract"] if freelancer else ["HN Who is Hiring", "Startup"],
         )
