@@ -419,6 +419,31 @@ sources:
     - JobbermanOnline
     - RemoteJobs
     max_tweets: 30
+  linkedin:
+    enabled: true
+    searches:
+    - name: HR contract roles
+      keywords: HR Generalist OR Recruiter OR Talent Acquisition OR People Operations
+      location: Worldwide
+      job_type: C
+      time_posted: r86400
+      remote_only: true
+      max_results: 20
+    - name: iOS contract roles
+      keywords: iOS Developer OR Swift Developer OR SwiftUI
+      location: Worldwide
+      job_type: C
+      time_posted: r86400
+      remote_only: true
+      max_results: 20
+    - name: Data analyst contract roles
+      keywords: Data Analyst OR BI Analyst OR SQL Analyst
+      location: Worldwide
+      job_type: C
+      time_posted: r86400
+      remote_only: true
+      max_results: 20
+    request_delay_seconds: 2.0
   rss_feeds:
   - name: We Work Remotely (Programming)
     url: https://weworkremotely.com/categories/remote-programming-jobs.rss
