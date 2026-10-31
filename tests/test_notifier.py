@@ -69,3 +69,80 @@ def test_console_preview_dispatch(sample_scored_jobs):
     assert result.ok
     assert result.provider == "console"
 
+
+
+# --- link rendering in strict clients ---------------------------------------
+
+def _anchors(markup: str):
+    """Anchors as a parser sees them, with attributes and visible text."""
+    from html.parser import HTMLParser
+
+    class Collector(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.found, self.current = [], None
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "a":
+                self.current = {"attrs": dict(attrs), "text": ""}
+
+        def handle_endtag(self, tag):
+            if tag == "a" and self.current is not None:
+                self.found.append(self.current)
+                self.current = None
+
+        def handle_data(self, data):
+            if self.current is not None:
+                self.current["text"] += data
+
+    collector = Collector()
+    collector.feed(markup)
+    return collector.found
+
+
+def without_style_block(markup: str) -> str:
+    """The same email as a client that drops <style> blocks would see it."""
+    import re
+
+    return re.sub(r"<style.*?</style>", "", markup, flags=re.DOTALL)
+
+
+def test_job_links_survive_a_client_that_drops_style_blocks(sample_scored_jobs):
+    """Gmail's mobile apps mangle <head> styles. A button whose colour comes
+    from a stripped stylesheet can render white-on-white and be untappable, so
+    the critical styles are inline and the title is a link in its own right."""
+    _, html, _ = EmailNotifier().render_digest(jobs=sample_scored_jobs, config=AppConfig())
+    target = sample_scored_jobs[0].job.url
+
+    for label, markup in (("full", html), ("no stylesheet", without_style_block(html))):
+        links = [a for a in _anchors(markup) if a["attrs"].get("href") == target]
+        assert len(links) >= 2, f"{label}: expected the title and the button to link to the job"
+        assert any("Apply" in a["text"] for a in links), f"{label}: no apply button"
+        assert any(sample_scored_jobs[0].job.title in a["text"] for a in links), f"{label}: title is not a link"
+        for anchor in links:
+            assert anchor["attrs"].get("style"), f"{label}: {anchor['text'].strip()!r} relies on the stylesheet alone"
+
+
+def test_no_link_sets_a_light_colour_without_its_background(sample_scored_jobs):
+    """The white-on-white failure: colour and background must travel together."""
+    _, html, _ = EmailNotifier().render_digest(jobs=sample_scored_jobs, config=AppConfig())
+
+    for anchor in _anchors(html):
+        style = (anchor["attrs"].get("style") or "").replace(" ", "").lower()
+        if "color:#ffffff" in style or "color:#fff;" in style:
+            assert "background-color:" in style, f"{anchor['text'].strip()!r} would be invisible without its stylesheet"
+
+
+def test_every_apply_button_in_every_template_carries_inline_styles():
+    """Covers the instant and income templates, which the digest test misses."""
+    from pathlib import Path
+
+    templates = Path("src/notifier/templates")
+    for name in ("digest.html", "immediate.html", "income_digest.html", "income_immediate.html"):
+        body = (templates / name).read_text()
+        for marker in ('class="apply-btn"', 'class="apply-btn-income"', 'class="btn"'):
+            start = 0
+            while (index := body.find(marker, start)) != -1:
+                tag_end = body.find(">", index)
+                assert "style=" in body[index:tag_end], f"{name}: {marker} has no inline style"
+                start = tag_end

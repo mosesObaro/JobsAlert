@@ -316,7 +316,7 @@
           <!-- Card Footer & Direct Apply Link -->
           <div class="card-footer">
             <span class="source-tag">Source: {{ scored.opportunity.source.replace('_', ' ').title() }}</span>
-            <a href="{{ scored.opportunity.application_url or scored.opportunity.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+            <a href="{{ scored.opportunity.application_url or scored.opportunity.url }}" class="apply-btn" style="display:inline-block;background-color:#059669;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 18px;border-radius:6px;" target="_blank" rel="noopener noreferrer">
               Apply / Start Earning →
             </a>
           </div>

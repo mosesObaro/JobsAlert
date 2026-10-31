@@ -368,7 +368,7 @@
             <div class="job-card">
               <div class="card-top">
                 <div>
-                  <h2 class="job-title">{{ scored.job.title }}</h2>
+                  <h2 class="job-title">{% if scored.job.url %}<a href="{{ scored.job.url }}" style="color:#1d4ed8;text-decoration:underline;" target="_blank" rel="noopener noreferrer">{{ scored.job.title }}</a>{% else %}{{ scored.job.title }}{% endif %}</h2>
                   <div class="company-name">{{ scored.job.company }}</div>
                 </div>
                 <div>
@@ -425,7 +425,7 @@
               <!-- Card Footer & Direct Apply Button -->
               <div class="card-footer">
                 <span class="source-tag">Source: {{ scored.job.source }}</span>
-                {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+                {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 18px;border-radius:6px;" target="_blank" rel="noopener noreferrer">
                   Apply Directly →
                 </a>{% endif %}
               </div>
@@ -449,7 +449,7 @@
         <div class="job-card">
           <div class="card-top">
             <div>
-              <h2 class="job-title">{{ scored.job.title }}</h2>
+              <h2 class="job-title">{% if scored.job.url %}<a href="{{ scored.job.url }}" style="color:#1d4ed8;text-decoration:underline;" target="_blank" rel="noopener noreferrer">{{ scored.job.title }}</a>{% else %}{{ scored.job.title }}{% endif %}</h2>
               <div class="company-name">{{ scored.job.company }}</div>
             </div>
             <div>
@@ -500,7 +500,7 @@
           <!-- Card Footer & Direct Apply Button -->
           <div class="card-footer">
             <span class="source-tag">Source: {{ scored.job.source }}</span>
-            {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" target="_blank" rel="noopener noreferrer">
+            {% if scored.job.url %}<a href="{{ scored.job.url }}" class="apply-btn" style="display:inline-block;background-color:#2563eb;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 18px;border-radius:6px;" target="_blank" rel="noopener noreferrer">
               Apply Directly →
             </a>{% endif %}
           </div>
@@ -585,7 +585,7 @@
           <!-- Card Footer & Direct Apply Button -->
           <div class="card-footer">
             <span class="source-tag">Platform: {{ scored.opportunity.organization }}</span>
-            <a href="{{ scored.opportunity.application_url or scored.opportunity.url }}" class="apply-btn-income" target="_blank" rel="noopener noreferrer">
+            <a href="{{ scored.opportunity.application_url or scored.opportunity.url }}" class="apply-btn-income" style="display:inline-block;background-color:#059669;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 18px;border-radius:6px;" target="_blank" rel="noopener noreferrer">
               Apply / Start →
             </a>
           </div>

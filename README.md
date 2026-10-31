@@ -85,6 +85,14 @@ Exit codes: `0` success, `1` some alerts could not be delivered (they are retrie
 ## Scheduled runs (GitHub Actions)
 
 1. Add repository secrets: `RESEND_API_KEY` (or `BREVO_API_KEY`, `SENDGRID_API_KEY`, or the `SMTP_*` settings), `CANDIDATE_EMAIL` and `ALERTS_FROM_EMAIL`.
+
+   **Send from a domain you have verified.** `alerts@resend.dev` is the provider's
+   shared testing address: mail from it does not align with SPF/DKIM for your
+   domain, so Gmail may mark the message suspicious and **disable every link in
+   it** — the alert arrives, but nothing in it is clickable. Verify your own
+   domain with the provider and point `ALERTS_FROM_EMAIL` at an address on it.
+   A "Be careful with this message" banner, or a sender shown as "via
+   resend.dev", means this is happening.
 2. `.github/workflows/job_alert.yml` runs twice a day and can be started manually from the Actions tab, with options for a dry run, a profile, re-scoring everything, or instant alerts only.
 3. Processed postings, run logs and the link cache live on the **`jobsalert-state`** branch as a single commit that each run replaces, so `main`'s history doesn't grow. The first run after upgrading copies the state files from `main` to that branch and stops tracking them on `main`. To look at production state locally, run `scripts/sync_state.sh`.
 4. If an email can't be sent, the run fails (red in Actions), records what was delivered, and keeps the rest queued for the next run.
