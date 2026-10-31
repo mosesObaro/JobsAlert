@@ -131,13 +131,38 @@ def _named(places: List[str]) -> str:
     return ", ".join(display_place(p) for p in places[:3])
 
 
+# US state and territory postal codes, recognised only in the "City, ST" form and
+# only in upper case. A posting that says "Seattle, WA" names no country, so it
+# used to read as a location of unknown reach and kept most of its location
+# score; for a candidate who cannot work in the US that is a false match.
+#
+# DE and IN are left out deliberately: they are also Germany's and India's
+# country codes, and "Berlin, DE" must not be read as Delaware. CA stays despite
+# doubling as Canada's code, because "San Francisco, CA" is far more common than
+# "Toronto, CA"; Canadian postings normally name a province ("Toronto, ON").
+US_STATE_CODES = frozenset(
+    "AL AK AZ AR CA CO CT DC FL GA HI IA ID IL KS KY LA MA MD ME MI MN MO MS MT "
+    "NC ND NE NH NJ NM NV NY OH OK OR PA PR RI SC SD TN TX UT VA VT WA WI WV WY".split()
+)
+# A city-like word must precede the comma, and the code must be upper case, so
+# "remote, or hybrid" is not read as Oregon.
+_US_POSTAL = re.compile(r"[A-Za-z][A-Za-z.'\-]*[A-Za-z.'\-\s]*,\s*([A-Z]{2})(?![A-Za-z])")
+
+
+def mentions_us_state(text: str) -> bool:
+    """True for "Seattle, WA" or "New York, NY (HQ)"."""
+    return any(match.group(1) in US_STATE_CODES for match in _US_POSTAL.finditer(text or ""))
+
+
 def extract_places(text: str) -> List[str]:
     """Countries and regions named in `text`, as canonical names."""
     if not text:
         return []
     found: List[str] = []
+    if mentions_us_state(text):
+        found.append("united states")
     for country, aliases in COUNTRY_ALIASES.items():
-        if any(contains_phrase(text, alias) for alias in aliases):
+        if country not in found and any(contains_phrase(text, alias) for alias in aliases):
             found.append(country)
     for region, (aliases, _members) in REGIONS.items():
         if any(contains_phrase(text, alias) for alias in aliases):
@@ -213,7 +238,9 @@ def classify(location_text: str, candidate: CandidateGeo, detail_text: str = "")
     if mentions_worldwide(location):
         return EligibilityResult("eligible", "worldwide", "Open worldwide")
 
-    places = extract_places(location)
+    # The original casing, not `location`: extract_places lowercases internally
+    # for alias matching, but reads "City, ST" only in upper case.
+    places = extract_places(location_text or "")
     if not places:
         for pattern in _RESTRICTION_PATTERNS:
             match = pattern.search(detail)

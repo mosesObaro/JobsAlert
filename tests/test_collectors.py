@@ -213,3 +213,90 @@ def test_twitter_links_come_from_tweet_text_not_mirror_html():
       <link>https://nitter.poast.org/acme/status/42</link></item></channel></rss>"""
     jobs = TwitterCollector()._parse_nitter_rss(sample_rss, default_company="acme")
     assert jobs[0].url == "https://jobs.acme.test/42"
+
+
+# --- Ashby secondary locations ----------------------------------------------
+
+ASHBY_RAMP_IOS = {
+    "jobs": [{
+        "id": "abc-123",
+        "title": "Mobile Engineer, iOS",
+        "location": "New York, NY (HQ)",
+        "isRemote": True,
+        "employmentType": "FullTime",
+        "descriptionPlain": "Build our iOS app in Swift.",
+        "publishedAt": "2026-10-20T10:00:00Z",
+        "jobUrl": "https://jobs.ashbyhq.com/ramp/abc-123",
+        "secondaryLocations": [
+            {"location": "Remote (Canada)"},
+            {"location": "San Francisco, CA"},
+            {"location": "New York, NY (HQ)"},
+        ],
+    }]
+}
+
+
+def test_with_secondary_locations_folds_dedupes_and_caps():
+    from src.collectors.ashby import MAX_SECONDARY_LOCATIONS, with_secondary_locations
+
+    assert with_secondary_locations("Remote", None) == "Remote"
+    assert with_secondary_locations("Remote", []) == "Remote"
+    # The primary location is not repeated, and malformed entries are skipped.
+    assert with_secondary_locations(
+        "New York, NY (HQ)",
+        [{"location": "Remote (Canada)"}, {"location": "New York, NY (HQ)"}, None, {}, {"location": ""}],
+    ) == "New York, NY (HQ); also Remote (Canada)"
+
+    many = [{"location": f"City {n}"} for n in range(8)]
+    folded = with_secondary_locations("Base", many)
+    assert folded.count(",") == MAX_SECONDARY_LOCATIONS - 1
+
+
+def test_ashby_location_carries_other_locations_but_scope_does_not():
+    """remote_scope feeds the fingerprint, so only the location text widens."""
+    from src.collectors.ashby import AshbyCollector
+
+    config = AppConfig()
+    config.sources.ashby.companies = ["ramp"]
+    collector = use_transport(AshbyCollector(), lambda request: httpx.Response(200, json=ASHBY_RAMP_IOS))
+    jobs = asyncio.run(collector.collect(config))
+
+    assert len(jobs) == 1
+    job = jobs[0]
+    assert job.location == "New York, NY (HQ); also Remote (Canada), San Francisco, CA"
+    assert job.remote_scope == "Remote", "widening this would change the fingerprint and re-alert the posting"
+
+
+def test_ashby_fingerprint_is_unchanged_by_secondary_locations():
+    from src.collectors.ashby import AshbyCollector
+
+    config = AppConfig()
+    config.sources.ashby.companies = ["ramp"]
+    without = dict(ASHBY_RAMP_IOS)
+    without["jobs"] = [{**ASHBY_RAMP_IOS["jobs"][0], "secondaryLocations": []}]
+
+    def run(payload):
+        collector = use_transport(AshbyCollector(), lambda request: httpx.Response(200, json=payload))
+        jobs = asyncio.run(collector.collect(config))
+        collector.prepare(jobs)
+        return jobs[0].fingerprint
+
+    assert run(ASHBY_RAMP_IOS) == run(without)
+
+
+def test_a_us_canada_only_remote_role_is_ineligible_for_a_lagos_candidate():
+    """The regression this fixes: it used to read as unknown and keep 85% of
+    its location score, which pushed an on-site NY role into the digest."""
+    from src.collectors.ashby import AshbyCollector
+    from src.eligibility import CandidateGeo, classify
+
+    config = AppConfig()
+    config.sources.ashby.companies = ["ramp"]
+    collector = use_transport(AshbyCollector(), lambda request: httpx.Response(200, json=ASHBY_RAMP_IOS))
+    job = asyncio.run(collector.collect(config))[0]
+
+    candidate = CandidateGeo.from_locations(["Remote", "Worldwide", "EMEA", "Africa", "Nigeria", "Anywhere"])
+    result = classify(f"{job.location} {job.remote_scope}", candidate, detail_text=job.description)
+
+    assert result.status == "ineligible"
+    assert "Canada" in result.reason
