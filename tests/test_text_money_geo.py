@@ -4,7 +4,7 @@ Tests for whole-phrase matching, salary parsing/conversion and geographic eligib
 
 import pytest
 
-from src.eligibility import CandidateGeo, classify
+from src.eligibility import CandidateGeo, classify, extract_places, mentions_us_state
 from src.matching import contains_phrase
 from src.money import DEFAULT_FX_TO_USD, format_range, parse_salary_text, to_annual_usd
 
@@ -66,3 +66,47 @@ def test_eligibility_for_a_candidate_in_nigeria(location, detail, expected):
 def test_restriction_naming_the_candidates_own_country_is_eligible():
     us = CandidateGeo.from_locations(["Remote", "United States"])
     assert classify("Remote", us, detail_text="Must be located in the United States").status == "eligible"
+
+
+# --- US postal form ---------------------------------------------------------
+
+@pytest.mark.parametrize("text, expected", [
+    # "City, ST" names no country, but it does mean the United States.
+    ("Seattle, WA", True),
+    ("Plano, TX", True),
+    ("New York, NY (HQ)", True),
+    ("San Francisco, CA", True),
+    ("Portland, OR", True),
+    ("Washington, DC", True),
+    ("San Juan, PR", True),
+    # Deliberately not US: these codes belong to other countries.
+    ("Berlin, DE", False),
+    ("Bangalore, IN", False),
+    ("Toronto, ON", False),
+    ("Vancouver, BC", False),
+    # Prose must not be mistaken for a state code.
+    ("Remote, or hybrid in Lagos", False),
+    ("Remote", False),
+    ("Remote (Worldwide)", False),
+    ("Lagos, Nigeria", False),
+])
+def test_mentions_us_state(text, expected):
+    assert mentions_us_state(text) is expected
+
+
+def test_us_office_location_is_ineligible_for_a_candidate_who_cannot_work_there():
+    """The regression: "Seattle, WA" used to be a location of unknown reach,
+    which kept 85% of the location score and pushed US-only roles into the
+    digest for a Nigeria-based candidate."""
+    result = classify("Seattle, WA", NIGERIA)
+    assert result.status == "ineligible"
+    assert "United States" in result.reason
+
+
+def test_us_office_location_is_eligible_for_a_us_candidate():
+    us = CandidateGeo.from_locations(["Remote", "United States"])
+    assert classify("Seattle, WA", us).status == "eligible"
+
+
+def test_a_us_state_is_not_counted_twice():
+    assert extract_places("Austin, TX, USA").count("united states") == 1

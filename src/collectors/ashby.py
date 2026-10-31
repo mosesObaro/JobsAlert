@@ -16,6 +16,28 @@ from src.money import normalize_period
 EMPLOYMENT_TYPES = {"fulltime": "full_time", "parttime": "part_time", "contract": "contract", "intern": "internship", "temporary": "contract"}
 
 
+MAX_SECONDARY_LOCATIONS = 4
+
+
+def with_secondary_locations(primary: str, secondary: Optional[list]) -> str:
+    """Folds a posting's other locations into its location text.
+
+    Eligibility is decided from the location text, so a role advertised as
+    "New York, NY (HQ)" but also open to "Remote (Canada)" has to say so, or it
+    reads as a location of unknown reach and keeps most of its location score.
+    """
+    others: List[str] = []
+    for entry in secondary or []:
+        if not isinstance(entry, dict):
+            continue
+        name = (entry.get("location") or "").strip()
+        if name and name.lower() not in primary.lower() and name not in others:
+            others.append(name)
+    if not others:
+        return primary
+    return f"{primary}; also {', '.join(others[:MAX_SECONDARY_LOCATIONS])}"
+
+
 def parse_ashby_salary(compensation: Optional[dict]) -> Tuple[Optional[float], Optional[float], str, str]:
     """(min, max, currency, period) from Ashby's compensation.summaryComponents."""
     for component in (compensation or {}).get("summaryComponents") or []:
@@ -65,10 +87,13 @@ class AshbyCollector(BaseCollector):
                 continue
             job_id = item.get("id", "")
             title = (item.get("title") or "").strip()
-            location = item.get("location") or "Remote"
-            is_remote = bool(item.get("isRemote", False) or "remote" in location.lower())
-            loc_lower = location.lower()
+            primary_location = item.get("location") or "Remote"
+            is_remote = bool(item.get("isRemote", False) or "remote" in primary_location.lower())
+            loc_lower = primary_location.lower()
+            # Derived from the primary location only: remote_scope feeds the
+            # fingerprint, so widening it would re-identify existing postings.
             remote_scope = "Worldwide" if ("worldwide" in loc_lower or "anywhere" in loc_lower) else ("Remote" if is_remote else "On-Site")
+            location = with_secondary_locations(primary_location, item.get("secondaryLocations"))
             job_url = item.get("jobUrl") or f"https://jobs.ashbyhq.com/{company_slug}/{job_id}"
             salary_min, salary_max, currency, period = parse_ashby_salary(item.get("compensation"))
             description = item.get("descriptionPlain") or f"{title} at {company_slug.capitalize()}. {location}"
