@@ -63,6 +63,70 @@ filters:
   excluded_companies:
   - Generic Staffing Corp
 job_specs:
+- name: Contract iOS (All Levels)
+  keywords:
+  - iOS
+  - Swift
+  - Mobile
+  target_roles:
+  - iOS Engineer
+  - iOS Developer
+  - Junior iOS Developer
+  - Associate iOS Engineer
+  - Senior iOS Engineer
+  - Senior iOS Developer
+  - Mobile Engineer (iOS)
+  - Swift Developer
+  # Every level scores alike on seniority; see ignore_seniority below.
+  seniority: null
+  experience_years: 3
+  technologies: []
+  must_have_skills:
+  - Swift
+  - iOS
+  nice_to_have_skills:
+  - UIKit
+  - SwiftUI
+  - Flutter
+  - Xamarin
+  - App Store Connect
+  - TestFlight
+  - code signing
+  - KYC
+  - biometrics
+  - fintech
+  employment_type: contract
+  remote: true
+  preferred_locations:
+  - Remote
+  - Worldwide
+  - EMEA
+  - Africa
+  - Nigeria
+  - Anywhere
+  salary_floor_usd: null
+  # Hard exclusions only. Junior, entry-level and graduate are deliberately absent.
+  # "For Hire" drops r/forhire posts from freelancers advertising themselves.
+  excluded_terms:
+  - Security Clearance
+  - US Citizen
+  - US Only
+  - US-Only
+  - Intern
+  - Internship
+  - For Hire
+  excluded_companies: []
+  scoring_weights:
+    title_and_stack: 40.0
+    location_remote: 25.0
+    compensation: 10.0
+    company_priority: 10.0
+    recency_urgency: 15.0
+    employment_fit: 10.0
+  require_must_have: true
+  ignore_seniority: true
+  digest_threshold: 6.0
+  instant_threshold: 8.5
 - name: HR Remote Roles
   keywords:
   - HR
@@ -311,6 +375,8 @@ sources:
     - data-analyst
     - sql
     - python
+    - mobile
+    - contract
     category: null
     limit_stories: 1
   arbeitnow:
@@ -334,6 +400,9 @@ sources:
     tags: []
     category: null
     limit_stories: 1
+    # Off on purpose: the "Freelancer? Seeking freelancer?" thread has not been
+    # posted since February 2020, so enabling it would only surface stale roles.
+    freelancer_threads: false
   twitter:
     enabled: true
     search_queries:
@@ -350,7 +419,13 @@ sources:
     - JobbermanOnline
     - RemoteJobs
     max_tweets: 30
-  rss_feeds: []
+  rss_feeds:
+  - name: We Work Remotely (Programming)
+    url: https://weworkremotely.com/categories/remote-programming-jobs.rss
+    enabled: true
+  - name: Reddit r/forhire
+    url: https://www.reddit.com/r/forhire/new/.rss
+    enabled: true
 link_verification:
   enabled: true
   timeout_seconds: 6.0

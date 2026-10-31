@@ -1,0 +1,178 @@
+# Contract / freelance iOS roles at every level, for a Lagos-based iOS engineer.
+#
+# A profile is a complete configuration: `run.py --profile contract_ios` runs this
+# INSTEAD of config/jobs.yaml, so it is the focused, iOS-only view. The same track
+# also lives as the first job_spec in config/jobs.yaml, which is what the scheduled
+# run uses, so it reaches the daily digest merged and deduplicated with the HR and
+# data-analyst tracks.
+#
+# No secrets here: delivery addresses come from CANDIDATE_EMAIL / ALERTS_FROM_EMAIL
+# at load time and are stripped again on save.
+
+profile:
+  candidate_name: "Candidate"
+  target_roles:
+    - "iOS Engineer"
+    - "iOS Developer"
+    - "Mobile Engineer (iOS)"
+    - "Swift Developer"
+  experience_years: 3
+  preferred_locations:
+    - "Remote"
+    - "Worldwide"
+    - "EMEA"
+    - "Africa"
+    - "Nigeria"
+    - "Anywhere"
+  # Deliberately low: contract rates are usually quoted hourly or daily, and an
+  # unlisted rate already scores neutral.
+  salary_floor_usd: 10000
+
+filters:
+  must_have_skills:
+    - "Swift"
+    - "iOS"
+  nice_to_have_skills:
+    - "UIKit"
+    - "SwiftUI"
+    - "Flutter"
+    - "Xamarin"
+    - "App Store Connect"
+    - "TestFlight"
+    - "code signing"
+    - "KYC"
+    - "biometrics"
+    - "fintech"
+  # Hard exclusions only. Junior, entry-level and graduate are deliberately absent
+  # so every level scores alike.
+  excluded_terms:
+    - "Security Clearance"
+    - "US Citizen"
+    - "US Only"
+    - "US-Only"
+    - "Intern"
+    - "Internship"
+    - "For Hire"
+  excluded_companies: []
+
+job_specs:
+  - name: "Contract iOS (All Levels)"
+    keywords: ["iOS", "Swift", "Mobile"]
+    target_roles:
+      - "iOS Engineer"
+      - "iOS Developer"
+      - "Junior iOS Developer"
+      - "Associate iOS Engineer"
+      - "Senior iOS Engineer"
+      - "Senior iOS Developer"
+      - "Mobile Engineer (iOS)"
+      - "Swift Developer"
+    seniority: null
+    experience_years: 3
+    must_have_skills: ["Swift", "iOS"]
+    nice_to_have_skills:
+      - "UIKit"
+      - "SwiftUI"
+      - "Flutter"
+      - "Xamarin"
+      - "App Store Connect"
+      - "TestFlight"
+      - "code signing"
+      - "KYC"
+      - "biometrics"
+      - "fintech"
+    employment_type: "contract"
+    remote: true
+    preferred_locations: ["Remote", "Worldwide", "EMEA", "Africa", "Nigeria", "Anywhere"]
+    salary_floor_usd: null
+    require_must_have: true
+    ignore_seniority: true
+    digest_threshold: 6.0
+    instant_threshold: 8.5
+    scoring_weights:
+      title_and_stack: 40.0
+      location_remote: 25.0
+      compensation: 10.0
+      company_priority: 10.0
+      recency_urgency: 15.0
+      employment_fit: 10.0
+
+scoring_weights:
+  title_and_stack: 40.0
+  location_remote: 25.0
+  compensation: 10.0
+  company_priority: 10.0
+  recency_urgency: 15.0
+  employment_fit: 10.0
+
+company_watchlist:
+  - name: "Moniepoint"
+    priority_multiplier: 1.2
+  - name: "LemFi"
+    priority_multiplier: 1.2
+
+sources:
+  # Only slugs verified to answer HTTP 200 are listed; none are guessed.
+  greenhouse:
+    enabled: true
+    companies: ["moniepoint", "canonical", "remote"]
+  lever:
+    # The only Lever slug this project had (deel) answers 404, and no iOS board
+    # was verified, so the source stays off rather than reporting degraded daily.
+    enabled: false
+    companies: []
+  ashby:
+    enabled: true
+    companies: ["lemfi", "linear", "ramp"]
+  remotive:
+    enabled: true
+    categories: ["software-dev"]
+  remoteok:
+    enabled: true
+    tags: ["swift", "ios", "mobile", "contract", "dev"]
+  arbeitnow:
+    enabled: true
+  jobicy:
+    enabled: true
+    category: "dev"
+  hackernews:
+    enabled: true
+    limit_stories: 1
+    # Off on purpose: the "Freelancer? Seeking freelancer?" thread has not been
+    # posted since February 2020.
+    freelancer_threads: false
+  twitter:
+    # Every observed run reported this source unreachable, so it is off here.
+    enabled: false
+    search_queries: []
+    monitored_accounts: []
+    max_tweets: 20
+  rss_feeds:
+    - name: "We Work Remotely (Programming)"
+      url: "https://weworkremotely.com/categories/remote-programming-jobs.rss"
+      enabled: true
+    - name: "Reddit r/forhire"
+      url: "https://www.reddit.com/r/forhire/new/.rss"
+      enabled: true
+
+link_verification:
+  enabled: true
+  timeout_seconds: 6.0
+  max_concurrency: 20
+  per_host_concurrency: 3
+  check_content_keywords: true
+  cache_ttl_hours: 24
+
+schedule:
+  timezone: "Africa/Lagos"
+  instant_alert_threshold: 8.5
+
+delivery:
+  email_provider: "resend"
+  recipient_email: "candidate@example.com"
+  from_email: "Job Intelligence <alerts@resend.dev>"
+  send_instant_alerts: true
+  send_daily_digest: true
+
+state:
+  retention_days: 90

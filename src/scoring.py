@@ -18,9 +18,16 @@ JUNIOR_LEVELS = {"junior", "entry", "intern", "internship"}
 SENIOR_LEVELS = {"senior", "lead", "staff", "principal", "director"}
 JUNIOR_TITLE = re.compile(r"(?<![a-z0-9])(interns?|internships?|junior|graduate|trainee)(?![a-z0-9])")
 REMOTE_TERMS = ("remote", "anywhere", "worldwide", "work from home")
+CONTRACT_TERMS = (
+    "contract", "contractor", "freelance", "freelancer", "c2c", "1099",
+    "fixed-term", "fixed term", "short-term", "short term", "consultant",
+    "consulting", "project-based", "project based",
+)
 LOCATION_WILDCARDS = {"remote", "worldwide", "anywhere"}
 STOPWORDS = {"and", "or", "of", "the", "a", "an", "for", "to", "in", "with", "&", "-", "/"}
 ATS_SOURCES = {"greenhouse", "lever", "ashby"}
+DEFAULT_DIGEST_THRESHOLD = 7.0
+ALERTABLE = ("digest", "instant")
 
 
 class ScoringEngine:
@@ -68,7 +75,7 @@ class ScoringEngine:
         else:
             is_junior_spec, is_senior_spec = years <= 2, years >= 5
 
-        if is_senior_spec and JUNIOR_TITLE.search(title_lower):
+        if is_senior_spec and not s.ignore_seniority and JUNIOR_TITLE.search(title_lower):
             return discard("Junior/Intern role mismatch for experienced candidate")
 
         # -------------------------------------------------------------
@@ -229,14 +236,22 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 7. EMPLOYMENT TYPE & JUNIOR SIGNALS
         # -------------------------------------------------------------
+        max_employment_weight = weights.employment_fit
+        employment_fraction = 0.0
         if s.employment_type:
             wanted = s.employment_type.lower().strip()
             job_type = (job.employment_type or "").lower().strip()
             if wanted in ("contract", "freelance", "c2c"):
-                contract_terms = ["contract", "contractor", "freelance", "c2c", "fixed-term", "fixed term", "project-based"]
-                if job_type == "contract" or any(contains_phrase(full_text, t) for t in contract_terms):
+                matched_terms = [t for t in CONTRACT_TERMS if contains_phrase(full_text, t)]
+                if job_type == "contract":
+                    employment_fraction = 1.0
                     breakdown.highlights.append("Contract / Freelance role match")
-                elif "full_time" in job_type and not contains_phrase(full_text, "contract"):
+                elif matched_terms:
+                    # The engagement is described in the text rather than typed by
+                    # the source, which is weaker evidence but still a match.
+                    employment_fraction = 0.8
+                    breakdown.highlights.append(f"Contract / Freelance role match ({matched_terms[0]})")
+                elif "full_time" in job_type:
                     breakdown.penalties_applied.append("Permanent full-time role (contract preferred)")
             elif wanted in ("internship", "intern"):
                 if job_type == "internship" or JUNIOR_TITLE.search(title_lower):
@@ -253,9 +268,18 @@ class ScoringEngine:
         # -------------------------------------------------------------
         # 8. TOTAL SCORE & TRIAGE
         # -------------------------------------------------------------
-        total_points = raw_title_score + raw_location_score + raw_comp_score + raw_company_score + raw_recency_score
+        raw_employment_score = employment_fraction * max_employment_weight
+        breakdown.employment_score = round(raw_employment_score, 2)
+
+        total_points = (
+            raw_title_score + raw_location_score + raw_comp_score
+            + raw_company_score + raw_recency_score + raw_employment_score
+        )
+        # employment_fit is 0 unless a spec asks for it, so tracks that do not use
+        # it divide by the same maximum as before.
         max_possible_points = (
-            max_title_stack_weight + max_location_weight + max_comp_weight + max_company_weight + max_recency_weight
+            max_title_stack_weight + max_location_weight + max_comp_weight
+            + max_company_weight + max_recency_weight + max_employment_weight
         )
         final_score = round(max(0.0, min(10.0, (total_points / max(max_possible_points, 1.0)) * 10.0)), 1)
 
@@ -264,21 +288,35 @@ class ScoringEngine:
         if best_role_match and title_match_ratio > 0:
             breakdown.highlights.insert(0, f"Role matches target '{best_role_match}'")
 
+        instant_threshold = s.instant_threshold if s.instant_threshold is not None else self.config.schedule.instant_alert_threshold
+        action = triage(final_score, instant_threshold, s.digest_threshold)
+        # Location and recency alone can carry a posting over a lowered digest
+        # threshold, so a track may insist its must-have skills actually appear.
+        if s.require_must_have and must_have and not matched_must and action in ALERTABLE:
+            action = "low_match"
+            breakdown.penalties_applied.append(
+                f"None of the must-have skills found ({', '.join(must_have[:3])}): held out of the digest"
+            )
         return ScoredJob(
             job=job,
             score=final_score,
-            action=triage(final_score, self.config.schedule.instant_alert_threshold),
+            action=action,
             breakdown=breakdown,
             spec_name=spec_name,
             scored_at=datetime.now(timezone.utc),
         )
 
 
-def triage(score: float, instant_threshold: float) -> str:
-    """<5 discard, 5–7 low match (dashboard only), 7–threshold digest, >= threshold instant."""
-    if score < 5.0:
+def triage(score: float, instant_threshold: float, digest_threshold: Optional[float] = None) -> str:
+    """<5 discard, 5–digest low match (dashboard only), digest–instant digest, >= instant instant.
+
+    `digest_threshold` defaults to 7.0. A track may lower it to surface more, in
+    which case nothing above it is ever merely a low match.
+    """
+    digest_at = DEFAULT_DIGEST_THRESHOLD if digest_threshold is None else digest_threshold
+    if score < min(5.0, digest_at):
         return "discard"
-    if score < 7.0:
+    if score < digest_at:
         return "low_match"
     if score < instant_threshold:
         return "digest"
