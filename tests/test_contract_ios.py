@@ -359,12 +359,21 @@ def test_daily_config_lists_the_contract_track_first():
     assert len(names) > 1, "the other tracks must still be present and merged into one digest"
 
 
-def test_daily_config_keeps_the_other_tracks_on_default_thresholds():
+def test_only_the_tracks_that_opted_in_have_custom_thresholds():
+    """Contract iOS and HR are deliberately lowered; the junior tracks are not."""
     daily = load_config(REPO_ROOT / "config" / "jobs.yaml")
-    for spec in daily.get_effective_job_specs()[1:]:
-        assert spec.digest_threshold is None
-        assert spec.instant_threshold is None
-        assert spec.scoring_weights.employment_fit == 0.0
+    thresholds = {s.name: (s.digest_threshold, s.instant_threshold) for s in daily.get_effective_job_specs()}
+
+    assert thresholds["Contract iOS (All Levels)"] == (6.0, 8.5)
+    assert thresholds["HR Remote Roles"] == (6.0, None), "the HR track is lowered to surface Nigerian roles"
+    for name, (digest, instant) in thresholds.items():
+        if name not in ("Contract iOS (All Levels)", "HR Remote Roles"):
+            assert (digest, instant) == (None, None), f"{name} should keep the defaults"
+
+    # employment_fit stays opt-in: only the contract track pays for it.
+    for spec in daily.get_effective_job_specs():
+        expected = 10.0 if spec.name == "Contract iOS (All Levels)" else 0.0
+        assert spec.scoring_weights.employment_fit == expected
 
 
 # --- digest rendering -------------------------------------------------------

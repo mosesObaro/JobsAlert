@@ -184,6 +184,7 @@ job_specs:
   excluded_companies:
   - Generic Staffing Corp
   require_location_fit: true
+  digest_threshold: 6.0
   scoring_weights: null
 - name: "Junior Swift/iOS Developer \u2014 Remote Contract"
   keywords:

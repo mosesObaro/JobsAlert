@@ -25,7 +25,6 @@ filters:
   excluded_terms:
     - "No C2C"
     - "W2 Only"
-    - "On-Site Only"
     - "Junior"
   excluded_companies: []
 
