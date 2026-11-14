@@ -86,6 +86,7 @@ job_specs:
     preferred_locations: ["Remote", "Worldwide", "EMEA", "Africa", "Nigeria", "Anywhere"]
     salary_floor_usd: null
     require_must_have: true
+    require_location_fit: true
     ignore_seniority: true
     digest_threshold: 6.0
     instant_threshold: 8.5
@@ -147,6 +148,27 @@ sources:
     search_queries: []
     monitored_accounts: []
     max_tweets: 20
+  linkedin:
+    enabled: true
+    searches:
+      # On-site and remote Nigerian roles: no employment-type or remote filter,
+      # and a week-wide window because local volume is low.
+      - name: "iOS and mobile roles in Nigeria"
+        keywords: "iOS Developer OR Swift OR Mobile Developer OR Mobile Engineer"
+        location: "Nigeria"
+        job_type: ""
+        time_posted: "r604800"
+        remote_only: false
+        max_results: 20
+      - name: "iOS contract roles"
+        keywords: "iOS Developer OR Swift Developer OR SwiftUI"
+        location: "Worldwide"
+        job_type: "C"
+        time_posted: "r86400"
+        remote_only: true
+        max_results: 10
+    request_delay_seconds: 2.0
+
   rss_feeds:
     - name: "We Work Remotely (Programming)"
       url: "https://weworkremotely.com/categories/remote-programming-jobs.rss"

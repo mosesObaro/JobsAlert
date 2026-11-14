@@ -59,7 +59,6 @@ filters:
   - Security Clearance Required
   - W2 Only
   - 10+ years required
-  - On-Site Only
   excluded_companies:
   - Generic Staffing Corp
 job_specs:
@@ -124,6 +123,7 @@ job_specs:
     recency_urgency: 15.0
     employment_fit: 10.0
   require_must_have: true
+  require_location_fit: true
   ignore_seniority: true
   digest_threshold: 6.0
   instant_threshold: 8.5
@@ -181,9 +181,10 @@ job_specs:
   - Security Clearance Required
   - W2 Only
   - 10+ years required
-  - On-Site Only
   excluded_companies:
   - Generic Staffing Corp
+  require_location_fit: true
+  digest_threshold: 6.0
   scoring_weights: null
 - name: "Junior Swift/iOS Developer \u2014 Remote Contract"
   keywords:
@@ -235,8 +236,8 @@ job_specs:
   - Senior Only
   - Lead Developer Only
   - 5+ years required
-  - On-Site Only
   excluded_companies: []
+  require_location_fit: true
   scoring_weights: null
 - name: "Junior Data Analyst \u2014 Remote Contract"
   keywords:
@@ -286,8 +287,8 @@ job_specs:
   - Security Clearance Required
   - Senior Only
   - 5+ years required
-  - On-Site Only
   excluded_companies: []
+  require_location_fit: true
   scoring_weights: null
 scoring_weights:
   title_and_stack: 40.0
@@ -421,28 +422,56 @@ sources:
     max_tweets: 30
   linkedin:
     enabled: true
+    # Nigeria first: searches run in order and LinkedIn rate-limits, so the
+    # ones that must not be dropped go before the worldwide sweeps. No
+    # employment-type or remote filter here, so on-site and remote Nigerian
+    # roles both arrive, and a week-wide window because local volume per
+    # track is far lower than worldwide.
     searches:
+    - name: HR roles in Nigeria
+      keywords: HR Generalist OR Recruiter OR Talent Acquisition OR People Operations
+      location: Nigeria
+      job_type: ''
+      time_posted: r604800
+      remote_only: false
+      max_results: 20
+    - name: iOS and mobile roles in Nigeria
+      keywords: iOS Developer OR Swift OR Mobile Developer OR Mobile Engineer
+      location: Nigeria
+      job_type: ''
+      time_posted: r604800
+      remote_only: false
+      max_results: 20
+    - name: Data analyst roles in Nigeria
+      keywords: Data Analyst OR BI Analyst OR SQL OR Data Analysis
+      location: Nigeria
+      job_type: ''
+      time_posted: r604800
+      remote_only: false
+      max_results: 20
+    # One page each: these already supply most of the digest, and keeping them
+    # short leaves request budget for the Nigerian searches above.
     - name: HR contract roles
       keywords: HR Generalist OR Recruiter OR Talent Acquisition OR People Operations
       location: Worldwide
       job_type: C
       time_posted: r86400
       remote_only: true
-      max_results: 20
+      max_results: 10
     - name: iOS contract roles
       keywords: iOS Developer OR Swift Developer OR SwiftUI
       location: Worldwide
       job_type: C
       time_posted: r86400
       remote_only: true
-      max_results: 20
+      max_results: 10
     - name: Data analyst contract roles
       keywords: Data Analyst OR BI Analyst OR SQL Analyst
       location: Worldwide
       job_type: C
       time_posted: r86400
       remote_only: true
-      max_results: 20
+      max_results: 10
     request_delay_seconds: 2.0
   rss_feeds:
   - name: We Work Remotely (Programming)

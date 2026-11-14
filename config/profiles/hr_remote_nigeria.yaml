@@ -59,7 +59,6 @@ filters:
   - Security Clearance Required
   - W2 Only
   - 10+ years required
-  - On-Site Only
   excluded_companies:
   - Generic Staffing Corp
 scoring_weights:
