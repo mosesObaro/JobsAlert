@@ -88,6 +88,11 @@ class JobSpecConfig(BaseModel):
     excluded_terms: List[str] = Field(default_factory=list)
     excluded_companies: List[str] = Field(default_factory=list)
     scoring_weights: Optional[ScoringWeightsConfig] = None
+    # True holds an on-site posting whose location is not one of the candidate's
+    # out of the digest. On-site roles are wanted where the candidate actually
+    # is, which is why "On-Site Only" is no longer a blanket exclusion, but an
+    # on-site role on another continent still is not useful.
+    require_location_fit: bool = False
     # True holds a posting that matches none of the must-have skills out of the
     # digest. It still scores and still shows in the dashboard's low matches, so
     # this is a precision gate, not a hard exclusion.
@@ -178,7 +183,10 @@ class LinkedInSearchConfig(BaseModel):
     name: str = ""  # label used in health reports
     keywords: str = ""
     location: str = "Worldwide"
-    job_type: str = "C"  # f_JT: C contract, F full time, P part time, T temporary, I internship
+    # f_JT: C contract, F full time, P part time, T temporary, I internship.
+    # "" sends no employment-type filter, which is how a market whose postings
+    # are mostly permanent still reaches the pipeline.
+    job_type: str = "C"
     time_posted: str = "r86400"  # f_TPR: seconds back to search; "" for no window
     remote_only: bool = False  # f_WT=2
     max_results: int = 30
@@ -186,8 +194,8 @@ class LinkedInSearchConfig(BaseModel):
     @field_validator("job_type")
     @classmethod
     def _known_job_type(cls, value: str) -> str:
-        code = (value or "C").strip().upper()
-        if code not in {"F", "P", "C", "T", "I", "V", "O"}:
+        code = (value or "").strip().upper()
+        if code and code not in {"F", "P", "C", "T", "I", "V", "O"}:
             raise ValueError(f"unknown LinkedIn f_JT code: {value!r}")
         return code
 

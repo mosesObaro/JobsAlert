@@ -58,6 +58,7 @@ def contract_spec(**overrides) -> JobSpecConfig:
         excluded_terms=["Security Clearance", "US Citizen", "US Only", "Intern", "Internship", "For Hire"],
         scoring_weights=CONTRACT_WEIGHTS,
         require_must_have=True,
+        require_location_fit=True,
         ignore_seniority=True,
         digest_threshold=6.0,
         instant_threshold=8.5,
@@ -387,3 +388,80 @@ def test_digest_leads_with_the_contract_section_and_shows_the_badge(ios_config):
     assert "Why You Match" in html and "Why You Match" in text
     # The permanent role keeps the plain engagement chip.
     assert "👔 Full time" in html
+
+
+# --- on-site Nigerian roles -------------------------------------------------
+
+def ng_job(**overrides) -> JobPosting:
+    fields = dict(
+        id="ng-1",
+        title="iOS Developer",
+        company="Acme NG",
+        location="Lagos, Nigeria",
+        is_remote=False,
+        remote_scope="On-Site",
+        url="https://example.com/jobs/ng",
+        description="Build iOS apps in Swift with UIKit from our Lagos office.",
+        employment_type="full_time",
+        source="linkedin",
+        posted_at=datetime.now(timezone.utc),
+    )
+    fields.update(overrides)
+    return JobPosting(**fields)
+
+
+def test_on_site_lagos_role_reaches_the_digest(ios_config):
+    """A candidate based in Lagos can take an on-site Lagos job."""
+    scored = score(ios_config, ng_job())
+
+    assert scored.action in ("digest", "instant")
+    assert scored.breakdown.location_score > 20.0
+    assert any("preferred on-site" in h for h in scored.breakdown.highlights)
+
+
+def test_on_site_wording_is_no_longer_a_hard_exclusion(ios_config):
+    """"On-Site Only" used to discard the posting outright, which ruled out
+    every on-site Nigerian role."""
+    scored = score(ios_config, ng_job(description="Swift and iOS work. On-Site Only, Lagos office."))
+
+    assert scored.action != "discard"
+    assert scored.score > 0.0
+
+
+def test_the_shipped_config_no_longer_excludes_on_site_anywhere():
+    daily = load_config(REPO_ROOT / "config" / "jobs.yaml")
+    assert "On-Site Only" not in daily.filters.excluded_terms
+    for spec in daily.get_effective_job_specs():
+        assert "On-Site Only" not in spec.excluded_terms, f"{spec.name} still excludes on-site roles"
+
+
+@pytest.mark.parametrize("location", ["Berlin, Germany", "New York, NY", "Nairobi, Kenya"])
+def test_a_distant_on_site_role_is_held_out_of_the_digest(ios_config, location):
+    """Dropping the "On-Site Only" exclusion must not let on-site roles the
+    candidate cannot reach into the digest: an on-site Berlin role scores 6.1,
+    which clears this track's 6.0 cut on its own."""
+    scored = score(ios_config, ng_job(location=location, description="Swift and iOS work. On-Site Only."))
+
+    assert scored.action not in ("digest", "instant")
+    assert any("Non-matching on-site location" in p for p in scored.breakdown.penalties_applied)
+    assert any("not listed" in p for p in scored.breakdown.penalties_applied)
+
+
+def test_the_location_gate_is_opt_in(ios_config):
+    """Without it a distant on-site role would reach the digest on score alone."""
+    job = ng_job(location="Berlin, Germany")
+    assert score(ios_config, job, contract_spec(require_location_fit=False)).action == "digest"
+    assert score(ios_config, job).action == "low_match"
+
+
+def test_the_location_gate_does_not_touch_remote_roles(ios_config):
+    """Only on-site mismatches are gated; remote reach is judged by eligibility."""
+    for location, scope in (("Remote (Worldwide)", "Worldwide"), ("Remote (Nigeria)", "Nigeria")):
+        scored = score(ios_config, ng_job(location=location, is_remote=True, remote_scope=scope))
+        assert scored.action in ("digest", "instant"), location
+
+
+def test_shipped_config_gates_on_site_location_on_every_track():
+    daily = load_config(REPO_ROOT / "config" / "jobs.yaml")
+    for spec in daily.get_effective_job_specs():
+        assert spec.require_location_fit is True, f"{spec.name} would admit distant on-site roles"

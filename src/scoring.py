@@ -121,6 +121,7 @@ class ScoringEngine:
         candidate = CandidateGeo.from_locations(preferred_locs)
         user_wants_remote = any(p.lower() in LOCATION_WILDCARDS for p in preferred_locs)
         loc_text = f"{job.location} {job.remote_scope}"
+        location_mismatch = False
         is_job_remote = job.is_remote or any(contains_phrase(loc_text, term) for term in REMOTE_TERMS)
 
         if is_job_remote:
@@ -149,6 +150,7 @@ class ScoringEngine:
                 breakdown.penalties_applied.append("Hybrid role (requires physical presence)")
             else:
                 location_score_fraction = 0.2
+                location_mismatch = True
                 breakdown.penalties_applied.append(f"Non-matching on-site location: {job.location}")
 
         raw_location_score = location_score_fraction * max_location_weight
@@ -292,6 +294,11 @@ class ScoringEngine:
         action = triage(final_score, instant_threshold, s.digest_threshold)
         # Location and recency alone can carry a posting over a lowered digest
         # threshold, so a track may insist its must-have skills actually appear.
+        if s.require_location_fit and location_mismatch and action in ALERTABLE:
+            action = "low_match"
+            breakdown.penalties_applied.append(
+                "On-site in a location you have not listed: held out of the digest"
+            )
         if s.require_must_have and must_have and not matched_must and action in ALERTABLE:
             action = "low_match"
             breakdown.penalties_applied.append(

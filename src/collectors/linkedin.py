@@ -251,9 +251,10 @@ class LinkedInCollector(BaseCollector):
         params = {
             "keywords": search.keywords,
             "location": search.location,
-            "f_JT": search.job_type.upper(),
             "start": str(start),
         }
+        if search.job_type:
+            params["f_JT"] = search.job_type.upper()
         if search.time_posted:
             params["f_TPR"] = search.time_posted
         if search.remote_only:

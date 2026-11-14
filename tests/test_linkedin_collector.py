@@ -390,3 +390,60 @@ def test_linkedin_is_registered_in_the_collector_registry():
     from src.collectors import get_all_collectors
 
     assert "linkedin" in [collector.name for collector in get_all_collectors()]
+
+
+# --- searching a specific market --------------------------------------------
+
+def test_blank_job_type_sends_no_employment_filter():
+    """Nigerian postings are mostly permanent, so f_JT=C would hide them."""
+    seen = []
+
+    def handler(request):
+        seen.append(dict(request.url.params))
+        return httpx.Response(200, text=PAGE)
+
+    config = configure(keywords="HR Generalist", location="Nigeria", job_type="", max_results=10)
+    jobs = asyncio.run(use_transport(LinkedInCollector(), handler).collect(config))
+
+    assert "f_JT" not in seen[0]
+    assert seen[0]["location"] == "Nigeria"
+    assert "f_WT" not in seen[0], "an on-site search must not be narrowed to remote"
+    assert jobs[0].employment_type == "full_time"
+
+
+def test_blank_job_type_is_accepted_but_a_bad_code_is_not():
+    assert LinkedInSearchConfig(keywords="x", job_type="").job_type == ""
+    assert LinkedInSearchConfig(keywords="x", job_type="  ").job_type == ""
+    with pytest.raises(ValidationError):
+        LinkedInSearchConfig(keywords="x", job_type="ZZ")
+
+
+def test_on_site_postings_are_not_marked_remote():
+    """Without remote_only, a Lagos office role keeps its on-site character."""
+    def handler(request):
+        return httpx.Response(200, text=card("501", "HR Generalist", "Acme NG", "Lagos, Lagos State, Nigeria"))
+
+    config = configure(keywords="HR", location="Nigeria", job_type="", remote_only=False, max_results=10)
+    job = asyncio.run(use_transport(LinkedInCollector(), handler).collect(config))[0]
+
+    assert job.is_remote is False
+    assert job.location == "Lagos, Lagos State, Nigeria"
+
+
+def test_shipped_config_searches_nigeria_for_every_track():
+    """The regression this fixes: every search asked for Worldwide remote only,
+    so no Nigerian posting ever entered the pipeline."""
+    from pathlib import Path
+
+    from src.config import load_config
+
+    cfg = load_config(Path(__file__).resolve().parents[1] / "config" / "jobs.yaml")
+    nigeria = [s for s in cfg.sources.linkedin.searches if s.location.lower() == "nigeria"]
+
+    assert len(nigeria) >= 3, "HR, mobile and data tracks each need a Nigerian search"
+    for search in nigeria:
+        assert search.remote_only is False, f"{search.name} would exclude on-site roles"
+        assert search.job_type == "", f"{search.name} would exclude permanent roles"
+    # Searches run in order and LinkedIn rate-limits, so these must not be last.
+    names = [s.name for s in cfg.sources.linkedin.searches]
+    assert names.index(nigeria[0].name) == 0, "Nigerian searches must run first"
