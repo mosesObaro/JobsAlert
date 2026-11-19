@@ -350,6 +350,20 @@ sources:
     - lemfi
     - linear
     - ramp
+  workable:
+    enabled: true
+    # Verified live 2026-11-19: 102 unique postings across these three boards,
+    # 94 of them in Nigeria. kuda moved here from Greenhouse, where its old
+    # token now answers 404.
+    companies:
+    - kuda
+    - fairmoney
+    - renmoney
+    categories: []
+    tags: []
+    category: null
+    limit_stories: 1
+    freelancer_threads: false
     categories: []
     tags: []
     category: null
