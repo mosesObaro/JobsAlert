@@ -115,7 +115,13 @@ export const LogsHealthTab: React.FC<Props> = ({ latestSummary }) => {
                       <badge.Icon className="w-3 h-3" aria-hidden="true" /> {badge.label}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-400">{found} found · {Math.round(source.latency_ms)} ms</div>
+                  <div className="text-xs text-slate-400">
+                    {found} found
+                    {source.new_postings !== undefined && ` · ${source.new_postings} new`}
+                    {source.duplicate_postings ? ` · ${source.duplicate_postings} seen before` : ''}
+                    {` · ${Math.round(source.latency_ms)} ms`}
+                  </div>
+                  {source.yield_note && <div className="text-xs text-sky-300/90 break-words">Yield: {source.yield_note}</div>}
                   {source.error_message && <div className="text-xs text-amber-300/90 break-words">{source.error_message}</div>}
                 </li>
               );

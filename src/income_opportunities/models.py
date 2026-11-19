@@ -224,6 +224,7 @@ class IncomeCollectorHealth(BaseModel):
     last_crawled: Optional[datetime] = None
     error_message: Optional[str] = None
     telemetry: Optional[SourceTelemetry] = None
+    yield_note: Optional[str] = None  # set when this run's count is far below recent runs
 
 
 class IncomeRunSummary(BaseModel):
