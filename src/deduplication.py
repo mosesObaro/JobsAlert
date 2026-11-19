@@ -121,11 +121,15 @@ class StateManager(JsonStateStore):
 
     @staticmethod
     def _fields(job: JobPosting) -> dict:
+        # `location` is additive: it is not part of the fingerprint and records
+        # written before it existed simply lack it, which makes cross-source
+        # matching decline to match them rather than guess.
         return {
             "company": job.company,
             "title": job.title,
             "canonical_url": job.url,
             "source": job.source,
+            "location": job.location,
         }
 
     def record_job(
