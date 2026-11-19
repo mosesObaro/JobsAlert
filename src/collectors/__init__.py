@@ -17,6 +17,7 @@ from src.collectors.hackernews import HackerNewsCollector
 from src.collectors.rss import RSSCollector
 from src.collectors.custom import CustomJobCollector
 from src.collectors.twitter import TwitterCollector
+from src.collectors.workable import WorkableCollector
 from src.collectors.linkedin import LinkedInCollector
 from src.collectors.hotnigerianjobs import HotNigerianJobsCollector
 from src.collectors.myjobmag import MyJobMagCollector
@@ -41,6 +42,7 @@ def get_all_collectors() -> List[BaseCollector]:
         LinkedInCollector(),
         MyJobMagCollector(),
         HotNigerianJobsCollector(),
+        WorkableCollector(),
     ]
 
 

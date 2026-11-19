@@ -238,6 +238,7 @@ class SourcesConfig(BaseModel):
     ashby: SourceSubConfig = Field(
         default_factory=lambda: SourceSubConfig(enabled=True, companies=["linear", "ramp", "retool"])
     )
+    workable: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True))
     remotive: SourceSubConfig = Field(
         default_factory=lambda: SourceSubConfig(enabled=True, categories=["software-dev"])
     )
