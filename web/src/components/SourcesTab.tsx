@@ -9,13 +9,14 @@ interface Props {
   onChange: (newConfig: AppConfig) => void;
 }
 
-type AtsKey = 'greenhouse' | 'lever' | 'ashby';
-type BoardKey = 'remotive' | 'remoteok' | 'arbeitnow' | 'jobicy';
+type AtsKey = 'greenhouse' | 'lever' | 'ashby' | 'workable';
+type BoardKey = 'remotive' | 'remoteok' | 'arbeitnow' | 'jobicy' | 'myjobmag' | 'hotnigerianjobs';
 
 const ATS: { key: AtsKey; name: string; host: string; example: string }[] = [
   { key: 'greenhouse', name: 'Greenhouse', host: 'boards-api.greenhouse.io', example: 'cloudflare, datadog' },
   { key: 'lever', name: 'Lever', host: 'api.lever.co', example: 'netflix, palantir' },
   { key: 'ashby', name: 'Ashby', host: 'api.ashbyhq.com', example: 'linear, ramp' },
+  { key: 'workable', name: 'Workable', host: 'apply.workable.com', example: 'kuda, fairmoney, renmoney' },
 ];
 
 const BOARDS: { key: BoardKey; name: string; description: string }[] = [
@@ -23,6 +24,8 @@ const BOARDS: { key: BoardKey; name: string; description: string }[] = [
   { key: 'remoteok', name: 'RemoteOK', description: 'Remote roles across tech and operations' },
   { key: 'arbeitnow', name: 'Arbeitnow', description: 'European and global remote roles' },
   { key: 'jobicy', name: 'Jobicy', description: 'Remote roles with salary and level data' },
+  { key: 'myjobmag', name: 'MyJobMag', description: 'Nigerian roles from its published job feed' },
+  { key: 'hotnigerianjobs', name: 'Hot Nigerian Jobs', description: 'Nigerian roles from its RSS feed' },
 ];
 
 export const SourcesTab: React.FC<Props> = ({ config, onChange }) => {

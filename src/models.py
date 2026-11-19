@@ -72,13 +72,20 @@ class SpecMatchGroup(BaseModel):
 
 
 class CrawlerHealth(BaseModel):
-    """Health and telemetry report for a specific job source."""
+    """Health and telemetry report for a specific job source.
+
+    The yield fields are additive: entries written before they existed simply
+    lack them, and `yield_note` stays None unless there is something to say.
+    """
     source_name: str
     status: str = "healthy"  # "healthy", "degraded", "error", "disabled"
     jobs_found: int = 0
     latency_ms: float = 0.0
     last_crawled: Optional[datetime] = None
     error_message: Optional[str] = None
+    new_postings: int = 0       # not seen in any previous run
+    duplicate_postings: int = 0  # already recorded, skipped before scoring
+    yield_note: Optional[str] = None  # set when this run's count is far below recent runs
 
 
 class RunSummary(BaseModel):

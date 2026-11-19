@@ -25,6 +25,7 @@ from src.income_opportunities.deduplication import IncomeStateManager
 from src.income_opportunities.models import IncomeRunSummary, ScoredOpportunity
 from src.income_opportunities.pipeline import IncomeEvaluation, IncomeOpportunityPipeline
 from src.models import MatchBreakdown, RunSummary, ScoredJob, SpecMatchGroup
+from src.monitoring import annotate
 from src.notifier.email_service import EmailNotifier
 from src.scoring import ScoringEngine
 from src.telemetry import append_run_log, read_run_logs
@@ -111,9 +112,12 @@ class JobPipeline:
         # 2. DEDUPLICATE -------------------------------------------------------
         new_jobs = []
         batch: Set[str] = set()
+        per_source_new: Dict[str, int] = {}
+        per_source_dupe: Dict[str, int] = {}
         for job in raw_jobs:
             fp = job.fingerprint
             if fp in batch:
+                per_source_dupe[job.source] = per_source_dupe.get(job.source, 0) + 1
                 continue
             batch.add(fp)
             if not state.is_seen(fp):
@@ -122,10 +126,23 @@ class JobPipeline:
                     state.adopt(job, alias)  # same posting recorded under an older fingerprint
             if state.is_seen(fp):
                 state.touch(fp)
+                per_source_dupe[job.source] = per_source_dupe.get(job.source, 0) + 1
                 if not force_all:
                     continue
+            else:
+                per_source_new[job.source] = per_source_new.get(job.source, 0) + 1
             new_jobs.append(job)
         print(f"🔍 [DEDUPLICATION] {len(new_jobs)} postings to score ({len(batch) - len(new_jobs)} already processed).")
+
+        # 2b. YIELD MONITORING -------------------------------------------------
+        # A source that answers 200 with an empty body looks healthy; only its
+        # own history shows otherwise. Notes never change a status, because a
+        # quiet day is a legitimate outcome.
+        for report in health:
+            report.new_postings = per_source_new.get(report.source_name, 0)
+            report.duplicate_postings = per_source_dupe.get(report.source_name, 0)
+        for warning in annotate(health + (income_ev.health if income_ev else []), read_run_logs(run_logs_file())):
+            print(f"   📉 [YIELD] {warning}")
 
         # 3. SCORE against every spec -----------------------------------------
         specs = config.get_effective_job_specs()

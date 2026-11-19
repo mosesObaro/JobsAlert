@@ -165,6 +165,9 @@ export interface AppConfig {
     hackernews: SourceSubConfig;
     twitter: TwitterConfig;
     linkedin: LinkedInConfig;
+    workable: SourceSubConfig;
+    myjobmag: SourceSubConfig;
+    hotnigerianjobs: SourceSubConfig;
     rss_feeds: RSSFeedConfig[];
   };
   link_verification: LinkVerificationConfig;
@@ -247,6 +250,9 @@ export interface CrawlerHealth {
   latency_ms: number;
   last_crawled?: string | null;
   error_message?: string | null;
+  new_postings?: number;
+  duplicate_postings?: number;
+  yield_note?: string | null;
 }
 
 export interface RunSummary {
