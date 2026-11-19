@@ -98,6 +98,7 @@ class RunSummary(BaseModel):
     emails_dispatched: int = 0
     delivery_errors: List[str] = Field(default_factory=list)
     pending_alerts: int = 0  # alert-worthy items left unsent; retried on the next live run
+    cross_source_duplicates: int = 0  # withheld because another source's copy was alerted
     links_checked: int = 0
     expired_links_removed: int = 0
     unverified_links: int = 0

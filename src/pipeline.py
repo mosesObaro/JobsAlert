@@ -19,6 +19,7 @@ from typing import Dict, List, Optional, Set, Tuple
 from src import paths
 from src.collectors import run_all_collectors
 from src.config import AppConfig
+from src.cross_source import DEFAULT_RANK, SOURCE_RANK, CrossSourceIndex, CrossSourceMatch
 from src.deduplication import StateManager
 from src.income_opportunities.deduplication import IncomeStateManager
 from src.income_opportunities.models import IncomeRunSummary, ScoredOpportunity
@@ -156,13 +157,38 @@ class JobPipeline:
         scored_jobs = [r for results in per_job.values() for r in results]
         best = {fp: max(results, key=lambda r: r.score) for fp, results in per_job.items()}
 
+        # 4b. CROSS-SOURCE DUPLICATES ------------------------------------------
+        # One vacancy published on several platforms keeps one record per source
+        # (fingerprints are source-scoped by design), but should only be alerted
+        # once. Candidates are examined employer-board first, so the copy that
+        # survives is the one carrying the real application link.
+        candidates = [b for fp, b in best.items() if b.action in ALERT_ACTIONS and not state.is_alerted(fp)]
+        cross_index = CrossSourceIndex(state.records)
+        suppressed: Dict[str, CrossSourceMatch] = {}
+        for result in sorted(candidates, key=lambda r: (SOURCE_RANK.get(r.job.source, DEFAULT_RANK), -r.score)):
+            duplicate = cross_index.find_duplicate(result.job)
+            if duplicate is None:
+                cross_index.add(result.job)
+                continue
+            suppressed[result.job.fingerprint] = duplicate
+            where = "already alerted" if duplicate.alerted else "alerted in this run"
+            for scored in per_job[result.job.fingerprint]:
+                scored.breakdown.penalties_applied.append(
+                    f"Same vacancy as the {duplicate.source} copy ({duplicate.reason}), {where}"
+                )
+        if suppressed:
+            print(f"🔁 [CROSS-SOURCE] {len(suppressed)} duplicate posting(s) held back; the other source's copy is alerted.")
+
         spec_groups: List[SpecMatchGroup] = []
         for spec in specs:
             matches = _by_score([r for r in scored_jobs if r.spec_name == spec.name and r.action in ALERT_ACTIONS])
-            unalerted = [m for m in matches if not state.is_alerted(m.job.fingerprint)]
+            unalerted = [
+                m for m in matches
+                if not state.is_alerted(m.job.fingerprint) and m.job.fingerprint not in suppressed
+            ]
             spec_groups.append(SpecMatchGroup(spec_name=spec.name, jobs=matches, unalerted_jobs=unalerted, total_matches=len(matches)))
 
-        alert_jobs = _by_score([b for fp, b in best.items() if b.action in ALERT_ACTIONS and not state.is_alerted(fp)])
+        alert_jobs = _by_score([b for b in candidates if b.job.fingerprint not in suppressed])
         instant_jobs = [b for b in alert_jobs if b.action == "instant"]
         income_instant = self.income_pipeline.unalerted(income_ev.instant) if income_ev else []
         income_digest = self.income_pipeline.select_for_digest(income_ev) if income_ev else []
@@ -230,7 +256,13 @@ class JobPipeline:
             instant_off = digest_off and not delivery.send_instant_alerts
             for fp, b in best.items():
                 if b.action in ALERT_ACTIONS and not state.is_alerted(fp) and fp not in delivered_jobs:
-                    skipped_on_purpose = (b.action == "digest" and digest_off) or (b.action == "instant" and instant_off)
+                    # A cross-source duplicate was withheld deliberately, so it is
+                    # recorded rather than queued for retry.
+                    skipped_on_purpose = (
+                        fp in suppressed
+                        or (b.action == "digest" and digest_off)
+                        or (b.action == "instant" and instant_off)
+                    )
                     if not skipped_on_purpose:
                         pending += 1  # retried on the next live run
                         continue
@@ -269,6 +301,7 @@ class JobPipeline:
             emails_dispatched=emails,
             delivery_errors=errors,
             pending_alerts=pending,
+            cross_source_duplicates=len(suppressed),
             links_checked=links_checked,
             expired_links_removed=dead_links + (income_ev.dead_links if income_ev else 0),
             unverified_links=unverified_links + (income_ev.unverified_links if income_ev else 0),
