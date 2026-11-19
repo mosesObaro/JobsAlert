@@ -18,6 +18,7 @@ from src.collectors.rss import RSSCollector
 from src.collectors.custom import CustomJobCollector
 from src.collectors.twitter import TwitterCollector
 from src.collectors.linkedin import LinkedInCollector
+from src.collectors.hotnigerianjobs import HotNigerianJobsCollector
 from src.collectors.myjobmag import MyJobMagCollector
 from src.config import AppConfig
 from src.models import CrawlerHealth, JobPosting
@@ -39,6 +40,7 @@ def get_all_collectors() -> List[BaseCollector]:
         TwitterCollector(),
         LinkedInCollector(),
         MyJobMagCollector(),
+        HotNigerianJobsCollector(),
     ]
 
 

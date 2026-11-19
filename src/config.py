@@ -250,6 +250,7 @@ class SourcesConfig(BaseModel):
     twitter: TwitterConfig = Field(default_factory=TwitterConfig)
     linkedin: LinkedInConfig = Field(default_factory=LinkedInConfig)
     myjobmag: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True))
+    hotnigerianjobs: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True))
     rss_feeds: List[RSSFeedConfig] = Field(default_factory=list)
 
 

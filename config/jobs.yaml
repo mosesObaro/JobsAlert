@@ -491,6 +491,16 @@ sources:
     category: null
     limit_stories: 1
     freelancer_threads: false
+  hotnigerianjobs:
+    # Nigerian board. Reads the RSS feed the site declares in its own pages; its
+    # robots.txt allows crawling, so these links are link-verified normally.
+    enabled: true
+    companies: []
+    categories: []
+    tags: []
+    category: null
+    limit_stories: 1
+    freelancer_threads: false
   rss_feeds:
   - name: We Work Remotely (Programming)
     url: https://weworkremotely.com/categories/remote-programming-jobs.rss
