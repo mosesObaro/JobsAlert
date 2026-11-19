@@ -320,31 +320,34 @@ company_watchlist:
 sources:
   greenhouse:
     enabled: true
+    # Verified live 2026-11-19. flutterwave, paystack and kuda answer 404 here and
+    # on Lever, Ashby and SmartRecruiters, so they are removed rather than guessed
+    # at; kuda's board is on Workable (no collector for it yet).
+    # automattic moved to the automatticcareers token.
     companies:
     - moniepoint
-    - flutterwave
-    - paystack
-    - kuda
     - remote
     - canonical
-    - automattic
+    - automatticcareers
     categories: []
     tags: []
     category: null
     limit_stories: 1
   lever:
+    # deel answers 404 and no Lever board was found for it. With no slugs the
+    # collector reports "disabled" rather than failing every run; add a verified
+    # slug here to switch it back on.
     enabled: true
-    companies:
-    - deel
+    companies: []
     categories: []
     tags: []
     category: null
     limit_stories: 1
   ashby:
     enabled: true
+    # scalearmy answers 404; no replacement board found.
     companies:
     - lemfi
-    - scalearmy
     - linear
     - ramp
     categories: []
@@ -405,7 +408,11 @@ sources:
     # posted since February 2020, so enabling it would only surface stale roles.
     freelancer_threads: false
   twitter:
-    enabled: true
+    # Off: measured 2026-11-19. Two Nitter mirrors fail DNS, xcancel.com answers
+    # HTTP 451 (legal block) and the syndication endpoint answers 429 for every
+    # account, so the source returned 0 postings and reported degraded on every
+    # run. The collector is kept intact; set this true to retry if mirrors return.
+    enabled: false
     search_queries:
     - remote hiring (HR OR recruiter OR "talent acquisition" OR "learning and development"
       OR L&D)
