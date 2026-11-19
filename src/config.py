@@ -249,6 +249,7 @@ class SourcesConfig(BaseModel):
     hackernews: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True, limit_stories=1))
     twitter: TwitterConfig = Field(default_factory=TwitterConfig)
     linkedin: LinkedInConfig = Field(default_factory=LinkedInConfig)
+    myjobmag: SourceSubConfig = Field(default_factory=lambda: SourceSubConfig(enabled=True))
     rss_feeds: List[RSSFeedConfig] = Field(default_factory=list)
 
 

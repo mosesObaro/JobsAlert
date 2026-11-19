@@ -31,8 +31,10 @@ from src.telemetry import append_run_log, read_run_logs
 from src.verifier import LinkVerifier
 
 ALERT_ACTIONS = ("instant", "digest")
-# Discussion permalinks never close, so checking them only burns requests.
-UNVERIFIABLE_SOURCES = {"hackernews"}
+# Sources whose links are deliberately not fetched: discussion permalinks never
+# close, and MyJobMag's robots.txt disallows crawling URLs with a query string,
+# which is the shape of its job links. The feed itself is published for syndication.
+UNVERIFIABLE_SOURCES = {"hackernews", "myjobmag"}
 
 
 def run_logs_file():
