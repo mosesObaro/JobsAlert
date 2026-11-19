@@ -508,6 +508,12 @@ sources:
   - name: Reddit r/forhire
     url: https://www.reddit.com/r/forhire/new/.rss
     enabled: true
+  - name: We Work Remotely (Management & Finance)
+    # Verified 2026-11-19: HTTP 200, 53 entries, newest the same day. This is the
+    # category We Work Remotely files people roles under; there is no
+    # remote-human-resources-jobs feed (it answers 301 with no body).
+    url: https://weworkremotely.com/categories/remote-management-and-finance-jobs.rss
+    enabled: true
 link_verification:
   enabled: true
   timeout_seconds: 6.0

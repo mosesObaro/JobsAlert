@@ -132,3 +132,39 @@ def test_every_enabled_job_spec_still_present(shipped):
         "Junior Swift/iOS Developer — Remote Contract",
         "Junior Data Analyst — Remote Contract",
     ]
+
+
+# --- international coverage (Phase 4) ----------------------------------------
+
+def test_the_we_work_remotely_people_feed_is_configured(shipped):
+    """Verified 2026-11-19: 53 entries, newest same day. This is the category
+    We Work Remotely files people roles under — there is no
+    remote-human-resources-jobs feed, which answers 301 with no body."""
+    urls = [f.url for f in shipped.sources.rss_feeds if f.enabled]
+    assert any("remote-management-and-finance-jobs.rss" in u for u in urls)
+
+
+def test_no_international_platform_was_integrated_without_a_permitted_route(shipped):
+    """Indeed, Glassdoor and Wellfound all disallow their job pages in
+    robots.txt and expose no public jobs API, so none of them is collected.
+    This pins that decision so a scraper is not added quietly later."""
+    configured = " ".join(
+        [f.url for f in shipped.sources.rss_feeds]
+        + [s.keywords + s.location for s in shipped.sources.linkedin.searches]
+    ).lower()
+    for blocked in ("indeed.com", "glassdoor.com", "wellfound.com", "angel.co"):
+        assert blocked not in configured
+
+
+def test_the_collector_registry_has_no_source_without_a_config_entry():
+    """Every registered collector must be switchable from configuration."""
+    from src.collectors import get_all_collectors
+    from src.config import AppConfig
+
+    sources = AppConfig().sources
+    # `custom` and `rss` are driven by data files and the feed list respectively.
+    exempt = {"custom", "rss"}
+    for collector in get_all_collectors():
+        if collector.name in exempt:
+            continue
+        assert hasattr(sources, collector.name), f"{collector.name} has no entry under SourcesConfig"
