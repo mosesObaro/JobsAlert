@@ -480,6 +480,17 @@ sources:
       remote_only: true
       max_results: 10
     request_delay_seconds: 2.0
+  myjobmag:
+    # Nigerian board. Reads the structured feed from MyJobMag's published feeds
+    # page (https://www.myjobmag.com/feeds/), which carries company, location,
+    # position and closing date as real fields.
+    enabled: true
+    companies: []
+    categories: []
+    tags: []
+    category: null
+    limit_stories: 1
+    freelancer_threads: false
   rss_feeds:
   - name: We Work Remotely (Programming)
     url: https://weworkremotely.com/categories/remote-programming-jobs.rss
